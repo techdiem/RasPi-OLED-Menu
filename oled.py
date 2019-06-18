@@ -1,38 +1,44 @@
 from time import sleep
 from luma.core.render import canvas
 from RPi import GPIO
-from menuBuilder import buildRadioMenu, buildMainMenu, buildIdle, menuUsed, buildShutdownMenu, buildSavedMenu
+from menuBuilder import buildRadioMenu, buildMainMenu, menuUsed, buildShutdownMenu, buildSavedMenu, drawIdle
 from setupHandler import client, device
 import initGlobals
+from subprocess import call
 #from offlineMusicPlayer import *
 
 print(client.mpd_version)
+menu = []
 
 def stopPlaying():
-    print("Wiedergabe stoppen")
+    global menu
+    client.stop()
+    initGlobals.activemenu = 0
 
 def playRadioStation():
     print("Starte Radio")
 
 def shutdownSystem():
     print("System herunterfahren")
-
-#Main program
-menu = buildIdle()
+    device.cleanup()
+    call("sudo shutdown -h now", shell=True)
 
 while True:
     counter = initGlobals.counter
     oldcounter = initGlobals.oldcounter
     activemenu = initGlobals.activemenu
     #Scrolling through the menu
-    if counter != oldcounter and counter <= len(menu) and counter >= 0:
-        oldcounter = counter
+    if activemenu != 0:
         with canvas(device) as draw:
-            menuUsed(draw, menu)
-    elif counter > len(menu)-1:
-        initGlobals.counter = 0
-    elif counter < 0:
-        initGlobals.counter = len(menu)
+            if counter != oldcounter and counter <= len(menu) and counter >= 0:
+                oldcounter = counter
+                menuUsed(draw, menu)
+            elif counter > len(menu)-1:
+                initGlobals.counter = 0
+            elif counter < 0:
+                initGlobals.counter = len(menu)
+    else:
+        drawIdle(device)
 
     #Select a menu entry
     if initGlobals.trigger == True:
@@ -40,7 +46,7 @@ while True:
         #IDLE screen
         if activemenu == 0: menu = buildMainMenu()
         #main menu
-        elif activemenu == 1 and counter == 0: menu = buildIdle()
+        elif activemenu == 1 and counter == 0: initGlobals.activemenu = 0
         elif activemenu == 1 and counter == 1: stopPlaying()
         elif activemenu == 1 and counter == 2: menu = buildRadioMenu()
         elif activemenu == 1 and counter == 3: menu = buildSavedMenu()
