@@ -22,17 +22,27 @@ def buildMenu(menuid):
     initglobals.counter = 0
     initglobals.oldcounter = -1
 
-def buildRadioMenu():
-    buildMenu(2)
-    menu = ["Sender1", "Sender2", "Sender3", "Sender4", "Sender5"]
+def buildIdle():
+    buildMenu(0)
+    menu = ["Test", "Test2"]
     return menu
 
 def buildMainMenu():
     buildMenu(1)
-    menu = ["Wiedergabe stoppen", "Radio", "gespeicherte Musik", "Ausschalten"]
+    menu = ["Zurück", "Wiedergabe stoppen", "Radio", "gespeicherte Musik", "Ausschalten"]
     return menu
 
-def buildIdle():
-    buildMenu(0)
-    menu = ["zurück", "2"]
+def buildRadioMenu():
+    buildMenu(2)
+    menu = ["Zurück", "Sender2", "Sender3", "Sender4", "Sender5"]
+    return menu
+
+def buildShutdownMenu():
+    buildMenu(3)
+    menu = ["Wirklich herunterfahren?", "", "Nein", "Ja"]
+    return menu
+
+def buildSavedMenu():
+    buildMenu(4)
+    menu = ["Zurück", "Musik starten", "Nächster Titel", "Vorheriger Titel"]
     return menu

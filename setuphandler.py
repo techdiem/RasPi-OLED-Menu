@@ -32,7 +32,6 @@ client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
 def menuaction(channel):
     print("Triggered")
     initglobals.trigger = True
-    print(initglobals.trigger)
 
 def rotary_detect(channel):  
     global clkLastState
