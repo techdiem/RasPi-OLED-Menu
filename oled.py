@@ -24,6 +24,8 @@ clkLastState = GPIO.input(clk)
 counter = 0
 oldcounter = -1
 trigger = 0
+activemenu = 1 #When IDLE screen is ready, change to 0
+oldactivemenu = -1
 
 def menuaction(channel):
     print("Triggered")
@@ -82,14 +84,22 @@ def menuUsed(draw, entries):
     draw.polygon(((0, 2+counter*12), (0, 10+counter*12), (5, 6+counter*12)), fill="white")
 
 while True:
-    if counter != oldcounter and counter <= len(buildMainMenu()) and counter >= 0:
+
+    if activemenu != oldactivemenu:
+        if activemenu == 1:
+            menu = buildMainMenu()
+        elif activemenu == 2:
+            menu = buildRadioMenu()
+        #Add other screens here
+
+    if counter != oldcounter and counter <= len(menu) and counter >= 0:
         oldcounter = counter
         with canvas(device) as draw:
-            menuUsed(draw, buildMainMenu())
-    elif counter > len(buildMainMenu())-1:
+            menuUsed(draw, menu)
+    elif counter > len(menu)-1:
         counter = 0
     elif counter < 0:
-        counter = len(buildMainMenu())
+        counter = len(menu)
 
 
 GPIO.cleanup()
