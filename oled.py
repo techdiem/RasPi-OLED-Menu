@@ -23,13 +23,13 @@ GPIO.setup(sw, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 clkLastState = GPIO.input(clk)
 counter = 0
 oldcounter = -1
-trigger = 0
-activemenu = 1 #When IDLE screen is ready, change to 0
-oldactivemenu = -1
+trigger = False
+activemenu = 0 #When IDLE screen is ready, change to 0
 
 def menuaction(channel):
+    global trigger
     print("Triggered")
-    trigger = 1
+    trigger = True
 
 def rotary_detect(channel):  
     global clkLastState
@@ -70,12 +70,27 @@ def drawmenu(draw, entries):
         menuentry(draw, 6, 2+position*12, entries[i])
         position += 1
 
+def buildMenu(menuid):
+    global activemenu
+    global counter
+    global oldcounter
+    activemenu = menuid
+    counter = 0
+    oldcounter = -1
+
 def buildRadioMenu():
+    buildMenu(2)
     menu = ["Sender1", "Sender2", "Sender3", "Sender4", "Sender5"]
     return menu
 
 def buildMainMenu():
+    buildMenu(1)
     menu = ["Wiedergabe stoppen", "Radio", "gespeicherte Musik", "Ausschalten"]
+    return menu
+
+def buildIdle():
+    buildMenu(0)
+    menu = ["zurück", "2"]
     return menu
 
 def menuUsed(draw, entries):
@@ -83,15 +98,14 @@ def menuUsed(draw, entries):
     drawmenu(draw, entries)
     draw.polygon(((0, 2+counter*12), (0, 10+counter*12), (5, 6+counter*12)), fill="white")
 
+
+#Main program
+
+menu = buildIdle()
+
 while True:
 
-    if activemenu != oldactivemenu:
-        if activemenu == 1:
-            menu = buildMainMenu()
-        elif activemenu == 2:
-            menu = buildRadioMenu()
-        #Add other screens here
-
+    #Scrolling through the menu
     if counter != oldcounter and counter <= len(menu) and counter >= 0:
         oldcounter = counter
         with canvas(device) as draw:
@@ -101,5 +115,17 @@ while True:
     elif counter < 0:
         counter = len(menu)
 
+    #Select a menu entry
+    if trigger == True:
+        trigger = False
+        #IDLE screen
+        if activemenu == 0:
+            menu = buildMainMenu()
+        #main menu
+        if activemenu == 1 and counter == 1:
+            menu = buildRadioMenu()
+        #radio menu
+        elif activemenu == 2 and counter == 0:
+            menu = buildMainMenu()
 
 GPIO.cleanup()
