@@ -23,23 +23,11 @@ GPIO.setup(sw, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 clkLastState = GPIO.input(clk)
 counter = 0
 oldcounter = -1
+trigger = 0
 
 def menuaction(channel):
     print("Triggered")
-    font = ImageFont.load_default()
-    global counter
-    
-    if counter == 1:
-        counter = -2
-        with canvas(device) as draw:
-            draw.text((20, 30), "Menü 1", font=font, fill="white")
-    elif counter == 2:
-        counter = -2
-        with canvas(device) as draw:
-            draw.text((20, 30), "Menü 2", font=font, fill="white")
-    elif counter == -2:
-        counter = 0
-
+    trigger = 1
 
 def rotary_detect(channel):  
     global clkLastState
@@ -80,18 +68,28 @@ def drawmenu(draw, entries):
         menuentry(draw, 6, 2+position*12, entries[i])
         position += 1
 
+def buildRadioMenu():
+    menu = ["Sender1", "Sender2", "Sender3", "Sender4", "Sender5"]
+    return menu
+
+def buildMainMenu():
+    menu = ["Wiedergabe stoppen", "Radio", "gespeicherte Musik", "Ausschalten"]
+    return menu
+
+def menuUsed(draw, entries):
+    global counter
+    drawmenu(draw, entries)
+    draw.polygon(((0, 2+counter*12), (0, 10+counter*12), (5, 6+counter*12)), fill="white")
+
 while True:
-    if counter != oldcounter and counter <= 4 and counter >= 0:
+    if counter != oldcounter and counter <= len(buildMainMenu()) and counter >= 0:
         oldcounter = counter
         with canvas(device) as draw:
-            mainmenu = ["Test 1", "Noch ein Eintrag", "Ich bins", "Noch Einer", "Nummero 5"]
-            drawmenu(draw, mainmenu)
-            # draw.polygon(((0, 2), (0, 10), (5, 6)), fill="white")
-            draw.polygon(((0, 2+counter*12), (0, 10+counter*12), (5, 6+counter*12)), fill="white")
-    elif counter == 5:
+            menuUsed(draw, buildMainMenu())
+    elif counter > len(buildMainMenu())-1:
         counter = 0
-    elif counter == -1:
-        counter = 4
+    elif counter < 0:
+        counter = len(buildMainMenu())
 
 
 GPIO.cleanup()
