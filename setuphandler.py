@@ -3,7 +3,7 @@ import configparser
 import musicpd
 from luma.oled.device import sh1106
 from luma.core.interface.serial import i2c
-import initglobals
+import initGlobals
 
 client = musicpd.MPDClient()
 
@@ -31,7 +31,7 @@ client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
 #Interrupt handler for re
 def menuaction(channel):
     print("Triggered")
-    initglobals.trigger = True
+    initGlobals.trigger = True
 
 def rotary_detect(channel):  
     global clkLastState
@@ -40,12 +40,12 @@ def rotary_detect(channel):
         if clkState != clkLastState:
             dtState = GPIO.input(dt)
             if dtState != clkState:
-                initglobals.counter += 1
+                initGlobals.counter += 1
             else:
-                initglobals.counter -= 1
+                initGlobals.counter -= 1
                 clkLastState = clkState
     finally:
-        print (initglobals.counter)
+        print (initGlobals.counter)
 
 GPIO.add_event_detect(clk, GPIO.FALLING, callback=rotary_detect, bouncetime=150)
 GPIO.add_event_detect(sw, GPIO.FALLING, callback=menuaction, bouncetime=300)

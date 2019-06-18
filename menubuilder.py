@@ -1,5 +1,5 @@
 from PIL import ImageFont
-import initglobals
+import initGlobals
 
 def menuentry(draw, x, y, text):
     font = ImageFont.load_default()
@@ -13,14 +13,14 @@ def drawmenu(draw, entries):
         position += 1
 
 def menuUsed(draw, entries):
-    counter = initglobals.counter
+    counter = initGlobals.counter
     drawmenu(draw, entries)
     draw.polygon(((0, 2+counter*12), (0, 10+counter*12), (5, 6+counter*12)), fill="white")
 
 def buildMenu(menuid):
-    initglobals.activemenu = menuid
-    initglobals.counter = 0
-    initglobals.oldcounter = -1
+    initGlobals.activemenu = menuid
+    initGlobals.counter = 0
+    initGlobals.oldcounter = -1
 
 def buildIdle():
     buildMenu(0)
@@ -39,7 +39,7 @@ def buildRadioMenu():
 
 def buildShutdownMenu():
     buildMenu(3)
-    menu = ["Wirklich herunterfahren?", "", "Nein", "Ja"]
+    menu = ["Wirklich herunterfahren?", "Nein", "Ja"]
     return menu
 
 def buildSavedMenu():
