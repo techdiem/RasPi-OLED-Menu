@@ -13,9 +13,9 @@ def posn(angle, arm_length):
     return (dx, dy)
 
 def menuentry(draw, x, y, text):
-    font = ImageFont.load_default()
+    font = ImageFont.truetype("bahnschrift.ttf", size=10)
     draw.rectangle((x, y, x+120, y+12), outline=255, fill=0)
-    draw.text((x+2, y+1), text, font=font, fill="white")
+    draw.text((x+2, y), text, font=font, fill="white")
 
 def drawmenu(draw, entries):
     position = 0
@@ -25,37 +25,17 @@ def drawmenu(draw, entries):
 
 def drawIdle(device):
     global today_last_time
+    clockfont = ImageFont.truetype("kristenITC.ttf", size=35)
+    font = ImageFont.truetype("calibri.ttf", size=12)
     now = datetime.datetime.now()
-    today_date = now.strftime("%d %b %y")
     today_time = now.strftime("%H:%M")
     if today_time != today_last_time:
         today_last_time = today_time
         with canvas(device) as draw:
             now = datetime.datetime.now()
-            today_date = now.strftime("%d %b %y")
 
-            margin = 4
-
-            cx = 30
-            cy = min(device.height, 64) / 2
-
-            left = cx - cy
-            right = cx + cy
-
-            hrs_angle = 270 + (30 * (now.hour + (now.minute / 60.0)))
-            hrs = posn(hrs_angle, cy - margin - 7)
-
-            min_angle = 270 + (6 * now.minute)
-            mins = posn(min_angle, cy - margin - 2)
-
-            draw.ellipse((left + margin, margin, right - margin, min(device.height, 64) - margin), outline="white")
-            draw.line((cx, cy, cx + hrs[0], cy + hrs[1]), fill="white")
-            draw.line((cx, cy, cx + mins[0], cy + mins[1]), fill="white")
-            draw.ellipse((cx - 2, cy - 2, cx + 2, cy + 2), fill="white", outline="white")
-            draw.text((2 * (cx + margin), cy - 8), today_date, fill="yellow")
-            draw.text((2 * (cx + margin), cy), today_time, fill="yellow")
-    sleep(0.1)
-
+            draw.text((20, 5), today_time, font=clockfont, fill="white")
+            draw.text((3, 50), "12345678901234567890", font=font, fill="white")
 
 def menuUsed(draw, entries):
     counter = initGlobals.counter

@@ -22,6 +22,7 @@ def shutdownSystem():
     print("System herunterfahren")
     device.cleanup()
     call("sudo shutdown -h now", shell=True)
+    exit()
 
 while True:
     counter = initGlobals.counter
