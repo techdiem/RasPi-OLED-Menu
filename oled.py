@@ -7,72 +7,76 @@ import initGlobals
 from subprocess import call
 #from offlineMusicPlayer import *
 
-print(client.mpd_version)
 menu = []
+page = 0
 
 def stopPlaying():
     client.stop()
     initGlobals.activemenu = 0
+    print("Playback stopped")
 
 def playRadioStation():
-    client.play(counter-1)
+    client.play(page + counter-1)
     initGlobals.activemenu = 0
     initGlobals.counter = 0
+    print("Playing station id", page + counter -1)
 
 def shutdownSystem():
-    print("System herunterfahren")
+    print("Shutting down system")
     device.cleanup()
     call("sudo shutdown -h now", shell=True)
     exit()
 
-page = 0
 while True:
-    counter = initGlobals.counter
-    oldcounter = initGlobals.oldcounter
-    activemenu = initGlobals.activemenu
-    #Scrolling through the menu
-    if activemenu != 0:
-        with canvas(device) as draw:
-            if counter != oldcounter and counter <= len(menu) and counter >= 0:
-                oldcounter = counter
-                loadmenu = []
-                for i in range(page, page + 5):
-                    if len(menu) >= i + 1:
-                        loadmenu.append(menu[i])
-                menuUsed(draw, loadmenu)
-            if page + counter > page + 3 and len(menu) > 5:
-                page += 1
-                initGlobals.counter -= 1
-            if page + counter > len(menu)-1:
-                initGlobals.counter = 0
-                page = 0
-            if counter < 0:
-                initGlobals.counter = 0
-    else:
-        drawIdle(device)
+    try:
+        counter = initGlobals.counter
+        oldcounter = initGlobals.oldcounter
+        activemenu = initGlobals.activemenu
+        #Scrolling through the menu
+        if activemenu != 0:
+            with canvas(device) as draw:
+                if counter != oldcounter and counter <= len(menu) and counter >= 0:
+                    oldcounter = counter
+                    loadmenu = []
+                    for i in range(page, page + 5):
+                        if len(menu) >= i + 1:
+                            loadmenu.append(menu[i])
+                    menuUsed(draw, loadmenu)
+                if page + counter > page + 3 and len(menu) > 5:
+                    page += 1
+                    initGlobals.counter -= 1
+                if page + counter > len(menu):
+                    initGlobals.counter = 0
+                    page = 0
+                if counter < 0:
+                    initGlobals.counter = 0
+        else:
+            drawIdle(device)
 
-    #Select a menu entry
-    if initGlobals.trigger == True:
-        initGlobals.trigger = False
-        #IDLE screen
-        if activemenu == 0: menu = buildMainMenu()
-        #main menu
-        elif activemenu == 1 and counter == 0: initGlobals.activemenu = 0
-        elif activemenu == 1 and counter == 1: stopPlaying()
-        elif activemenu == 1 and counter == 2: menu = buildRadioMenu()
-        elif activemenu == 1 and counter == 3: menu = buildSavedMenu()
-        elif activemenu == 1 and counter == 4: menu = buildShutdownMenu()
-        #radio menu
-        elif activemenu == 2 and counter == 0: menu = buildMainMenu()
-        elif activemenu == 2 and counter != 0: playRadioStation()
-        #shutdown menu
-        elif activemenu == 3 and counter < 2: menu = buildMainMenu()
-        elif activemenu == 3 and counter == 2: shutdownSystem()
-        #offline music menu
-        elif activemenu == 4 and counter == 0: menu == buildMainMenu()
-        # elif activemenu == 4 and counter == 1: offlineMusicPlay()
-        # elif activemenu == 4 and counter == 2: offlineMusicNext()
-        # elif activemenu == 4 and counter == 3: offlineMusicPrev()
+        #Select a menu entry
+        if initGlobals.trigger == True:
+            initGlobals.trigger = False
+            #IDLE screen
+            if activemenu == 0: menu = buildMainMenu()
+            #main menu
+            elif activemenu == 1 and counter == 0: initGlobals.activemenu = 0
+            elif activemenu == 1 and counter == 1: stopPlaying()
+            elif activemenu == 1 and counter == 2: menu = buildRadioMenu()
+            elif activemenu == 1 and counter == 3: menu = buildSavedMenu()
+            elif activemenu == 1 and counter == 4: menu = buildShutdownMenu()
+            #radio menu
+            elif activemenu == 2 and counter == 0: menu = buildMainMenu()
+            elif activemenu == 2 and counter != 0: playRadioStation()
+            #shutdown menu
+            elif activemenu == 3 and counter < 2: menu = buildMainMenu()
+            elif activemenu == 3 and counter == 2: shutdownSystem()
+            #offline music menu
+            elif activemenu == 4 and counter == 0: menu == buildMainMenu()
+            # elif activemenu == 4 and counter == 1: offlineMusicPlay()
+            # elif activemenu == 4 and counter == 2: offlineMusicNext()
+            # elif activemenu == 4 and counter == 3: offlineMusicPrev()
+    except KeyboardInterrupt:
+        print("Exiting...")
+        break
         
-
 GPIO.cleanup()

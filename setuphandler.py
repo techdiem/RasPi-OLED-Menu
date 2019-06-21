@@ -5,16 +5,20 @@ from luma.oled.device import sh1106
 from luma.core.interface.serial import i2c
 import initGlobals
 
+print("Starting OLED display on werkstattpi:")
 client = musicpd.MPDClient()
 
 #Setup OLED display
+print("Connect to display...")
 device = sh1106(i2c(port=1, address=0x3C))
 
 #Load Config
+print("Load configuration file")
 config = configparser.ConfigParser()
 config.read("settings.ini")
 
 #Set up rotary encoder
+print("Set up rotary encoder")
 clk = int(config.get('Pins', 'clk'))
 dt = int(config.get('Pins', 'dt'))
 sw = int(config.get('Pins', 'sw'))
@@ -26,9 +30,11 @@ GPIO.setup(sw, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 clkLastState = GPIO.input(clk)
 
 #Setup Connection to Mopidy
+print("Connect to Mopidy")
 client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
 client.clear()
 client.load("[Radio Streams]")
+print("MPD version", client.mpd_version)
 
 #Interrupt handler for re
 def menuaction(channel):
@@ -48,5 +54,9 @@ def rotary_detect(channel):
     except:
         print("rotary encoder error")
 
+print("Adding interrupts for rotary encoder")
 GPIO.add_event_detect(clk, GPIO.FALLING, callback=rotary_detect, bouncetime=150)
 GPIO.add_event_detect(sw, GPIO.FALLING, callback=menuaction, bouncetime=300)
+
+print("Setup ready!")
+print()
