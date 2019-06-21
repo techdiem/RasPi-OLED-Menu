@@ -32,7 +32,6 @@ client.load("[Radio Streams]")
 
 #Interrupt handler for re
 def menuaction(channel):
-    print("Triggered")
     initGlobals.trigger = True
 
 def rotary_detect(channel):  
@@ -46,8 +45,8 @@ def rotary_detect(channel):
             else:
                 initGlobals.counter -= 1
                 clkLastState = clkState
-    finally:
-        print (initGlobals.counter)
+    except:
+        print("rotary encoder error")
 
 GPIO.add_event_detect(clk, GPIO.FALLING, callback=rotary_detect, bouncetime=150)
 GPIO.add_event_detect(sw, GPIO.FALLING, callback=menuaction, bouncetime=300)

@@ -25,26 +25,29 @@ def shutdownSystem():
     call("sudo shutdown -h now", shell=True)
     exit()
 
+page = 0
 while True:
     counter = initGlobals.counter
     oldcounter = initGlobals.oldcounter
     activemenu = initGlobals.activemenu
-    page = 0
     #Scrolling through the menu
     if activemenu != 0:
         with canvas(device) as draw:
             if counter != oldcounter and counter <= len(menu) and counter >= 0:
                 oldcounter = counter
                 loadmenu = []
-                for i in range(page, page + 4):
-                    loadmenu.append(menu[i])
+                for i in range(page, page + 5):
+                    if len(menu) >= i + 1:
+                        loadmenu.append(menu[i])
                 menuUsed(draw, loadmenu)
-            elif counter > page + 4:
+            if page + counter > page + 3 and len(menu) > 5:
                 page += 1
-            elif counter > len(menu)-1:
+                initGlobals.counter -= 1
+            if page + counter > len(menu)-1:
                 initGlobals.counter = 0
-            elif counter < 0:
-                initGlobals.counter = len(menu)
+                page = 0
+            if counter < 0:
+                initGlobals.counter = 0
     else:
         drawIdle(device)
 
