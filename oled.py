@@ -15,7 +15,7 @@ def stopPlaying():
     initGlobals.activemenu = 0
 
 def playRadioStation():
-    client.play(counter)
+    client.play(counter-1)
     initGlobals.activemenu = 0
     initGlobals.counter = 0
 
@@ -29,12 +29,18 @@ while True:
     counter = initGlobals.counter
     oldcounter = initGlobals.oldcounter
     activemenu = initGlobals.activemenu
+    page = 0
     #Scrolling through the menu
     if activemenu != 0:
         with canvas(device) as draw:
             if counter != oldcounter and counter <= len(menu) and counter >= 0:
                 oldcounter = counter
-                menuUsed(draw, menu)
+                loadmenu = []
+                for i in range(page, page + 4):
+                    loadmenu.append(menu[i])
+                menuUsed(draw, loadmenu)
+            elif counter > page + 4:
+                page += 1
             elif counter > len(menu)-1:
                 initGlobals.counter = 0
             elif counter < 0:

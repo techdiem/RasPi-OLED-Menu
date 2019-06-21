@@ -5,6 +5,7 @@ import math
 import datetime
 from time import sleep
 from luma.core.render import canvas
+from setupHandler import client
 today_last_time = "Unknown"
 
 def posn(angle, arm_length):
@@ -54,7 +55,12 @@ def buildMainMenu():
 
 def buildRadioMenu():
     buildMenu(2)
-    menu = ["Zurück", "Sender2", "Sender3", "Sender4", "Sender5"]
+    savedStations = client.listplaylistinfo("[Radio Streams]")
+    menu = ["Zurück", ]
+
+    for station in savedStations:
+        menu.append(station["title"])
+
     return menu
 
 def buildShutdownMenu():
