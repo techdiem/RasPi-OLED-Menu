@@ -11,12 +11,13 @@ print(client.mpd_version)
 menu = []
 
 def stopPlaying():
-    global menu
     client.stop()
     initGlobals.activemenu = 0
 
 def playRadioStation():
-    print("Starte Radio")
+    client.play(counter)
+    initGlobals.activemenu = 0
+    initGlobals.counter = 0
 
 def shutdownSystem():
     print("System herunterfahren")
