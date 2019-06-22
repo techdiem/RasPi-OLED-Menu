@@ -36,7 +36,10 @@ def drawIdle(device):
             now = datetime.datetime.now()
 
             draw.text((20, 5), today_time, font=clockfont, fill="white")
-            draw.text((3, 50), "12345678901234567890", font=font, fill="white")
+            playingInfo = client.currentsong()
+            if playingInfo != {}:
+                currentSong = playingInfo["title"]
+                draw.text((3, 50), currentSong[0:21], font=font, fill="white")
 
 def menuUsed(draw, entries):
     counter = initGlobals.counter
