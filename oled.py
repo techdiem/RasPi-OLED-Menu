@@ -11,7 +11,7 @@ menu = []
 page = 0
 
 def stopPlaying():
-    client.stop()
+    client.pause()
     initGlobals.activemenu = 0
     print("Playback stopped")
 
@@ -23,6 +23,7 @@ def playRadioStation():
 
 def shutdownSystem():
     print("Shutting down system")
+    client.stop()
     device.cleanup()
     call("sudo shutdown -h now", shell=True)
     exit()

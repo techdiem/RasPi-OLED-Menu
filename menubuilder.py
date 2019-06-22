@@ -55,11 +55,14 @@ def buildMainMenu():
 
 def buildRadioMenu():
     buildMenu(2)
-    savedStations = client.listplaylistinfo("[Radio Streams]")
-    menu = ["Zurück", ]
+    try:
+        savedStations = client.listplaylistinfo("[Radio Streams]")
+        menu = ["Zurück", ]
 
-    for station in savedStations:
-        menu.append(station["title"])
+        for station in savedStations:
+            menu.append(station["title"])
+    except:
+        buildMainMenu()
 
     return menu
 
