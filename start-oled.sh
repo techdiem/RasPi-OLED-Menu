@@ -26,7 +26,6 @@ start() {
     fi
 }
 
-
 # Stoppen
 stop() {
     if ps ax | grep -v grep | grep -v -i SCREEN | grep $FILENAME > /dev/null
