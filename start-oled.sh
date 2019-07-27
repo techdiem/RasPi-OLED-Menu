@@ -2,7 +2,7 @@
 
 # Parameter
 FILENAME='oled.py'
-START="python3 $FILENAME"
+START="python3 $FILENAME 2>&1 | tee -a /home/pi/olederrors.log"
 SCREEN='oled'
 OLEDPATH='/home/pi/oled'
 
