@@ -5,6 +5,7 @@ from menuBuilder import buildRadioMenu, buildMainMenu, menuUsed, buildShutdownMe
 from setupHandler import client, device
 import initGlobals
 from subprocess import call
+import os
 #from offlineMusicPlayer import *
 
 menu = []
@@ -16,7 +17,10 @@ def stopPlaying():
     print("Playback stopped")
 
 def playRadioStation():
-    client.play(page + counter-1)
+    try:
+        client.play(page + counter-1)
+    except:
+        print("Error playing the station!")
     initGlobals.activemenu = 0
     initGlobals.counter = 0
     print("Playing station id", page + counter -1)
@@ -25,6 +29,12 @@ def shutdownSystem():
     print("Shutting down system")
     client.stop()
     device.cleanup()
+    #Debug mail
+    try:
+        os.remove("/home/pi/olederrors.log")
+    except:
+        pass
+
     call("sudo shutdown -h now", shell=True)
     exit()
 

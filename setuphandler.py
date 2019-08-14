@@ -31,10 +31,15 @@ clkLastState = GPIO.input(clk)
 
 #Setup Connection to Mopidy
 print("Connect to Mopidy")
-client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
-client.clear()
-client.load("[Radio Streams]")
-print("MPD version", client.mpd_version)
+try:
+    client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
+    client.clear()
+    client.load("[Radio Streams]")
+    print("MPD version", client.mpd_version)
+except:
+    print("Error connecting to Mopidy! Exiting...")
+    device.cleanup()
+    exit()
 
 #Interrupt handler for re
 def menuaction(channel):

@@ -37,7 +37,10 @@ def drawIdle(device):
             now = datetime.datetime.now()
 
             draw.text((20, 3), today_time, font=clockfont, fill="white")
-            playingInfo = client.currentsong()
+            try:
+                playingInfo = client.currentsong()
+            except:
+                playingInfo = {'title': 'Could not load name!'}
             if playingInfo != {}:
                 currentSong = playingInfo["title"]
                 draw.text((12, 48), currentSong[0:21], font=font, fill="white")
