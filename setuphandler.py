@@ -11,6 +11,7 @@ client = musicpd.MPDClient()
 #Setup OLED display
 print("Connect to display...")
 device = sh1106(i2c(port=1, address=0x3C))
+device.contrast(245)
 
 #Load Config
 print("Load configuration file")

@@ -69,7 +69,7 @@ def buildRadioMenu():
         for station in savedStations:
             menu.append(station["title"])
     except:
-        buildMainMenu()
+        menu = buildMainMenu()
         
     return menu
 
