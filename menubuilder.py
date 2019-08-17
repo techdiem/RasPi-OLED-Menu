@@ -29,11 +29,11 @@ def drawIdle(device):
     clockfont = ImageFont.truetype("fonts/kristenITC.ttf", size=35)
     font = ImageFont.truetype("fonts/calibri.ttf", size=12)
     fontawesome = ImageFont.truetype("fonts/fontawesome.ttf", size=12)
-    now = datetime.datetime.now()
-    today_time = now.strftime("%H:%M")
-    if today_time != today_last_time:
-        today_last_time = today_time
-        with canvas(device) as draw:
+    with canvas(device) as draw:
+        now = datetime.datetime.now()
+        today_time = now.strftime("%H:%M")
+        if today_time != today_last_time:
+            today_last_time = today_time
             now = datetime.datetime.now()
 
             draw.text((20, 3), today_time, font=clockfont, fill="white")
