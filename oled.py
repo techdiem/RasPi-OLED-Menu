@@ -1,12 +1,13 @@
 from time import sleep
 from luma.core.render import canvas
 from RPi import GPIO
-from menuBuilder import buildRadioMenu, buildMainMenu, menuUsed, buildShutdownMenu, buildSavedMenu, drawIdle
+from menuBuilder import buildRadioMenu, buildMainMenu, menuUsed, buildShutdownMenu, buildSavedMenu
 from setupHandler import client, device
 import initGlobals
 from subprocess import call
 import os
 #from offlineMusicPlayer import *
+import screens
 
 menu = []
 page = 0
@@ -62,7 +63,7 @@ while True:
                 if counter < 0:
                     initGlobals.counter = 0
         else:
-            drawIdle(device)
+            screens.idle.draw(device)
 
         #Select a menu entry
         if initGlobals.trigger == True:
