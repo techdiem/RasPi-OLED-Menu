@@ -1,4 +1,7 @@
-from RPi import GPIO
+#Only avaiable on raspberry pi
+try:
+    from RPi import GPIO
+except: pass
 import configparser
 import musicpd
 from luma.oled.device import sh1106

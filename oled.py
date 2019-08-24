@@ -1,6 +1,9 @@
 from time import sleep
 from luma.core.render import canvas
-from RPi import GPIO
+#Only avaiable on raspberry pi
+try:
+    from RPi import GPIO
+except: pass
 from menuBuilder import buildRadioMenu, buildMainMenu, menuUsed, buildShutdownMenu, buildSavedMenu
 from setupHandler import client, device
 import initGlobals
@@ -14,6 +17,7 @@ page = 0
 
 def stopPlaying():
     client.pause()
+    screens.today_last_time = "Unknown"
     initGlobals.activemenu = 0
     print("Playback stopped")
 
@@ -71,7 +75,9 @@ while True:
             #IDLE screen
             if activemenu == 0: menu = buildMainMenu()
             #main menu
-            elif activemenu == 1 and counter == 0: initGlobals.activemenu = 0
+            elif activemenu == 1 and counter == 0: 
+                screens.today_last_time = "Unknown"
+                initGlobals.activemenu = 0
             elif activemenu == 1 and counter == 1: stopPlaying()
             elif activemenu == 1 and counter == 2: menu = buildRadioMenu()
             elif activemenu == 1 and counter == 3: menu = buildSavedMenu()

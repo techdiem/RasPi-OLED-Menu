@@ -16,10 +16,10 @@ class idle():
         clockfont = ImageFont.truetype("fonts/kristenITC.ttf", size=35)
         font = ImageFont.truetype("fonts/calibri.ttf", size=12)
         fontawesome = ImageFont.truetype("fonts/fontawesome.ttf", size=12)
-        with canvas(device) as draw:
-            now = datetime.datetime.now()
-            today_time = now.strftime("%H:%M")
-            if today_time != today_last_time:
+        now = datetime.datetime.now()
+        today_time = now.strftime("%H:%M")
+        if today_time != today_last_time:
+            with canvas(device) as draw:
                 today_last_time = today_time
                 now = datetime.datetime.now()
 
@@ -35,10 +35,10 @@ class idle():
 
     #Runs when button is pressed
     @staticmethod
-    def action(self):
+    def trigger(self):
         pass
 
     #Runs when the rotary encoder is turned (counter changes)
     @staticmethod
-    def use(self):
+    def action(self):
         pass
