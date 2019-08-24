@@ -9,8 +9,10 @@ oldcounter = -1
 activemenu = 0 #defaults to IDLE screen
 ########
 
-def drawmenu(draw, entries):
+def menuUsed(draw, entries):
+    global counter
     position = 0
+    #Draw menu
     for i in range(len(entries)):
         x = 6
         y = 2+position*12
@@ -22,13 +24,9 @@ def drawmenu(draw, entries):
             draw.text((x+12, y), "Zurück", font=font, fill="white")
         else:
             draw.text((x+2, y), entries[i], font=font, fill="white")
-
         position += 1
 
-def menuUsed(draw, entries):
-    global counter
-    counter = counter
-    drawmenu(draw, entries)
+    #Draw entry selector
     draw.polygon(((0, 2+counter*12), (0, 10+counter*12), (5, 6+counter*12)), fill="white")
         
 def setScreen(screenid):
