@@ -6,7 +6,7 @@ import configparser
 import musicpd
 from luma.oled.device import sh1106
 from luma.core.interface.serial import i2c
-import initGlobals
+import helperFunctions
 
 print("Starting OLED display on werkstattpi:")
 client = musicpd.MPDClient()
@@ -47,7 +47,7 @@ except:
 
 #Interrupt handler for re
 def menuaction(channel):
-    initGlobals.trigger = True
+    helperFunctions.trigger = True
 
 def rotary_detect(channel):  
     global clkLastState
@@ -56,9 +56,9 @@ def rotary_detect(channel):
         if clkState != clkLastState:
             dtState = GPIO.input(dt)
             if dtState != clkState:
-                initGlobals.counter += 1
+                helperFunctions.counter += 1
             else:
-                initGlobals.counter -= 1
+                helperFunctions.counter -= 1
                 clkLastState = clkState
     except:
         print("rotary encoder error")
