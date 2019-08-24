@@ -13,7 +13,7 @@ start() {
         echo 'Display läuft bereits'
     else
         echo 'Display wird gestartet'
-        
+
         cd $OLEDPATH && screen -dmS $SCREEN $START
         sleep 7
 

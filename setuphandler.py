@@ -1,9 +1,12 @@
-from RPi import GPIO
+#Only avaiable on raspberry pi
+try:
+    from RPi import GPIO
+except: pass
 import configparser
 import musicpd
 from luma.oled.device import sh1106
 from luma.core.interface.serial import i2c
-import initGlobals
+import helperFunctions
 
 print("Starting OLED display on werkstattpi:")
 client = musicpd.MPDClient()
@@ -11,6 +14,7 @@ client = musicpd.MPDClient()
 #Setup OLED display
 print("Connect to display...")
 device = sh1106(i2c(port=1, address=0x3C))
+device.contrast(245)
 
 #Load Config
 print("Load configuration file")
@@ -31,14 +35,20 @@ clkLastState = GPIO.input(clk)
 
 #Setup Connection to Mopidy
 print("Connect to Mopidy")
-client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
-client.clear()
-client.load("[Radio Streams]")
-print("MPD version", client.mpd_version)
+try:
+    client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
+    client.clear()
+    client.load("[Radio Streams]")
+    print("MPD version", client.mpd_version)
+except:
+    print("Error connecting to Mopidy! Exiting...")
+    #TODO Retry!
+    device.cleanup()
+    exit()
 
 #Interrupt handler for re
 def menuaction(channel):
-    initGlobals.trigger = True
+    helperFunctions.trigger = True
 
 def rotary_detect(channel):  
     global clkLastState
@@ -47,9 +57,9 @@ def rotary_detect(channel):
         if clkState != clkLastState:
             dtState = GPIO.input(dt)
             if dtState != clkState:
-                initGlobals.counter += 1
+                helperFunctions.counter += 1
             else:
-                initGlobals.counter -= 1
+                helperFunctions.counter -= 1
                 clkLastState = clkState
     except:
         print("rotary encoder error")
