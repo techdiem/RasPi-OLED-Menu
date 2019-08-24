@@ -42,6 +42,7 @@ try:
     print("MPD version", client.mpd_version)
 except:
     print("Error connecting to Mopidy! Exiting...")
+    #TODO Retry!
     device.cleanup()
     exit()
 

@@ -3,7 +3,7 @@
 # Parameter
 FILENAME='oled.py'
 START="python3 $FILENAME"
-SCREEN='oled -L /home/pi/olederrors.log'
+SCREEN='oled'
 OLEDPATH='/home/pi/oled'
 
 #Starten
@@ -13,12 +13,6 @@ start() {
         echo 'Display läuft bereits'
     else
         echo 'Display wird gestartet'
-        
-        #Send debug mail if Log exists
-        file=/home/pi/olederrors.log
-        if [ -e "$file" ]; then
-            python3 /home/pi/oled/mailinfo.py
-        fi 
 
         cd $OLEDPATH && screen -dmS $SCREEN $START
         sleep 7

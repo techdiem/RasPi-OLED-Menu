@@ -1,5 +1,4 @@
 from PIL import ImageFont
-import initGlobals
 from setupHandler import client, device
 from subprocess import call
 
@@ -48,11 +47,13 @@ def shutdownSystem():
     exit()
 
 def playRadioStation(stationid):
-    global counter
-    global activemenu
+    setScreen(0)
     try:
         client.play(stationid)
     except:
         print("Error playing the station!")
-    setScreen(0)
     print("Playing station id", stationid)
+
+def pausePlaying():
+    setScreen(0)
+    client.pause()

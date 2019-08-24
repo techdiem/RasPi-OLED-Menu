@@ -3,26 +3,37 @@ try:
     from RPi import GPIO
 except: pass
 import screens
-from setupHandler import device
-from helperFunctions import activemenu, trigger
+from setupHandler import device, client
+import helperFunctions
+
+#Load radio station list
+try:
+    print("Loading radio stations")
+    savedStations = client.listplaylistinfo("[Radio Streams]")
+    radiomenu = ["Zurück", ]
+    for station in savedStations:
+        radiomenu.append(station['title'])
+except:
+    print("Error loading radio station list!")
+    exit()
 
 while True:
     try:
         #Draw active screen to display
-        if activemenu == 0: screens.idlescreen.draw(device)
-        elif activemenu == 1: screens.mainmenu.draw(device)
-        elif activemenu == 2: screens.radiomenu.draw(device)
-        elif activemenu == 3: screens.shutdownmenu.draw(device)
-        elif activemenu == 4: screens.savedmenu.draw(device)
+        if helperFunctions.activemenu == 0: screens.idlescreen.draw(device)
+        elif helperFunctions.activemenu == 1: screens.mainmenu.draw(device)
+        elif helperFunctions.activemenu == 2: screens.radiomenu.draw(device, radiomenu)
+        elif helperFunctions.activemenu == 3: screens.shutdownmenu.draw(device)
+        elif helperFunctions.activemenu == 4: screens.savedmenu.draw(device)
 
         #Send trigger event to active screen
-        if trigger == True:
-            trigger == False
-            if activemenu == 0: screens.idlescreen.trigger()
-            elif activemenu == 1: screens.mainmenu.trigger()
-            elif activemenu == 2: screens.radiomenu.trigger()
-            elif activemenu == 3: screens.shutdownmenu.trigger()
-            elif activemenu == 4: screens.savedmenu.trigger()
+        if helperFunctions.trigger == True:
+            helperFunctions.trigger = False
+            if helperFunctions.activemenu == 0: screens.idlescreen.trigger()
+            elif helperFunctions.activemenu == 1: screens.mainmenu.trigger()
+            elif helperFunctions.activemenu == 2: screens.radiomenu.trigger()
+            elif helperFunctions.activemenu == 3: screens.shutdownmenu.trigger()
+            elif helperFunctions.activemenu == 4: screens.savedmenu.trigger()
 
     except KeyboardInterrupt:
         print("Exiting...")
