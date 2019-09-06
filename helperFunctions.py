@@ -39,7 +39,9 @@ def setScreen(screenid):
 
 def shutdownSystem():
     print("Shutting down system")
-    client.stop()
+    try:
+        client.stop()
+    except: pass
     device.cleanup()
     call("sudo shutdown -h now", shell=True)
     exit()
