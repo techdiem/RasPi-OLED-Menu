@@ -17,7 +17,7 @@ class idlescreen():
         global today_last_time
         clockfont = ImageFont.truetype("fonts/kristenITC.ttf", size=35)
         font = ImageFont.truetype("fonts/calibri.ttf", size=12)
-        fontawesome = ImageFont.truetype("fonts/fontawesome.ttf", size=12)
+        fontawesome = ImageFont.truetype("fonts/fontawesome.otf", size=12)
         now = datetime.datetime.now()
         today_time = now.strftime("%H:%M")
         if today_time != today_last_time:
@@ -44,7 +44,7 @@ class idlescreen():
 class mainmenu():
     @staticmethod
     def draw(device):
-        fontawesome = ImageFont.truetype("fonts/fontawesome.ttf", size=18)
+        fontawesome = ImageFont.truetype("fonts/fontawesome.otf", size=18)
         counter = helperFunctions.counter
         if counter != helperFunctions.oldcounter and counter <= 4 and counter >= 0:
             helperFunctions.oldcounter = counter
