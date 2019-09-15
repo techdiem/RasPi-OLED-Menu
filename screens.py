@@ -44,14 +44,29 @@ class idlescreen():
 class mainmenu():
     @staticmethod
     def draw(device):
+        fontawesome = ImageFont.truetype("fonts/fontawesome.ttf", size=18)
         counter = helperFunctions.counter
-        menu = ["Zurück", "Wiedergabe stoppen", "Radio", "gespeicherte Musik", "Ausschalten"]
-        if counter != helperFunctions.oldcounter and counter <= len(menu) and counter >= 0:
+        if counter != helperFunctions.oldcounter and counter <= 4 and counter >= 0:
             helperFunctions.oldcounter = counter
             with canvas(device) as draw:
-                helperFunctions.menuUsed(draw, menu)
-
-        if counter > len(menu): counter = 0
+                #rectangle as selection marker
+                if counter < 3: #currently 3 icons in one row
+                    y = 2
+                    x = 5 + counter * 35
+                else:
+                    y = 35
+                    x = 5 + (counter - 3) * 35
+                draw.rectangle((x, y, x+25, y+25), outline=255, fill=0)
+                
+                #icons as menu buttons
+                draw.text((10, 5), text="\uf0a8", font=fontawesome, fill="white") #back
+                draw.text((45, 5), text="\uf28d", font=fontawesome, fill="white") #stop
+                draw.text((80, 5), text="\uf519", font=fontawesome, fill="white") #radio (old icon: f145)
+                draw.text((10, 40), text="\uf019", font=fontawesome, fill="white") #saved music
+                draw.text((45, 40), text="\uf011", font=fontawesome, fill="white") #shutdown
+        
+        #Keep the cursor in the screen
+        if counter > 4: counter = 0
         if counter < 0: counter = 0
     
     @staticmethod
