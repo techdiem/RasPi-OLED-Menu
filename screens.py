@@ -71,8 +71,8 @@ class mainmenu():
                 draw.text((45, 40), text="\uf011", font=fontawesome, fill="white") #shutdown
         
         #Keep the cursor in the screen
-        if counter > 4: counter = 0
-        if counter < 0: counter = 0
+        if counter > 4: helperFunctions.counter = 0
+        if counter < 0: helperFunctions.counter = 0
     
     @staticmethod
     def trigger():
@@ -116,8 +116,8 @@ class shutdownmenu():
                 draw.text((94, 25), text="Ja", font=font, fill="white")
                 draw.text((90, 40), text="\uf011", font=fontawesome, fill="white")
 
-        if counter > 1: counter = 0
-        if counter < 0: counter = 0
+        if counter > 1: helperFunctions.counter = 0
+        if counter < 0: helperFunctions.counter = 0
     @staticmethod
     def trigger():
         counter = helperFunctions.counter
@@ -135,8 +135,8 @@ class savedmenu():
             with canvas(device) as draw:
                 helperFunctions.menuUsed(draw, menu)
 
-        if counter > len(menu): counter = 0
-        if counter < 0: counter = 0
+        if counter > len(menu): helperFunctions.counter = 0
+        if counter < 0: helperFunctions.counter = 0
 
     @staticmethod
     def trigger():
@@ -164,11 +164,11 @@ class radiomenu():
         #Next page (scrolling)
         if page + counter > page + 3 and len(menu) > 5:
             page += 1
-            counter -= 1
+            helperFunctions.counter -= 1
         if page + counter > len(menu):
-            counter = 0
+            helperFunctions.counter = 0
             page = 0
-        if counter < 0: counter = 0
+        if counter < 0: helperFunctions.counter = 0
 
     @staticmethod
     def trigger():
