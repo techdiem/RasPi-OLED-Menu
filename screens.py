@@ -9,15 +9,23 @@ import helperFunctions
 today_last_time = "Unknown"
 page = 0
 
+#Fonts (TODO: Move to settings.ini)
+iconFont = "fonts/fontawesome.otf"
+textFont = "fonts/calibri.ttf"
+clockFont = "fonts/kristenITC.ttf"
+
 #IDLE screen with clock and current playing song (screenid: 0)
 class idlescreen():
     #Used in main Loop to create the screen
     @staticmethod
     def draw(device):
         global today_last_time
-        clockfont = ImageFont.truetype("fonts/kristenITC.ttf", size=35)
-        font = ImageFont.truetype("fonts/calibri.ttf", size=12)
-        fontawesome = ImageFont.truetype("fonts/fontawesome.otf", size=12)
+        global textFont
+        global iconFont
+        global clockFont
+        clockfont = ImageFont.truetype(clockFont, size=35)
+        font = ImageFont.truetype(textFont, size=12)
+        fontawesome = ImageFont.truetype(iconFont, size=12)
         now = datetime.datetime.now()
         today_time = now.strftime("%H:%M")
         if today_time != today_last_time:
@@ -44,7 +52,8 @@ class idlescreen():
 class mainmenu():
     @staticmethod
     def draw(device):
-        fontawesome = ImageFont.truetype("fonts/fontawesome.otf", size=18)
+        global iconFont
+        fontawesome = ImageFont.truetype(iconFont, size=18)
         counter = helperFunctions.counter
         if counter != helperFunctions.oldcounter and counter <= 4 and counter >= 0:
             helperFunctions.oldcounter = counter
@@ -75,7 +84,7 @@ class mainmenu():
         counter = helperFunctions.counter
         if counter == 0: 
             today_last_time = "Unknown"
-            helperFunctions.activemenu = 0
+            helperFunctions.setScreen(0)
         elif counter == 1:
             today_last_time = "Unknown"
             print("Playback stopped")
@@ -88,20 +97,36 @@ class mainmenu():
 class shutdownmenu():
     @staticmethod
     def draw(device):
-        menu = ["Wirklich herunterfahren?", "Nein", "Ja"]
+        global textFont
+        global iconFont
+        font = ImageFont.truetype(textFont, size=12)
+        fontawesome = ImageFont.truetype(iconFont, size=18)
         counter = helperFunctions.counter
-        if counter != helperFunctions.oldcounter and counter <= len(menu) and counter >= 0:
+        if counter != helperFunctions.oldcounter and counter <= 1 and counter >= 0:
             helperFunctions.oldcounter = counter
             with canvas(device) as draw:
-                helperFunctions.menuUsed(draw, menu)
+                draw.text((5, 2), text="Wirklich ausschalten?", font=font, fill="white")
+                if counter == 0:
+                    x = 15
+                    y = 22
+                else:
+                    x = 84
+                    y = 22
+                draw.rectangle((x, y, x+30, y+40), outline=255, fill=0)
 
-        if counter > len(menu): counter = 0
+                draw.text((18, 25), text="Nein", font=font, fill="white")
+                draw.text((20, 40), text="\uf0a8", font=fontawesome, fill="white")
+
+                draw.text((94, 25), text="Ja", font=font, fill="white")
+                draw.text((90, 40), text="\uf011", font=fontawesome, fill="white")
+
+        if counter > 1: counter = 0
         if counter < 0: counter = 0
     @staticmethod
     def trigger():
         counter = helperFunctions.counter
-        if counter < 2: helperFunctions.setScreen(1)
-        elif counter == 2: helperFunctions.shutdownSystem()
+        if counter == 0: helperFunctions.setScreen(1)
+        elif counter == 1: helperFunctions.shutdownSystem()
 
 #Saved music (screenid: 4)
 class savedmenu():

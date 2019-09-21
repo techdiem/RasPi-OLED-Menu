@@ -16,7 +16,7 @@ def menuUsed(draw, entries):
     for i in range(len(entries)):
         x = 6
         y = 2+position*12
-        fontawesome = ImageFont.truetype("fonts/fontawesome.ttf", size=10)
+        fontawesome = ImageFont.truetype("fonts/fontawesome.otf", size=10)
         font = ImageFont.truetype("fonts/bahnschrift.ttf", size=10)
         draw.rectangle((x, y, x+120, y+12), outline=255, fill=0)
         if entries[i] == "Zurück":
