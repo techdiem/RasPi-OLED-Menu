@@ -13,6 +13,9 @@ try:
     radiomenu = ["Zurück", ]
     for station in savedStations:
         radiomenu.append(station['title'])
+    
+    print("Setup ready!")
+    print()
 except:
     print("Error loading radio station list!")
     exit()

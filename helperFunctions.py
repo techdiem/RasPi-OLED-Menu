@@ -1,5 +1,5 @@
 from PIL import ImageFont
-from setupHandler import client, device
+from setupHandler import client, device, font_icons, font_text
 from subprocess import call
 
 #Software-wide public variables
@@ -11,13 +11,15 @@ activemenu = 0 #defaults to IDLE screen
 
 def menuUsed(draw, entries):
     global counter
+    global font_text
+    global font_icons
     position = 0
     #Draw menu
     for i in range(len(entries)):
         x = 6
         y = 2+position*12
-        fontawesome = ImageFont.truetype("fonts/fontawesome.otf", size=10)
-        font = ImageFont.truetype("fonts/bahnschrift.ttf", size=10)
+        fontawesome = ImageFont.truetype(font_icons, size=10)
+        font = ImageFont.truetype(font_text, size=10)
         draw.rectangle((x, y, x+120, y+12), outline=255, fill=0)
         if entries[i] == "Zurück":
             draw.text((x+2, y+1), text="\uf053", font=fontawesome, fill="white")

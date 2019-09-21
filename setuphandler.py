@@ -22,6 +22,12 @@ print("Load configuration file")
 config = configparser.ConfigParser()
 config.read("settings.ini")
 
+#Set fonts
+print("Loading font configuration")
+font_icons = config.get('Fonts', 'icons')
+font_text = config.get('Fonts', 'text')
+font_clock = config.get('Fonts', 'clock')
+
 #Set up rotary encoder
 print("Set up rotary encoder")
 clk = int(config.get('Pins', 'clk'))
@@ -84,6 +90,3 @@ GPIO.add_event_detect(clk, GPIO.RISING, callback=rotary_detect)
 GPIO.add_event_detect(dt, GPIO.RISING, callback=rotary_detect)
 #Push Button
 GPIO.add_event_detect(sw, GPIO.FALLING, callback=menuaction, bouncetime=300)
-
-print("Setup ready!")
-print()

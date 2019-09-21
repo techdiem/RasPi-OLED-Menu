@@ -5,14 +5,10 @@ import datetime
 ####
 from luma.core.render import canvas
 import helperFunctions
+from setupHandler import font_icons, font_text, font_clock
 
 today_last_time = "Unknown"
 page = 0
-
-#Fonts (TODO: Move to settings.ini)
-iconFont = "fonts/fontawesome.otf"
-textFont = "fonts/calibri.ttf"
-clockFont = "fonts/kristenITC.ttf"
 
 #IDLE screen with clock and current playing song (screenid: 0)
 class idlescreen():
@@ -20,12 +16,12 @@ class idlescreen():
     @staticmethod
     def draw(device):
         global today_last_time
-        global textFont
-        global iconFont
-        global clockFont
-        clockfont = ImageFont.truetype(clockFont, size=35)
-        font = ImageFont.truetype(textFont, size=12)
-        fontawesome = ImageFont.truetype(iconFont, size=12)
+        global font_icons
+        global font_text
+        global font_text
+        clockfont = ImageFont.truetype(font_clock, size=35)
+        font = ImageFont.truetype(font_text, size=12)
+        fontawesome = ImageFont.truetype(font_icons, size=12)
         now = datetime.datetime.now()
         today_time = now.strftime("%H:%M")
         if today_time != today_last_time:
@@ -52,8 +48,8 @@ class idlescreen():
 class mainmenu():
     @staticmethod
     def draw(device):
-        global iconFont
-        fontawesome = ImageFont.truetype(iconFont, size=18)
+        global font_icons
+        fontawesome = ImageFont.truetype(font_icons, size=18)
         counter = helperFunctions.counter
         if counter != helperFunctions.oldcounter and counter <= 4 and counter >= 0:
             helperFunctions.oldcounter = counter
@@ -97,10 +93,10 @@ class mainmenu():
 class shutdownmenu():
     @staticmethod
     def draw(device):
-        global textFont
-        global iconFont
-        font = ImageFont.truetype(textFont, size=12)
-        fontawesome = ImageFont.truetype(iconFont, size=18)
+        global font_text
+        global font_icons
+        font = ImageFont.truetype(font_text, size=12)
+        fontawesome = ImageFont.truetype(font_icons, size=18)
         counter = helperFunctions.counter
         if counter != helperFunctions.oldcounter and counter <= 1 and counter >= 0:
             helperFunctions.oldcounter = counter
