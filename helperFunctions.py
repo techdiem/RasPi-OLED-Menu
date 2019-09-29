@@ -1,6 +1,8 @@
 from PIL import ImageFont
-from setupHandler import client, device, font_icons, font_text
+from setupHandler import client, device, font_icons, font_text, config
 from subprocess import call
+from time import sleep
+import threading
 
 #Software-wide public variables
 counter = 0
@@ -9,7 +11,7 @@ oldcounter = -1
 activemenu = 0 #defaults to IDLE screen
 ########
 
-def menuUsed(draw, entries):
+def drawMenu(draw, entries):
     global counter
     global font_text
     global font_icons
@@ -49,13 +51,37 @@ def shutdownSystem():
     exit()
 
 def playRadioStation(stationid):
+    print("Playing station id", stationid)
     setScreen(0)
     try:
         client.play(stationid)
     except:
         print("Error playing the station!")
-    print("Playing station id", stationid)
+        reconnect()
 
 def pausePlaying():
     setScreen(0)
-    client.pause()
+    try:
+        client.pause()
+    except:
+        print("Error pausing the playback!")
+        reconnect()
+
+def mpd_reconnect():
+    #Disconnect
+    try:
+        client.close()
+    except: pass
+    sleep(10)
+    #Connect
+    try:
+        print("Reconnecting...")
+        client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
+        print("Successfully connected")
+    except: 
+        print("Reconnect failed, could not open the connection!")
+
+def reconnect():
+    #run reconnect in second thread
+    t = threading.Thread(target=mpd_reconnect)
+    t.start()

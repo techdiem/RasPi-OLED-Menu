@@ -18,7 +18,7 @@ class idlescreen():
         global today_last_time
         global font_icons
         global font_text
-        global font_text
+        global font_clock
         clockfont = ImageFont.truetype(font_clock, size=35)
         font = ImageFont.truetype(font_text, size=12)
         fontawesome = ImageFont.truetype(font_icons, size=12)
@@ -33,7 +33,9 @@ class idlescreen():
                 try:
                     playingInfo = helperFunctions.client.currentsong()
                 except:
+                    #connection lost -> restart
                     playingInfo = {'title': 'Could not load name!'}
+                    helperFunctions.reconnect()
                 if playingInfo != {}:
                     currentSong = playingInfo["title"]
                     draw.text((12, 48), currentSong[0:21], font=font, fill="white")
@@ -57,10 +59,10 @@ class mainmenu():
                 #rectangle as selection marker
                 if counter < 3: #currently 3 icons in one row
                     y = 2
-                    x = 5 + counter * 35
+                    x = 6 + counter * 35
                 else:
                     y = 35
-                    x = 5 + (counter - 3) * 35
+                    x = 6 + (counter - 3) * 35
                 draw.rectangle((x, y, x+25, y+25), outline=255, fill=0)
                 
                 #icons as menu buttons
@@ -133,7 +135,7 @@ class savedmenu():
         if counter != helperFunctions.oldcounter and counter <= len(menu) and counter >= 0:
             helperFunctions.oldcounter = counter
             with canvas(device) as draw:
-                helperFunctions.menuUsed(draw, menu)
+                helperFunctions.drawMenu(draw, menu)
 
         if counter > len(menu): helperFunctions.counter = 0
         if counter < 0: helperFunctions.counter = 0
@@ -160,7 +162,7 @@ class radiomenu():
                 for i in range(page, page + 5):
                     if len(menu) >= i + 1:
                         loadmenu.append(menu[i])
-                helperFunctions.menuUsed(draw, loadmenu)
+                helperFunctions.drawMenu(draw, loadmenu)
         #Next page (scrolling)
         if page + counter > page + 3 and len(menu) > 5:
             page += 1
