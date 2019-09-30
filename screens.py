@@ -59,7 +59,7 @@ class mainmenu():
                 #rectangle as selection marker
                 if counter < 3: #currently 3 icons in one row
                     y = 2
-                    x = 6 + counter * 35
+                    x = 7 + counter * 35
                 else:
                     y = 35
                     x = 6 + (counter - 3) * 35

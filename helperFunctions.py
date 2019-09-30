@@ -24,10 +24,10 @@ def drawMenu(draw, entries):
         font = ImageFont.truetype(font_text, size=10)
         draw.rectangle((x, y, x+120, y+12), outline=255, fill=0)
         if entries[i] == "Zurück":
-            draw.text((x+2, y+1), text="\uf053", font=fontawesome, fill="white")
-            draw.text((x+12, y), "Zurück", font=font, fill="white")
+            draw.text((x+2, y+2), text="\uf053", font=fontawesome, fill="white")
+            draw.text((x+12, y+1), "Zurück", font=font, fill="white")
         else:
-            draw.text((x+2, y), entries[i], font=font, fill="white")
+            draw.text((x+2, y+1), entries[i], font=font, fill="white")
         position += 1
 
     #Draw entry selector
