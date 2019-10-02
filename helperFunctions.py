@@ -13,8 +13,7 @@ activemenu = 0 #defaults to IDLE screen
 
 def drawMenu(draw, entries):
     global counter
-    global font_text
-    global font_icons
+    global font_text, font_icons
     position = 0
     #Draw menu
     for i in range(len(entries)):
@@ -34,9 +33,7 @@ def drawMenu(draw, entries):
     draw.polygon(((0, 2+counter*12), (0, 10+counter*12), (5, 6+counter*12)), fill="white")
         
 def setScreen(screenid):
-    global counter
-    global activemenu
-    global oldcounter
+    global counter, oldcounter, activemenu
     activemenu = screenid
     counter = 0
     oldcounter = -1
@@ -85,3 +82,11 @@ def reconnect():
     #run reconnect in second thread
     t = threading.Thread(target=mpd_reconnect)
     t.start()
+
+def drawStart():
+    global font_text
+    #NEW LOADINGSCREEN HERE
+
+def bigError(message):
+    global font_text, font_icons
+    #DEAD SMILEY ERROR PAGE HERE

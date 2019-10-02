@@ -8,28 +8,33 @@ import helperFunctions
 from setupHandler import font_icons, font_text, font_clock
 
 today_last_time = "Unknown"
+text_last_time = "Unknown"
+text_name = ""
+text_position
 page = 0
 
 #IDLE screen with clock and current playing song (screenid: 0)
 class idlescreen():
-    #Used in main Loop to create the screen
+    #Used in main loop to create the screen
     @staticmethod
     def draw(device):
         global today_last_time
-        global font_icons
-        global font_text
-        global font_clock
+        global font_icons, font_clock, font_text
+        global text_last_time, text_name, text_position
         clockfont = ImageFont.truetype(font_clock, size=35)
         font = ImageFont.truetype(font_text, size=12)
         fontawesome = ImageFont.truetype(font_icons, size=12)
         now = datetime.datetime.now()
         today_time = now.strftime("%H:%M")
+        text_time = now.strftime("%H:%M:%S") #time for running text
+
         if today_time != today_last_time:
             with canvas(device) as draw:
                 today_last_time = today_time
                 now = datetime.datetime.now()
-
                 draw.text((20, 3), today_time, font=clockfont, fill="white")
+
+                #Currently playing song name
                 try:
                     playingInfo = helperFunctions.client.currentsong()
                 except:
@@ -38,8 +43,20 @@ class idlescreen():
                     helperFunctions.reconnect()
                 if playingInfo != {}:
                     currentSong = playingInfo["title"]
-                    draw.text((12, 48), currentSong[0:21], font=font, fill="white")
-                    draw.text((0, 45), text="\uf001", font=fontawesome, fill="white")
+                    if currentSong != text_name:
+                        text_name = currentSong
+                        text_position = 0
+
+        #running text for currently playing song
+        if text_time != text_last_time and text_time % 2 == 0 and text_name != "":
+            if text_position < len(text_name):
+                with canvas(device) as draw:
+                    draw.text((0, 45), text="\uf001", font=fontawesome, fill="white") #music icon
+                    draw.text((12, 48), text_name[text_position:], font=font, fill="white")
+                text_position += 1
+            else:
+                text_position = 0
+
 
     #Runs when button is pressed
     @staticmethod
@@ -95,8 +112,7 @@ class mainmenu():
 class shutdownmenu():
     @staticmethod
     def draw(device):
-        global font_text
-        global font_icons
+        global font_text, font_icons
         font = ImageFont.truetype(font_text, size=12)
         fontawesome = ImageFont.truetype(font_icons, size=18)
         counter = helperFunctions.counter
@@ -179,4 +195,4 @@ class radiomenu():
         if counter == 0: helperFunctions.setScreen(1)
         elif counter != 0: 
             today_last_time = "Unknown"
-            helperFunctions.playRadioStation(page + helperFunctions.oldcounter -1)
+            helperFunctions.playRadioStation(page + helperFunctions.counter -1)

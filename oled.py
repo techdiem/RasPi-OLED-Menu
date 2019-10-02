@@ -3,22 +3,8 @@ try:
     from RPi import GPIO
 except: pass
 import screens
-from setupHandler import device, client
+from setupHandler import device, client, radiomenu
 import helperFunctions
-
-#Load radio station list
-try:
-    print("Loading radio stations")
-    savedStations = client.listplaylistinfo("[Radio Streams]")
-    radiomenu = ["Zurück", ]
-    for station in savedStations:
-        radiomenu.append(station['title'])
-    
-    print("Setup ready!")
-    print()
-except:
-    print("Error loading radio station list!")
-    exit()
 
 while True:
     try:
