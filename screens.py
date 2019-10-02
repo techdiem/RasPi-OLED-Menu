@@ -1,6 +1,5 @@
 from PIL import ImageFont
 ##Imports for clock##
-import math
 import datetime
 ####
 from luma.core.render import canvas

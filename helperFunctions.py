@@ -89,4 +89,4 @@ def drawStart():
 
 def bigError(message):
     global font_text, font_icons
-    #DEAD SMILEY ERROR PAGE HERE
+    #ERROR PAGE HERE
