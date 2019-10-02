@@ -6,7 +6,6 @@ from luma.core.render import canvas
 import helperFunctions
 from setupHandler import font_icons, font_text, font_clock
 
-today_last_time = "Unknown"
 text_last_time = "Unknown"
 text_name = ""
 text_position
@@ -17,7 +16,6 @@ class idlescreen():
     #Used in main loop to create the screen
     @staticmethod
     def draw(device):
-        global today_last_time
         global font_icons, font_clock, font_text
         global text_last_time, text_name, text_position
         clockfont = ImageFont.truetype(font_clock, size=35)
@@ -27,9 +25,9 @@ class idlescreen():
         today_time = now.strftime("%H:%M")
         text_time = now.strftime("%H:%M:%S") #time for running text
 
-        if today_time != today_last_time:
+        if today_time != helperFunctions.helperFunctions.today_last_time:
             with canvas(device) as draw:
-                today_last_time = today_time
+                helperFunctions.helperFunctions.today_last_time = today_time
                 now = datetime.datetime.now()
                 draw.text((20, 3), today_time, font=clockfont, fill="white")
 
@@ -94,13 +92,10 @@ class mainmenu():
     
     @staticmethod
     def trigger():
-        global today_last_time
         counter = helperFunctions.counter
         if counter == 0: 
-            today_last_time = "Unknown"
             helperFunctions.setScreen(0)
         elif counter == 1:
-            today_last_time = "Unknown"
             print("Playback stopped")
             helperFunctions.pausePlaying()
         elif counter == 2: helperFunctions.setScreen(2)
@@ -189,9 +184,7 @@ class radiomenu():
 
     @staticmethod
     def trigger():
-        global today_last_time
         counter = helperFunctions.counter
         if counter == 0: helperFunctions.setScreen(1)
         elif counter != 0: 
-            today_last_time = "Unknown"
             helperFunctions.playRadioStation(page + helperFunctions.counter -1)
