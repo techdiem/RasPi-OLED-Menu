@@ -1,45 +1,59 @@
 from PIL import ImageFont
 ##Imports for clock##
-import math
 import datetime
 ####
 from luma.core.render import canvas
 import helperFunctions
 from setupHandler import font_icons, font_text, font_clock
 
-today_last_time = "Unknown"
+text_name = ""
+text_position = 0
 page = 0
+today_last_time = "Unknown"
+clock_last_time = "Unknown" #used for clock and song-name pulling
 
 #IDLE screen with clock and current playing song (screenid: 0)
 class idlescreen():
-    #Used in main Loop to create the screen
+    #Used in main loop to create the screen
     @staticmethod
     def draw(device):
-        global today_last_time
-        global font_icons
-        global font_text
-        global font_clock
+        global font_icons, font_clock, font_text
+        global text_name, text_position
+        global today_last_time, clock_last_time
         clockfont = ImageFont.truetype(font_clock, size=35)
         font = ImageFont.truetype(font_text, size=12)
         fontawesome = ImageFont.truetype(font_icons, size=12)
         now = datetime.datetime.now()
-        today_time = now.strftime("%H:%M")
+        today_time = now.strftime("%H:%M:%S")
+        clock_time = now.strftime("%H:%M")
+
         if today_time != today_last_time:
             with canvas(device) as draw:
                 today_last_time = today_time
-                now = datetime.datetime.now()
+                draw.text((20, 3), clock_time, font=clockfont, fill="white")
 
-                draw.text((20, 3), today_time, font=clockfont, fill="white")
-                try:
-                    playingInfo = helperFunctions.client.currentsong()
-                except:
-                    #connection lost -> restart
-                    playingInfo = {'title': 'Could not load name!'}
-                    helperFunctions.reconnect()
-                if playingInfo != {}:
-                    currentSong = playingInfo["title"]
-                    draw.text((12, 48), currentSong[0:21], font=font, fill="white")
-                    draw.text((0, 45), text="\uf001", font=fontawesome, fill="white")
+                #Currently playing song name
+                if clock_time != clock_last_time:
+                    clock_last_time = clock_time
+                    try:
+                        playingInfo = helperFunctions.client.currentsong()
+                    except:
+                        #connection lost -> restart
+                        playingInfo = {'title': 'Could not load name!'}
+                        helperFunctions.reconnect()
+                    if playingInfo != {}:
+                        currentSong = playingInfo["title"]
+                        if currentSong != text_name:
+                            text_name = currentSong
+                            text_position = 0
+                
+                if text_name != "":
+                    draw.text((0, 45), text="\uf001", font=fontawesome, fill="white") #music icon
+                    if text_position < len(text_name):
+                        draw.text((12, 48), text_name[text_position:], font=font, fill="white")
+                        text_position += 1
+                    else:
+                        text_position = 0
 
     #Runs when button is pressed
     @staticmethod
@@ -78,13 +92,10 @@ class mainmenu():
     
     @staticmethod
     def trigger():
-        global today_last_time
         counter = helperFunctions.counter
         if counter == 0: 
-            today_last_time = "Unknown"
             helperFunctions.setScreen(0)
         elif counter == 1:
-            today_last_time = "Unknown"
             print("Playback stopped")
             helperFunctions.pausePlaying()
         elif counter == 2: helperFunctions.setScreen(2)
@@ -95,8 +106,7 @@ class mainmenu():
 class shutdownmenu():
     @staticmethod
     def draw(device):
-        global font_text
-        global font_icons
+        global font_text, font_icons
         font = ImageFont.truetype(font_text, size=12)
         fontawesome = ImageFont.truetype(font_icons, size=18)
         counter = helperFunctions.counter
@@ -174,9 +184,7 @@ class radiomenu():
 
     @staticmethod
     def trigger():
-        global today_last_time
         counter = helperFunctions.counter
         if counter == 0: helperFunctions.setScreen(1)
         elif counter != 0: 
-            today_last_time = "Unknown"
-            helperFunctions.playRadioStation(page + helperFunctions.oldcounter -1)
+            helperFunctions.playRadioStation(page + helperFunctions.counter -1)

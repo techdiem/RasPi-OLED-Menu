@@ -3,6 +3,7 @@ from setupHandler import client, device, font_icons, font_text, config
 from subprocess import call
 from time import sleep
 import threading
+from luma.core.render import canvas
 
 #Software-wide public variables
 counter = 0
@@ -13,8 +14,7 @@ activemenu = 0 #defaults to IDLE screen
 
 def drawMenu(draw, entries):
     global counter
-    global font_text
-    global font_icons
+    global font_text, font_icons
     position = 0
     #Draw menu
     for i in range(len(entries)):
@@ -34,9 +34,7 @@ def drawMenu(draw, entries):
     draw.polygon(((0, 2+counter*12), (0, 10+counter*12), (5, 6+counter*12)), fill="white")
         
 def setScreen(screenid):
-    global counter
-    global activemenu
-    global oldcounter
+    global counter, oldcounter, activemenu
     activemenu = screenid
     counter = 0
     oldcounter = -1
@@ -78,6 +76,7 @@ def mpd_reconnect():
         print("Reconnecting...")
         client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
         print("Successfully connected")
+
     except: 
         print("Reconnect failed, could not open the connection!")
 
