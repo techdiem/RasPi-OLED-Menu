@@ -2,9 +2,9 @@
 try:
     from RPi import GPIO
 except: pass
+import helperFunctions
 import screens
 from setupHandler import device, client, radiomenu
-import helperFunctions
 
 while True:
     try:

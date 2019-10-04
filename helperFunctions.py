@@ -3,13 +3,13 @@ from setupHandler import client, device, font_icons, font_text, config
 from subprocess import call
 from time import sleep
 import threading
+from luma.core.render import canvas
 
 #Software-wide public variables
 counter = 0
 trigger = False
 oldcounter = -1
 activemenu = 0 #defaults to IDLE screen
-today_last_time = "Unknown" #Located here instead of screens.py to reload screen when reconnecting
 ########
 
 def drawMenu(draw, entries):
@@ -35,11 +35,9 @@ def drawMenu(draw, entries):
         
 def setScreen(screenid):
     global counter, oldcounter, activemenu
-    global today_last_time
     activemenu = screenid
     counter = 0
     oldcounter = -1
-    today_last_time = "Unknown"
 
 def shutdownSystem():
     print("Shutting down system")
@@ -68,7 +66,6 @@ def pausePlaying():
         reconnect()
 
 def mpd_reconnect():
-    global today_last_time
     #Disconnect
     try:
         client.close()
@@ -79,7 +76,6 @@ def mpd_reconnect():
         print("Reconnecting...")
         client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
         print("Successfully connected")
-        today_last_time = "Unknown" #Reload idle screen to load title instead of error message
 
     except: 
         print("Reconnect failed, could not open the connection!")
@@ -88,11 +84,3 @@ def reconnect():
     #run reconnect in second thread
     t = threading.Thread(target=mpd_reconnect)
     t.start()
-
-def drawStart():
-    global font_text
-    #NEW LOADINGSCREEN HERE
-
-def bigError(message):
-    global font_text, font_icons
-    #ERROR PAGE HERE

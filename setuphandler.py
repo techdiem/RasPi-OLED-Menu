@@ -11,17 +11,14 @@ import helperFunctions
 from time import sleep
 import platform
 
+from PIL import ImageFont
+from luma.core.render import canvas
+
 mpdconnected = False
 mpdretries = 0
 
 print("Starting OLED display on", platform.node(), ":")
 print()
-
-#Setup OLED display
-print("Connect to display")
-device = sh1106(i2c(port=1, address=0x3C))
-device.contrast(245)
-helperFunctions.drawStart() #User should have something to look at during start
 
 #Load Config
 print("Load configuration file")
@@ -33,6 +30,35 @@ print("Loading font configuration")
 font_icons = config.get('Fonts', 'icons')
 font_text = config.get('Fonts', 'text')
 font_clock = config.get('Fonts', 'clock')
+
+#Functions for startscreen
+def drawStart():
+    global font_text, font_icons
+    with canvas(device) as draw:
+        font = ImageFont.truetype(font_text, size=12)
+        fontawesome = ImageFont.truetype(font_icons, size=35)
+
+        draw.text((25, 3), text="Wird gestartet...", font=font, fill="white")
+        draw.text((50, 25), text="\uf251", font=fontawesome, fill="white")
+
+def bigError(message):
+    global font_text, font_icons
+    with canvas(device) as draw:
+        font = ImageFont.truetype(font_text, size=12)
+        fontawesome = ImageFont.truetype(font_icons, size=35)
+
+        if len(text) > 23:
+            draw.text((5, 3), text=message[0:23], font=font, fill="white")
+            draw.text((5, 12), text=message[23:], font=font, fill="white")
+        else:
+            draw.text((5, 3), text=message, font=font, fill="white")
+        draw.text((50, 28), text="\uf071", font=fontawesome, fill="white")
+
+#Setup OLED display
+print("Connect to display")
+device = sh1106(i2c(port=1, address=0x3C))
+device.contrast(245)
+drawStart() #User should have something to look at during start
 
 #Set up rotary encoder
 print("Set up rotary encoder")
@@ -76,7 +102,7 @@ while not mpdconnected:
             except: pass
     else:
         print("Connection to MPD not possible. Exiting...")
-        helperFunctions.bigError("MPD Verbindung unterbrochen!")
+        bigError("MPD Verbindung unterbrochen!")
         sleep(10)
         device.cleanup()
         exit()

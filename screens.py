@@ -6,10 +6,11 @@ from luma.core.render import canvas
 import helperFunctions
 from setupHandler import font_icons, font_text, font_clock
 
-text_last_time = "Unknown"
 text_name = ""
-text_position
+text_position = 0
 page = 0
+today_last_time = "Unknown"
+clock_last_time = "Unknown" #used for clock and song-name pulling
 
 #IDLE screen with clock and current playing song (screenid: 0)
 class idlescreen():
@@ -17,43 +18,42 @@ class idlescreen():
     @staticmethod
     def draw(device):
         global font_icons, font_clock, font_text
-        global text_last_time, text_name, text_position
+        global text_name, text_position
+        global today_last_time, clock_last_time
         clockfont = ImageFont.truetype(font_clock, size=35)
         font = ImageFont.truetype(font_text, size=12)
         fontawesome = ImageFont.truetype(font_icons, size=12)
         now = datetime.datetime.now()
-        today_time = now.strftime("%H:%M")
-        text_time = now.strftime("%H:%M:%S") #time for running text
+        today_time = now.strftime("%H:%M:%S")
+        clock_time = now.strftime("%H:%M")
 
-        if today_time != helperFunctions.helperFunctions.today_last_time:
+        if today_time != today_last_time:
             with canvas(device) as draw:
-                helperFunctions.helperFunctions.today_last_time = today_time
-                now = datetime.datetime.now()
-                draw.text((20, 3), today_time, font=clockfont, fill="white")
+                today_last_time = today_time
+                draw.text((20, 3), clock_time, font=clockfont, fill="white")
 
                 #Currently playing song name
-                try:
-                    playingInfo = helperFunctions.client.currentsong()
-                except:
-                    #connection lost -> restart
-                    playingInfo = {'title': 'Could not load name!'}
-                    helperFunctions.reconnect()
-                if playingInfo != {}:
-                    currentSong = playingInfo["title"]
-                    if currentSong != text_name:
-                        text_name = currentSong
-                        text_position = 0
-
-        #running text for currently playing song
-        if text_time != text_last_time and text_time % 2 == 0 and text_name != "":
-            if text_position < len(text_name):
-                with canvas(device) as draw:
+                if clock_time != clock_last_time:
+                    clock_last_time = clock_time
+                    try:
+                        playingInfo = helperFunctions.client.currentsong()
+                    except:
+                        #connection lost -> restart
+                        playingInfo = {'title': 'Could not load name!'}
+                        helperFunctions.reconnect()
+                    if playingInfo != {}:
+                        currentSong = playingInfo["title"]
+                        if currentSong != text_name:
+                            text_name = currentSong
+                            text_position = 0
+                
+                if text_name != "":
                     draw.text((0, 45), text="\uf001", font=fontawesome, fill="white") #music icon
-                    draw.text((12, 48), text_name[text_position:], font=font, fill="white")
-                text_position += 1
-            else:
-                text_position = 0
-
+                    if text_position < len(text_name):
+                        draw.text((12, 48), text_name[text_position:], font=font, fill="white")
+                        text_position += 1
+                    else:
+                        text_position = 0
 
     #Runs when button is pressed
     @staticmethod
