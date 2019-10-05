@@ -49,8 +49,9 @@ class idlescreen():
                 
                 if text_name != "":
                     draw.text((0, 45), text="\uf001", font=fontawesome, fill="white") #music icon
-                    if text_position < len(text_name):
-                        draw.text((12, 48), text_name[text_position:], font=font, fill="white")
+                    text_print = text_name + "        " + text_name #8 spaces to create a nicer text flow
+                    if text_position < len(text_name) + 8:
+                        draw.text((12, 48), text_print[text_position:], font=font, fill="white")
                         text_position += 1
                     else:
                         text_position = 0
