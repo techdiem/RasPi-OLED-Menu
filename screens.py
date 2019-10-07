@@ -55,6 +55,7 @@ class idlescreen():
                         text_position += 1
                     else:
                         text_position = 0
+                        draw.text((12, 48), text_print[text_position:], font=font, fill="white")
 
     #Runs when button is pressed
     @staticmethod
