@@ -5,8 +5,10 @@ except: pass
 import helperFunctions
 import screens
 from setupHandler import device, client, radiomenu
+from time import sleep
 
 while True:
+    sleep(0.05)
     try:
         #Draw active screen to display
         if helperFunctions.activemenu == 0: screens.idlescreen.draw(device)
@@ -27,5 +29,6 @@ while True:
     except KeyboardInterrupt:
         print("Exiting...")
         break
-        
+
+    sleep(0.05)
 GPIO.cleanup()
