@@ -10,6 +10,9 @@ counter = 0
 trigger = False
 oldcounter = -1
 activemenu = 0 #defaults to IDLE screen
+loadedPlaylist = "[Radio Streams]" #Playlist is loaded during startup in setupHandler.py
+today_last_time = "Unknown"
+clock_last_time = "Unknown"
 ########
 
 def drawMenu(draw, entries):
@@ -35,9 +38,13 @@ def drawMenu(draw, entries):
         
 def setScreen(screenid):
     global counter, oldcounter, activemenu
+    global today_last_time, clock_last_time
     activemenu = screenid
     counter = 0
     oldcounter = -1
+    sleep(1)
+    today_last_time = "Unknown"
+    clock_last_time = "Unknown"
 
 def shutdownSystem():
     print("Shutting down system")
@@ -49,21 +56,25 @@ def shutdownSystem():
     exit()
 
 def playRadioStation(stationid):
-    print("Playing station id", stationid)
-    setScreen(0)
+    print("Playing ID", stationid)
     try:
         client.play(stationid)
     except:
         print("Error playing the station!")
         reconnect()
-
-def pausePlaying():
     setScreen(0)
+
+def playbackControl(command):
     try:
-        client.pause()
+        if command == "pause": client.pause()
+        elif command == "previous": client.previous()
+        elif command == "next": client.next()
+        elif command == "play": client.play()
+        print("Playback:", command)
     except:
-        print("Error pausing the playback!")
+        print("Error changing the playback mode!")
         reconnect()
+    setScreen(0)
 
 def mpd_reconnect():
     #Disconnect
