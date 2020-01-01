@@ -4,11 +4,11 @@ try:
 except: pass
 import helperFunctions
 import screens
-from setupHandler import device, client, radiomenu
+from setupHandler import device, client, radiomenu, shutdown
 from time import sleep
 
 while True:
-    sleep(0.05)
+    sleep(0.1)
     try:
         #Draw active screen to display
         if helperFunctions.activemenu == 0: screens.idlescreen.draw(device)
@@ -30,5 +30,5 @@ while True:
         print("Exiting...")
         break
 
-    sleep(0.05)
-GPIO.cleanup()
+    sleep(0.1)
+shutdown()

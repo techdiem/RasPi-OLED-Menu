@@ -1,5 +1,5 @@
 from PIL import ImageFont
-from setupHandler import client, device, font_icons, font_text, config
+from setupHandler import device, font_icons, font_text, config, client, establishConnection
 from subprocess import call
 from time import sleep
 import threading
@@ -42,7 +42,6 @@ def setScreen(screenid):
     activemenu = screenid
     counter = 0
     oldcounter = -1
-    sleep(1)
     today_last_time = "Unknown"
     clock_last_time = "Unknown"
 
@@ -61,7 +60,7 @@ def playRadioStation(stationid):
         client.play(stationid)
     except:
         print("Error playing the station!")
-        reconnect()
+        establishConnection()
     setScreen(0)
 
 def playbackControl(command):
@@ -73,25 +72,5 @@ def playbackControl(command):
         print("Playback:", command)
     except:
         print("Error changing the playback mode!")
-        reconnect()
+        establishConnection()
     setScreen(0)
-
-def mpd_reconnect():
-    #Disconnect
-    try:
-        client.close()
-    except: pass
-    sleep(10)
-    #Connect
-    try:
-        print("Reconnecting...")
-        client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
-        print("Successfully connected")
-
-    except: 
-        print("Reconnect failed, could not open the connection!")
-
-def reconnect():
-    #run reconnect in second thread
-    t = threading.Thread(target=mpd_reconnect)
-    t.start()

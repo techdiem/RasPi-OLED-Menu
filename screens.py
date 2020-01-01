@@ -4,7 +4,7 @@ import datetime
 ####
 from luma.core.render import canvas
 import helperFunctions
-from setupHandler import font_icons, font_text, font_clock
+from setupHandler import font_icons, font_text, font_clock, establishConnection
 
 #assign inital values to variables
 text_name = ""
@@ -43,7 +43,7 @@ class idlescreen():
                     except:
                         #connection lost -> restart
                         playingInfo = {'state': 'play'}
-                        helperFunctions.reconnect()
+                        establishConnection()
 
                     #Currently playing song name
                     try:
@@ -51,7 +51,7 @@ class idlescreen():
                     except:
                         #connection lost -> restart
                         playingInfo = {'title': 'Could not load name!'}
-                        helperFunctions.reconnect()
+                        establishConnection()
                     if playingInfo != {}:
                         currentSong = playingInfo["title"]
                         if currentSong != text_name:

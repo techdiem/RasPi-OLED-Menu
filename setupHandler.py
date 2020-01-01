@@ -3,19 +3,15 @@ try:
     from RPi import GPIO
 except: pass
 import configparser
-import musicpd
 import threading
 from luma.oled.device import sh1106
 from luma.core.interface.serial import i2c
-import helperFunctions
-from time import sleep
-import platform
-
 from PIL import ImageFont
 from luma.core.render import canvas
-
-mpdconnected = False
-mpdretries = 0
+import helperFunctions
+import musicpd
+from time import sleep
+import platform
 
 print("Starting OLED display on", platform.node(), ":")
 print()
@@ -41,6 +37,7 @@ def drawStart():
         draw.text((25, 3), text="Wird gestartet...", font=font, fill="white")
         draw.text((50, 25), text="\uf251", font=fontawesome, fill="white")
 
+#Error message on screen
 def bigError(message):
     global font_text, font_icons
     with canvas(device) as draw:
@@ -74,40 +71,83 @@ current_clk = 1
 current_dt = 1
 LockRotary = threading.Lock() #create lock for rotary switch
 
-#Setup Connection to Mopidy
-print("Connect to Mopidy")
+def shutdown():
+    global pingThread
+    #Stop the ping thread
+    pingThread.do_run = False
+    #Cleanup GPIO connections
+    GPIO.cleanup()
+    exit()
+
 client = musicpd.MPDClient()
-
-while not mpdconnected:
-    if mpdretries <= 5:
-        try:
-            client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
-            client.clear()
-            client.load("[Radio Streams]")
-            print("MPD version", client.mpd_version)
-
-            print("Loading radio stations")
-            savedStations = client.listplaylistinfo("[Radio Streams]")
-            radiomenu = ["Zurück", ]
-            for station in savedStations:
-                radiomenu.append(station['title'])
-
-            mpdconnected = True
-        except:
-            print("Error connecting to Mopidy! Retrying...")
-            try: 
-                client.disconnect() 
-                #for the case when it is connected but
-                #it isn't possible to load the radio stations
-            except: pass
+mpdconnected = False
+def establishConnectionHandler():
+    global client, config, mpdconnected
+    mpdretries = 0
+    while not mpdconnected:
+        if mpdretries <= 5:
+            try: #Try a disconnect if the connection is in unknown state
+                client.disconnect()
+            except:
+                pass
+            try: #Try to reconnect
+                client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
+                print("MPD version", client.mpd_version)
+                mpdconnected = True
+            except:
+                pass
             sleep(2)
-    else:
-        print("Connection to MPD not possible. Exiting...")
-        bigError("MPD Verbindung unterbrochen!")
-        sleep(10)
-        device.cleanup()
-        exit()
-    mpdretries += 1
+        else:
+            print("Connection to MPD not possibe, Exiting...")
+            bigError("MPD Verbindung unterbrochen!")
+            sleep(10)
+            shutdown()
+        mpdretries += 1
+
+def establishConnection():
+    global connectionThread, mpdconnected
+    mpdconnected = False
+    connectionThread = threading.Thread(target=establishConnectionHandler)
+    connectionThread.start()
+    connectionThread.join()
+
+#Function to keep MPD connection
+def asyncMPDPing():
+    global client
+    t = threading.currentThread()
+    while getattr(t, "do_run", True):
+        try:
+            client.ping()
+        except:
+            establishConnection()
+        sleep(55)
+
+def loadRadioPlaylist():
+    global radiomenu
+    try:
+        client.clear()
+        client.load("[Radio Streams]")
+
+        print("Loading radio stations")
+        savedStations = client.listplaylistinfo("[Radio Streams]")
+        radiomenu = ["Zurück", ]
+        for station in savedStations:
+            radiomenu.append(station['title'])
+    except:
+        establishConnection()
+
+def connectMPD():
+    global pingThread
+    print("Connect to Mopidy")
+    establishConnection()
+    #create new thread for pinging MPD
+    print("Create new thread for keeping the connection to MPD active")
+    pingThread = threading.Thread(target=asyncMPDPing)
+    pingThread.start()
+
+#Connect to MPD
+connectMPD()
+loadRadioPlaylist()
 
 #Interrupt handler for push button in rotary encoder
 def menuaction(channel):
@@ -136,7 +176,7 @@ def rotary_detect(channel):
             LockRotary.release()
 
 
-print("Attaching Interrupts")
+print("Attaching interrupts")
 #Rotary encoder
 GPIO.add_event_detect(clk, GPIO.RISING, callback=rotary_detect)
 GPIO.add_event_detect(dt, GPIO.RISING, callback=rotary_detect)
