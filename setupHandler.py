@@ -84,24 +84,18 @@ mpdconnected = False
 def establishConnectionHandler():
     global client, config, mpdconnected
     mpdretries = 0
-    while not mpdconnected:
-        if mpdretries <= 5:
-            try: #Try a disconnect if the connection is in unknown state
-                client.disconnect()
-            except:
-                pass
-            try: #Try to reconnect
-                client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
-                print("MPD version", client.mpd_version)
-                mpdconnected = True
-            except:
-                pass
-            sleep(2)
-        else:
-            print("Connection to MPD not possibe, Exiting...")
-            bigError("MPD Verbindung unterbrochen!")
-            sleep(10)
-            shutdown()
+    while not mpdconnected and mpdretries <= 5:
+        try: #Try a disconnect if the connection is in unknown state
+            client.disconnect()
+        except:
+            pass
+        try: #Try to reconnect
+            client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
+            print("MPD version", client.mpd_version)
+            mpdconnected = True
+        except:
+            pass
+        sleep(4)
         mpdretries += 1
 
 def establishConnection():
@@ -110,6 +104,11 @@ def establishConnection():
     connectionThread = threading.Thread(target=establishConnectionHandler)
     connectionThread.start()
     connectionThread.join()
+    if mpdconnected == False:
+        print("Connection to MPD not possibe, Exiting...")
+        bigError("MPD Verbindung unterbrochen!")
+        sleep(10)
+        shutdown()
 
 #Function to keep MPD connection
 asyncrun = threading.Event()
