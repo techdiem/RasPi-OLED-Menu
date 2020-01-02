@@ -72,9 +72,9 @@ current_dt = 1
 LockRotary = threading.Lock() #create lock for rotary switch
 
 def shutdown():
-    global pingThread
+    global asyncrun
     #Stop the ping thread
-    pingThread.do_run = False
+    asyncrun.set()
     #Cleanup GPIO connections
     GPIO.cleanup()
     exit()
@@ -112,22 +112,23 @@ def establishConnection():
     connectionThread.join()
 
 #Function to keep MPD connection
+asyncrun = threading.Event()
 def asyncMPDPing():
     global client
-    t = threading.currentThread()
-    while getattr(t, "do_run", True):
+    while not asyncrun.is_set():
         try:
             client.ping()
         except:
             establishConnection()
-        sleep(55)
+        asyncrun.wait(55)
+    print("Ping thread exited.")
 
 def loadRadioPlaylist():
     global radiomenu
     try:
         client.clear()
         client.load("[Radio Streams]")
-
+        helperFunctions.loadedPlaylist = "[Radio Streams]"
         print("Loading radio stations")
         savedStations = client.listplaylistinfo("[Radio Streams]")
         radiomenu = ["Zurück", ]

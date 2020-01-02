@@ -10,7 +10,7 @@ counter = 0
 trigger = False
 oldcounter = -1
 activemenu = 0 #defaults to IDLE screen
-loadedPlaylist = "[Radio Streams]" #Playlist is loaded during startup in setupHandler.py
+loadedPlaylist = "[Radio Streams]" #currently loaded Playlist; Radio Streams is loaded during startup
 today_last_time = "Unknown"
 clock_last_time = "Unknown"
 ########
@@ -74,3 +74,28 @@ def playbackControl(command):
         print("Error changing the playback mode!")
         establishConnection()
     setScreen(0)
+
+def loadPlaylists():
+    global playlists
+    try:
+        playlists = []
+        clientplaylists = client.listplaylists()
+        for playlist in clientplaylists:
+            if playlist["playlist"] != "[Radio Streams]":
+                playlists.append(playlist["playlist"])
+    except:
+        print("Error loading list of playlists!")
+        establishConnection()
+
+def loadPlaylist(name):
+    global loadedPlaylist
+    try:
+        client.clear()
+        client.load(name)
+        client.shuffle()
+        loadedPlaylist = name
+        print("Loaded and playing Playlist", name)
+        client.play()
+    except:
+        print("Error loading and playing Playlist", name)
+        establishConnection()

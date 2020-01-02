@@ -4,7 +4,7 @@ import datetime
 ####
 from luma.core.render import canvas
 import helperFunctions
-from setupHandler import font_icons, font_text, font_clock, establishConnection
+from setupHandler import font_icons, font_text, font_clock, establishConnection, loadRadioPlaylist
 
 #assign inital values to variables
 text_name = ""
@@ -78,9 +78,10 @@ class idlescreen():
             #Current music source and supported control buttons
             if helperFunctions.loadedPlaylist == "[Radio Streams]":
                 controlElements = 1
-                draw.text((3, 0), text="\uf519", font=faiconsbig, fill="white")
+                draw.text((3, 0), text="\uf519", font=faiconsbig, fill="white")#TODO: f1eb for airplay
             else:
                 controlElements = 3
+                draw.text((3, 0), text="\uf1c7", font=faiconsbig, fill="white")
                 
             #Runs when rotary encoder is turned
             if counter != helperFunctions.oldcounter and counter <= controlElements and counter >= 0:
@@ -140,7 +141,7 @@ class mainmenu():
                 #icons as menu buttons
                 draw.text((10, 5), text="\uf0a8", font=faicons, fill="white") #back
                 draw.text((45, 5), text="\uf519", font=faicons, fill="white") #radio (old icon: f145)
-                draw.text((80, 5), text="\uf019", font=faicons, fill="white") #saved music
+                draw.text((80, 5), text="\uf1c7", font=faicons, fill="white") #playlists
                 draw.text((10, 40), text="\uf011", font=faicons, fill="white") #shutdown
         
         #Keep the cursor in the screen
@@ -151,8 +152,13 @@ class mainmenu():
     def trigger():
         counter = helperFunctions.counter
         if counter == 0: helperFunctions.setScreen(0)
-        elif counter == 1: helperFunctions.setScreen(2)
-        elif counter == 2: helperFunctions.setScreen(4)
+        elif counter == 1: 
+            if helperFunctions.loadedPlaylist != "[Radio Streams]":
+                loadRadioPlaylist()
+            helperFunctions.setScreen(2)
+        elif counter == 2: 
+            helperFunctions.loadPlaylists()
+            helperFunctions.setScreen(4)
         elif counter == 3: helperFunctions.setScreen(3)
 
 #Shutdown menu (screenid: 3)
@@ -190,26 +196,40 @@ class shutdownmenu():
         elif counter == 1: helperFunctions.shutdownSystem()
 
 #Saved music (screenid: 4)
-class savedmenu():
+class playlistmenu():
     @staticmethod
     def draw(device):
-        menu = ["Zurück", "Musik starten", "Nächster Titel", "Vorheriger Titel"]
+        global page
+        menu = helperFunctions.playlists
         counter = helperFunctions.counter
+        menu = ["Zurück"] + menu
         if counter != helperFunctions.oldcounter and counter <= len(menu) and counter >= 0:
             helperFunctions.oldcounter = counter
             with canvas(device) as draw:
-                helperFunctions.drawMenu(draw, menu)
-
-        if counter > len(menu): helperFunctions.counter = 0
+                loadmenu = []
+                for i in range(page, page + 5):
+                    if len(menu) >= i + 1:
+                        loadmenu.append(menu[i])
+                helperFunctions.drawMenu(draw, loadmenu)
+        #Next page (scrolling)
+        if page + counter > page + 3 and len(menu) > 5:
+            page += 1
+            helperFunctions.counter -= 1
+        if page + counter > len(menu):
+            helperFunctions.counter = 0
+            page = 0
         if counter < 0: helperFunctions.counter = 0
 
     @staticmethod
     def trigger():
         counter = helperFunctions.counter
-        if counter == 0: helperFunctions.setScreen(0)
-        # elif counter == 1: offlineMusicPlay()
-        # elif counter == 2: offlineMusicNext()
-        # elif counter == 3: offlineMusicPrev()
+        menu = helperFunctions.playlists
+        if counter == 0: 
+            helperFunctions.setScreen(0)
+        else:
+            helperFunctions.loadPlaylist(menu[page+counter-1])
+            helperFunctions.setScreen(0)
+
 
 #Radio station list (screenid: 2)
 class radiomenu():
@@ -240,4 +260,4 @@ class radiomenu():
         counter = helperFunctions.counter
         if counter == 0: helperFunctions.setScreen(1)
         elif counter != 0: 
-            helperFunctions.playRadioStation(page + helperFunctions.counter -1)
+            helperFunctions.playRadioStation(page+counter-1)
