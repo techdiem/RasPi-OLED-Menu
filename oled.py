@@ -3,9 +3,13 @@ try:
     from RPi import GPIO
 except: pass
 import helperFunctions
-import screens
-from setupHandler import device, client, radiomenu, shutdown
+from setupHandler import device, client, shutdown, radiomenu
 from time import sleep
+import screens.idlescreen
+import screens.mainmenu
+import screens.playlistmenu
+import screens.radiomenu
+import screens.shutdownmenu
 
 while True:
     try:

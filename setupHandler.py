@@ -6,12 +6,12 @@ import configparser
 import threading
 from luma.oled.device import sh1106
 from luma.core.interface.serial import i2c
-from PIL import ImageFont
-from luma.core.render import canvas
 import helperFunctions
 import musicpd
 from time import sleep
 import platform
+#import screens.bigerror
+#import screens.startscreen
 
 print("Starting OLED display on", platform.node(), ":")
 print()
@@ -27,35 +27,11 @@ font_icons = config.get('Fonts', 'icons')
 font_text = config.get('Fonts', 'text')
 font_clock = config.get('Fonts', 'clock')
 
-#Functions for startscreen
-def drawStart():
-    global font_text, font_icons
-    with canvas(device) as draw:
-        font = ImageFont.truetype(font_text, size=12)
-        fontawesome = ImageFont.truetype(font_icons, size=35)
-
-        draw.text((25, 3), text="Wird gestartet...", font=font, fill="white")
-        draw.text((50, 25), text="\uf251", font=fontawesome, fill="white")
-
-#Error message on screen
-def bigError(message):
-    global font_text, font_icons
-    with canvas(device) as draw:
-        font = ImageFont.truetype(font_text, size=12)
-        fontawesome = ImageFont.truetype(font_icons, size=35)
-
-        if len(message) > 23:
-            draw.text((5, 3), text=message[0:23], font=font, fill="white")
-            draw.text((5, 12), text=message[23:], font=font, fill="white")
-        else:
-            draw.text((5, 3), text=message, font=font, fill="white")
-        draw.text((50, 28), text="\uf071", font=fontawesome, fill="white")
-
 #Setup OLED display
 print("Connect to display")
 device = sh1106(i2c(port=1, address=0x3C))
 device.contrast(245)
-drawStart() #User should have something to look at during start
+#screens.startscreen.draw(device) #User should have something to look at during start
 
 #Set up rotary encoder
 print("Set up rotary encoder")
@@ -72,14 +48,28 @@ current_dt = 1
 LockRotary = threading.Lock() #create lock for rotary switch
 
 def shutdown():
-    global asyncrun
-    #Stop the ping thread
-    asyncrun.set()
     #Cleanup GPIO connections
     GPIO.cleanup()
+    pingrun.set()
     exit()
 
-client = musicpd.MPDClient()
+pingrun = threading.Event()
+def asyncMPDPing():
+    global client
+    while not pingrun.is_set():
+        try:
+            client.ping()
+        except:
+            establishConnection()
+        pingrun.wait(55)
+    print("Ping thread exited.")
+
+def startMPDPing():
+    #create new thread for pinging MPD
+    print("Create new thread for keeping the connection to MPD active")
+    pingThread = threading.Thread(target=asyncMPDPing)
+    pingThread.start()
+
 mpdconnected = False
 def establishConnectionHandler():
     global client, config, mpdconnected
@@ -106,21 +96,15 @@ def establishConnection():
     connectionThread.join()
     if mpdconnected == False:
         print("Connection to MPD not possibe, Exiting...")
-        bigError("MPD Verbindung unterbrochen!")
+        #screens.bigerror.draw(device, "MPD Verbindung unterbrochen!")
         sleep(10)
-        shutdown()
 
-#Function to keep MPD connection
-asyncrun = threading.Event()
-def asyncMPDPing():
-    global client
-    while not asyncrun.is_set():
-        try:
-            client.ping()
-        except:
-            establishConnection()
-        asyncrun.wait(55)
-    print("Ping thread exited.")
+client = musicpd.MPDClient()
+mpdconnected = False
+
+def connectMPD():
+    print("Connect to Mopidy")
+    establishConnection()
 
 def loadRadioPlaylist():
     global radiomenu
@@ -135,15 +119,6 @@ def loadRadioPlaylist():
             radiomenu.append(station['title'])
     except:
         establishConnection()
-
-def connectMPD():
-    global pingThread
-    print("Connect to Mopidy")
-    establishConnection()
-    #create new thread for pinging MPD
-    print("Create new thread for keeping the connection to MPD active")
-    pingThread = threading.Thread(target=asyncMPDPing)
-    pingThread.start()
 
 #Connect to MPD
 connectMPD()
