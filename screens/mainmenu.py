@@ -1,15 +1,15 @@
 from PIL import ImageFont
 from luma.core.render import canvas
 import helperFunctions
-from setupHandler import font_icons, font_text, font_clock, loadRadioPlaylist
+from setupHandler import loadRadioPlaylist
+import globalParameters
 
 #Main menu (screenid: 1)
 def draw(device):
-    global font_icons
-    faicons = ImageFont.truetype(font_icons, size=18)
-    counter = helperFunctions.counter
-    if counter != helperFunctions.oldcounter and counter <= 3 and counter >= 0:
-        helperFunctions.oldcounter = counter
+    faicons = ImageFont.truetype(globalParameters.font_icons, size=18)
+    counter = globalParameters.counter
+    if counter != globalParameters.oldcounter and counter <= 3 and counter >= 0:
+        globalParameters.oldcounter = counter
         with canvas(device) as draw:
             #rectangle as selection marker
             if counter < 3: #currently 3 icons in one row
@@ -27,14 +27,14 @@ def draw(device):
             draw.text((10, 40), text="\uf011", font=faicons, fill="white") #shutdown
     
     #Keep the cursor in the screen
-    if counter > 3: helperFunctions.counter = 0
-    if counter < 0: helperFunctions.counter = 0
+    if counter > 3: globalParameters.counter = 0
+    if counter < 0: globalParameters.counter = 0
 
 def trigger():
-    counter = helperFunctions.counter
+    counter = globalParameters.counter
     if counter == 0: helperFunctions.setScreen(0)
     elif counter == 1: 
-        if helperFunctions.loadedPlaylist != "[Radio Streams]":
+        if globalParameters.loadedPlaylist != "[Radio Streams]":
             loadRadioPlaylist()
         helperFunctions.setScreen(2)
     elif counter == 2: 

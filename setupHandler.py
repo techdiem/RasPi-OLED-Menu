@@ -2,42 +2,26 @@
 try:
     from RPi import GPIO
 except: pass
-import configparser
+import globalParameters
 import threading
 from luma.oled.device import sh1106
 from luma.core.interface.serial import i2c
-import helperFunctions
 import musicpd
 from time import sleep
-import platform
-#import screens.bigerror
-#import screens.startscreen
-
-print("Starting OLED display on", platform.node(), ":")
-print()
-
-#Load Config
-print("Load configuration file")
-config = configparser.ConfigParser()
-config.read("settings.ini")
-
-#Set fonts
-print("Loading font configuration")
-font_icons = config.get('Fonts', 'icons')
-font_text = config.get('Fonts', 'text')
-font_clock = config.get('Fonts', 'clock')
+import screens.bigerror
+import screens.startscreen
 
 #Setup OLED display
 print("Connect to display")
 device = sh1106(i2c(port=1, address=0x3C))
 device.contrast(245)
-#screens.startscreen.draw(device) #User should have something to look at during start
+screens.startscreen.draw(device) #User should have something to look at during start
 
 #Set up rotary encoder
 print("Set up rotary encoder")
-clk = int(config.get('Pins', 'clk'))
-dt = int(config.get('Pins', 'dt'))
-sw = int(config.get('Pins', 'sw'))
+clk = int(globalParameters.config.get('Pins', 'clk'))
+dt = int(globalParameters.config.get('Pins', 'dt'))
+sw = int(globalParameters.config.get('Pins', 'sw'))
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(clk, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -72,7 +56,7 @@ def startMPDPing():
 
 mpdconnected = False
 def establishConnectionHandler():
-    global client, config, mpdconnected
+    global client, mpdconnected
     mpdretries = 0
     while not mpdconnected and mpdretries <= 5:
         try: #Try a disconnect if the connection is in unknown state
@@ -80,7 +64,7 @@ def establishConnectionHandler():
         except:
             pass
         try: #Try to reconnect
-            client.connect(config.get('MPD', 'ip'), int(config.get('MPD', 'port')))
+            client.connect(globalParameters.config.get('MPD', 'ip'), int(globalParameters.config.get('MPD', 'port')))
             print("MPD version", client.mpd_version)
             mpdconnected = True
         except:
@@ -96,7 +80,7 @@ def establishConnection():
     connectionThread.join()
     if mpdconnected == False:
         print("Connection to MPD not possibe, Exiting...")
-        #screens.bigerror.draw(device, "MPD Verbindung unterbrochen!")
+        screens.bigerror.draw(device, "MPD Verbindung unterbrochen!")
         sleep(10)
 
 client = musicpd.MPDClient()
@@ -111,7 +95,7 @@ def loadRadioPlaylist():
     try:
         client.clear()
         client.load("[Radio Streams]")
-        helperFunctions.loadedPlaylist = "[Radio Streams]"
+        globalParameters.loadedPlaylist = "[Radio Streams]"
         print("Loading radio stations")
         savedStations = client.listplaylistinfo("[Radio Streams]")
         radiomenu = ["Zurück", ]
@@ -126,7 +110,7 @@ loadRadioPlaylist()
 
 #Interrupt handler for push button in rotary encoder
 def menuaction(channel):
-    helperFunctions.trigger = True
+    globalParameters.trigger = True
 
 #Interrupt handler for turning the rotary encoder (changing the counter)
 def rotary_detect(channel):  
@@ -145,9 +129,9 @@ def rotary_detect(channel):
         if (Switch_A and Switch_B): #both ones active
             LockRotary.acquire()
             if channel == dt: #Direction depends on which one was last
-                helperFunctions.counter += 1
+                globalParameters.counter += 1
             else:
-                helperFunctions.counter -= 1 #Set Counter
+                globalParameters.counter -= 1 #Set Counter
             LockRotary.release()
 
 
