@@ -13,7 +13,7 @@ playbackState = ""
 
 #IDLE screen with clock and current playing song (screenid: 0)
 def draw(device):
-    global text_name, text_position, text_print, playbackState
+    global playbackState, playingInfo, text_name, text_position, text_print
     clockfont = ImageFont.truetype(globalParameters.font_clock, size=30)
     font = ImageFont.truetype(globalParameters.font_text, size=12)
     faicons = ImageFont.truetype(globalParameters.font_icons, size=12)
@@ -21,36 +21,10 @@ def draw(device):
     counter = globalParameters.counter
     now = datetime.datetime.now()
     refresh_time = now.strftime("%H:%M:%S")
-    clock_time = now.strftime("%H:%M")
 
     #runs every second (animations)
     if refresh_time != globalParameters.today_last_time:
             globalParameters.today_last_time = refresh_time
-            #runs every minute (refresh, data gathering)
-            if clock_time != globalParameters.clock_last_time:
-                globalParameters.clock_last_time = clock_time
-                
-                #Current playback state
-                try:
-                    playbackInfo = helperFunctions.client.status()
-                    playbackState = playbackInfo["state"]
-                except:
-                    #connection lost -> restart
-                    playingInfo = {'state': 'play'}
-                    establishConnection()
-
-                #Currently playing song name
-                try:
-                    playingInfo = helperFunctions.client.currentsong()
-                except:
-                    #connection lost -> restart
-                    playingInfo = {'title': 'Could not load name!'}
-                    establishConnection()
-                if playingInfo != {}:
-                    currentSong = playingInfo["title"]
-                    if currentSong != text_name:
-                        text_name = currentSong
-                        text_position = 0
             #Rolling text for currently playing song
             if text_name != "":
                 text_print = text_name + "        " + text_name #8 spaces to create a nicer text flow
@@ -62,7 +36,7 @@ def draw(device):
     #Show all the data on the screen
     with canvas(device) as draw:
         #Current time
-        draw.text((50, -10), clock_time, font=clockfont, fill="white")
+        draw.text((50, -10), now.strftime("%H:%M"), font=clockfont, fill="white")
 
         #Currently playing song
         if text_print != "":
@@ -111,3 +85,33 @@ def trigger():
             helperFunctions.playbackControl("play")
     elif counter == 2: helperFunctions.playbackControl("previous")
     elif counter == 3: helperFunctions.playbackControl("next")
+
+#Main data gathering, running in separate thread
+def update(stopEvent):
+    global text_name, text_position, text_print, text_position
+    global playbackState, playingInfo, text_name
+
+    while not stopEvent.is_set():
+        #Current playback state
+        try:
+            playbackInfo = helperFunctions.client.status()
+            playbackState = playbackInfo["state"]
+        except:
+            #connection lost -> restart
+            playbackInfo = {'state': 'play'}
+            establishConnection()
+
+        #Currently playing song name
+        try:
+            playingInfo = helperFunctions.client.currentsong()
+        except:
+            #connection lost -> restart
+            playingInfo = {'title': 'Could not load name!'}
+            establishConnection()
+        if playingInfo != {}:
+            currentSong = playingInfo["title"]
+            if currentSong != text_name:
+                text_name = currentSong
+                text_position = 0
+
+        stopEvent.wait(20)

@@ -5,6 +5,7 @@ counter = 0
 trigger = False
 oldcounter = -1
 activemenu = 0 #defaults to IDLE screen
+oldactivemenu = -1 #needes for update thread
 loadedPlaylist = "[Radio Streams]" #currently loaded Playlist; Radio Streams is loaded during startup
 today_last_time = "Unknown"
 clock_last_time = "Unknown"

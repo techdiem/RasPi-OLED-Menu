@@ -7,6 +7,7 @@ try:
     from RPi import GPIO
 except: pass
 import helperFunctions
+import threading
 import globalParameters
 from setupHandler import device, client, shutdown, radiomenu
 from time import sleep
@@ -15,6 +16,8 @@ import screens.mainmenu
 import screens.playlistmenu
 import screens.radiomenu
 import screens.shutdownmenu
+
+updaterun = threading.Event()
 
 while True:
     try:
@@ -35,9 +38,19 @@ while True:
             elif globalParameters.activemenu == 3: screens.shutdownmenu.trigger()
             elif globalParameters.activemenu == 4: screens.playlistmenu.trigger()
 
+        #Run update procedure in separate thread
+        if globalParameters.activemenu != globalParameters.oldactivemenu:
+            globalParameters.oldactivemenu = globalParameters.activemenu
+            updaterun.set()
+            if globalParameters.activemenu == 0:
+                updaterun.clear()
+                updateThread = threading.Thread(target=screens.idlescreen.update, args=(updaterun,))
+                updateThread.start()
+
         sleep(0.1)
     except KeyboardInterrupt:
         print("Exiting...")
         break
 
+updaterun.set() #Stop update procedure
 shutdown()

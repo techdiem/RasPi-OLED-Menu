@@ -119,7 +119,7 @@ def rotary_detect(channel):
     Switch_B = GPIO.input(dt)
     
     if current_clk == Switch_A and current_dt == Switch_B:
-        #Same interrupt as before? -> Bouncing -> no actio
+        #Same interrupt as before? -> Bouncing -> no action
         pass
     else:
         #refresh saved state
