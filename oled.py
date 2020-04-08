@@ -5,7 +5,9 @@ print()
 #Only avaiable on raspberry pi
 try:
     from RPi import GPIO
-except: pass
+except:
+    print("This software needs to run on a RasPi, because it uses GPIO pins to communicate with the hardware.")
+    exit()
 import helperFunctions
 import threading
 import globalParameters
@@ -21,7 +23,7 @@ updaterun = threading.Event()
 
 while True:
     try:
-        sleep(0.1)
+        sleep(0.2)
         #Draw active screen to display
         if globalParameters.activemenu == 0: screens.idlescreen.draw(device)
         elif globalParameters.activemenu == 1: screens.mainmenu.draw(device)
@@ -47,10 +49,10 @@ while True:
                 updateThread = threading.Thread(target=screens.idlescreen.update, args=(updaterun,))
                 updateThread.start()
 
-        sleep(0.1)
+        sleep(0.2)
     except KeyboardInterrupt:
         print("Exiting...")
         break
 
-updaterun.set() #Stop update procedure
+updaterun.set() #Stop screen update procedure
 shutdown()
