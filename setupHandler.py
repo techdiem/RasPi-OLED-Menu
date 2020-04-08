@@ -54,9 +54,12 @@ def startMPDPing():
     pingThread = threading.Thread(target=asyncMPDPing)
     pingThread.start()
 
+client = musicpd.MPDClient()
 mpdconnected = False
-def establishConnectionHandler():
-    global client, mpdconnected
+
+def establishConnection():
+    global connectionThread, mpdconnected, client
+    mpdconnected = False
     mpdretries = 0
     while not mpdconnected and mpdretries <= 5:
         try: #Try a disconnect if the connection is in unknown state
@@ -71,24 +74,11 @@ def establishConnectionHandler():
             pass
         sleep(4)
         mpdretries += 1
-
-def establishConnection():
-    global connectionThread, mpdconnected
-    mpdconnected = False
-    connectionThread = threading.Thread(target=establishConnectionHandler)
-    connectionThread.start()
-    connectionThread.join()
     if mpdconnected == False:
         print("Connection to MPD not possibe, Exiting...")
         screens.bigerror.draw(device, "MPD Verbindung unterbrochen!")
         sleep(10)
-
-client = musicpd.MPDClient()
-mpdconnected = False
-
-def connectMPD():
-    print("Connect to Mopidy")
-    establishConnection()
+        exit()
 
 def loadRadioPlaylist():
     global radiomenu
@@ -103,9 +93,11 @@ def loadRadioPlaylist():
             radiomenu.append(station['title'])
     except:
         establishConnection()
+        loadRadioPlaylist()
 
 #Connect to MPD
-connectMPD()
+print("Connect to Mopidy")
+establishConnection()
 loadRadioPlaylist()
 
 #Interrupt handler for push button in rotary encoder
