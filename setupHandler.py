@@ -2,7 +2,7 @@
 try:
     from RPi import GPIO
 except: pass
-from globalParameters import globalParameters
+from globalParameters import globalParameters, mediaVariables
 import threading
 from luma.oled.device import sh1106
 from luma.core.interface.serial import i2c
@@ -58,7 +58,7 @@ client = musicpd.MPDClient()
 mpdconnected = False
 
 def establishConnection():
-    global connectionThread, mpdconnected, client
+    global mpdconnected, client
     mpdconnected = False
     mpdretries = 0
     while not mpdconnected and mpdretries <= 5:
@@ -81,16 +81,15 @@ def establishConnection():
         exit()
 
 def loadRadioPlaylist():
-    global radiomenu
     try:
         client.clear()
         client.load("[Radio Streams]")
         globalParameters.loadedPlaylist = "[Radio Streams]"
         print("Loading radio stations")
         savedStations = client.listplaylistinfo("[Radio Streams]")
-        radiomenu = ["Zurück", ]
+        mediaVariables.radiomenu = ["Zurück", ]
         for station in savedStations:
-            radiomenu.append(station['title'])
+            mediaVariables.radiomenu.append(station['title'])
     except:
         establishConnection()
         loadRadioPlaylist()

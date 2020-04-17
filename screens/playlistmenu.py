@@ -1,14 +1,14 @@
 from PIL import ImageFont
 from luma.core.render import canvas
 import helperFunctions
-from globalParameters import globalParameters
+from globalParameters import globalParameters, mediaVariables
 
 page = 0
 
 #Saved music (screenid: 4)
 def draw(device):
     global page
-    menu = helperFunctions.playlists
+    menu = mediaVariables.playlists
     counter = globalParameters.counter
     menu = ["Zurück"] + menu
     if counter != globalParameters.oldcounter and counter <= len(menu) and counter >= 0:
@@ -30,7 +30,7 @@ def draw(device):
     
 def trigger():
     counter = globalParameters.counter
-    menu = helperFunctions.playlists
+    menu = mediaVariables.playlists
     if counter == 0: 
         globalParameters.setScreen(1)
     else:

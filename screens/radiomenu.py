@@ -1,14 +1,15 @@
 from PIL import ImageFont
 from luma.core.render import canvas
 import helperFunctions
-from globalParameters import globalParameters
+from globalParameters import globalParameters, mediaVariables
 
 page = 0
 
 #Radio station list (screenid: 2)
-def draw(device, menu):
+def draw(device):
     global page
     counter = globalParameters.counter
+    menu = mediaVariables.radiomenu
 
     if counter != globalParameters.oldcounter and counter <= len(menu) and counter >= 0:
         globalParameters.oldcounter = counter

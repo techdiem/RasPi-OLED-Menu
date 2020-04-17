@@ -1,6 +1,6 @@
 from PIL import ImageFont
 from setupHandler import device, client, establishConnection
-from globalParameters import globalParameters
+from globalParameters import globalParameters, mediaVariables
 from subprocess import call
 from time import sleep
 import threading
@@ -42,7 +42,7 @@ def playRadioStation(stationid):
     except:
         print("Error playing the station!")
         establishConnection()
-    setScreen(0)
+    globalParameters.setScreen(0)
 
 def playbackControl(command):
     try:
@@ -54,16 +54,15 @@ def playbackControl(command):
     except:
         print("Error changing the playback mode!")
         establishConnection()
-    setScreen(0)
+    globalParameters.setScreen(0)
 
 def loadPlaylists():
-    global playlists
     try:
-        playlists = []
+        mediaVariables.playlists = []
         clientplaylists = client.listplaylists()
         for playlist in clientplaylists:
             if playlist["playlist"] != "[Radio Streams]":
-                playlists.append(playlist["playlist"])
+                mediaVariables.playlists.append(playlist["playlist"])
     except:
         print("Error loading list of playlists!")
         establishConnection()

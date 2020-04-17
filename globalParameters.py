@@ -1,6 +1,6 @@
 import configparser
 
-class globalParameterHandler():
+class globalParameterBuilder():
     def __init__(self):
         #Software-wide public variables
         self.counter = 0
@@ -8,7 +8,6 @@ class globalParameterHandler():
         self.oldcounter = -1
         self.activemenu = 0 #defaults to IDLE screen
         self.oldactivemenu = -1 #needes for update thread
-        self.loadedPlaylist = "[Radio Streams]" #currently loaded Playlist; Radio Streams is loaded during startup
         self.today_last_time = "Unknown"
         self.clock_last_time = "Unknown"
         ########
@@ -31,4 +30,11 @@ class globalParameterHandler():
         self.today_last_time = "Unknown"
         self.clock_last_time = "Unknown"
 
-globalParameters = globalParameterHandler()
+class mediaVariableBuilder():
+    def __init__(self):
+        self.loadedPlaylist = "[Radio Streams]" #currently loaded Playlist; Radio Streams is loaded during startup
+        self.radiomenu = []
+        self.playlists = []
+
+globalParameters = globalParameterBuilder()
+mediaVariables = mediaVariableBuilder()
