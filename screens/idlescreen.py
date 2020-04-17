@@ -3,7 +3,7 @@ from luma.core.render import canvas
 import helperFunctions
 import datetime
 from setupHandler import establishConnection
-import globalParameters
+from globalParameters import globalParameters
 
 #assign inital values to variables
 text_name = ""
@@ -77,7 +77,7 @@ def draw(device):
 def trigger():
     global playbackState
     counter = globalParameters.counter
-    if counter == 0: helperFunctions.setScreen(1)
+    if counter == 0: globalParameters.setScreen(1)
     elif counter == 1: 
         if playbackState == "play": 
             helperFunctions.playbackControl("pause")

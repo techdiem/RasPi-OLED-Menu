@@ -10,7 +10,7 @@ except:
     exit()
 import helperFunctions
 import threading
-import globalParameters
+from globalParameters import globalParameters
 from setupHandler import device, client, shutdown, radiomenu
 from time import sleep
 import screens.idlescreen

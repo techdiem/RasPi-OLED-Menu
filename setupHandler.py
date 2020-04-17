@@ -2,7 +2,7 @@
 try:
     from RPi import GPIO
 except: pass
-import globalParameters
+from globalParameters import globalParameters
 import threading
 from luma.oled.device import sh1106
 from luma.core.interface.serial import i2c

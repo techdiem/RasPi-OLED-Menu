@@ -1,6 +1,6 @@
 from PIL import ImageFont
 from luma.core.render import canvas
-import globalParameters
+from globalParameters import globalParameters
 
 #Functions for startscreen
 def draw(device):

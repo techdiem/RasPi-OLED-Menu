@@ -1,7 +1,7 @@
 from PIL import ImageFont
 from luma.core.render import canvas
 import helperFunctions
-import globalParameters
+from globalParameters import globalParameters
 
 page = 0
 
@@ -32,7 +32,7 @@ def trigger():
     counter = globalParameters.counter
     menu = helperFunctions.playlists
     if counter == 0: 
-        helperFunctions.setScreen(0)
+        globalParameters.setScreen(1)
     else:
         helperFunctions.loadPlaylist(menu[page+counter-1])
-        helperFunctions.setScreen(0)
+        globalParameters.setScreen(0)
