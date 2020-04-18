@@ -37,9 +37,9 @@ def shutdown():
     pingrun.set()
     exit()
 
+client = musicpd.MPDClient()
 pingrun = threading.Event()
 def asyncMPDPing():
-    global client
     while not pingrun.is_set():
         try:
             client.ping()
@@ -54,13 +54,12 @@ def startMPDPing():
     pingThread = threading.Thread(target=asyncMPDPing)
     pingThread.start()
 
-client = musicpd.MPDClient()
 mpdconnected = False
-
 def establishConnection():
-    global mpdconnected, client
+    global mpdconnected
     mpdconnected = False
     mpdretries = 0
+    pingrun.set()
     while not mpdconnected and mpdretries <= 5:
         try: #Try a disconnect if the connection is in unknown state
             client.disconnect()
@@ -79,6 +78,9 @@ def establishConnection():
         screens.bigerror.draw(device, "MPD Verbindung unterbrochen!")
         sleep(10)
         exit()
+    else:
+        pingrun.clear()
+        startMPDPing()
 
 def loadRadioPlaylist():
     try:
