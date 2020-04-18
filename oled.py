@@ -10,8 +10,8 @@ except:
     exit()
 import helperFunctions
 import threading
-import globalParameters
-from setupHandler import device, client, shutdown, radiomenu
+from globalParameters import globalParameters
+from setupHandler import device, client, shutdown
 from time import sleep
 import screens.idlescreen
 import screens.mainmenu
@@ -27,7 +27,7 @@ while True:
         #Draw active screen to display
         if globalParameters.activemenu == 0: screens.idlescreen.draw(device)
         elif globalParameters.activemenu == 1: screens.mainmenu.draw(device)
-        elif globalParameters.activemenu == 2: screens.radiomenu.draw(device, radiomenu)
+        elif globalParameters.activemenu == 2: screens.radiomenu.draw(device)
         elif globalParameters.activemenu == 3: screens.shutdownmenu.draw(device)
         elif globalParameters.activemenu == 4: screens.playlistmenu.draw(device)
 

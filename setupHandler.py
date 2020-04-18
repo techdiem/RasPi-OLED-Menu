@@ -2,7 +2,7 @@
 try:
     from RPi import GPIO
 except: pass
-import globalParameters
+from globalParameters import globalParameters, mediaVariables
 import threading
 from luma.oled.device import sh1106
 from luma.core.interface.serial import i2c
@@ -37,9 +37,9 @@ def shutdown():
     pingrun.set()
     exit()
 
+client = musicpd.MPDClient()
 pingrun = threading.Event()
 def asyncMPDPing():
-    global client
     while not pingrun.is_set():
         try:
             client.ping()
@@ -54,13 +54,12 @@ def startMPDPing():
     pingThread = threading.Thread(target=asyncMPDPing)
     pingThread.start()
 
-client = musicpd.MPDClient()
 mpdconnected = False
-
 def establishConnection():
-    global connectionThread, mpdconnected, client
+    global mpdconnected
     mpdconnected = False
     mpdretries = 0
+    pingrun.set()
     while not mpdconnected and mpdretries <= 5:
         try: #Try a disconnect if the connection is in unknown state
             client.disconnect()
@@ -79,18 +78,20 @@ def establishConnection():
         screens.bigerror.draw(device, "MPD Verbindung unterbrochen!")
         sleep(10)
         exit()
+    else:
+        pingrun.clear()
+        startMPDPing()
 
 def loadRadioPlaylist():
-    global radiomenu
     try:
         client.clear()
         client.load("[Radio Streams]")
         globalParameters.loadedPlaylist = "[Radio Streams]"
         print("Loading radio stations")
         savedStations = client.listplaylistinfo("[Radio Streams]")
-        radiomenu = ["Zurück", ]
+        mediaVariables.radiomenu = ["Zurück", ]
         for station in savedStations:
-            radiomenu.append(station['title'])
+            mediaVariables.radiomenu.append(station['title'])
     except:
         establishConnection()
         loadRadioPlaylist()

@@ -1,7 +1,7 @@
 from PIL import ImageFont
 from luma.core.render import canvas
 import helperFunctions
-import globalParameters
+from globalParameters import globalParameters
 
 #Shutdown menu (screenid: 3)
 def draw(device):
@@ -31,5 +31,5 @@ def draw(device):
 
 def trigger():
     counter = globalParameters.counter
-    if counter == 0: helperFunctions.setScreen(1)
+    if counter == 0: globalParameters.setScreen(1)
     elif counter == 1: helperFunctions.shutdownSystem()

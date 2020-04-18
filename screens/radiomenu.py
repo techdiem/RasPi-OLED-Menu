@@ -1,14 +1,15 @@
 from PIL import ImageFont
 from luma.core.render import canvas
 import helperFunctions
-import globalParameters
+from globalParameters import globalParameters, mediaVariables
 
 page = 0
 
 #Radio station list (screenid: 2)
-def draw(device, menu):
+def draw(device):
     global page
     counter = globalParameters.counter
+    menu = mediaVariables.radiomenu
 
     if counter != globalParameters.oldcounter and counter <= len(menu) and counter >= 0:
         globalParameters.oldcounter = counter
@@ -29,6 +30,6 @@ def draw(device, menu):
 
 def trigger():
     counter = globalParameters.counter
-    if counter == 0: helperFunctions.setScreen(1)
+    if counter == 0: globalParameters.setScreen(1)
     elif counter != 0: 
         helperFunctions.playRadioStation(page+counter-1)

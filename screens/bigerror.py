@@ -1,6 +1,6 @@
 from PIL import ImageFont
 from luma.core.render import canvas
-import globalParameters
+from globalParameters import globalParameters
 
 #Error message on screen
 def draw(device, message):

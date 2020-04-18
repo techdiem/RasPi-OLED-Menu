@@ -1,6 +1,6 @@
 from PIL import ImageFont
 from setupHandler import device, client, establishConnection
-import globalParameters
+from globalParameters import globalParameters, mediaVariables
 from subprocess import call
 from time import sleep
 import threading
@@ -25,14 +25,6 @@ def drawMenu(draw, entries):
 
     #Draw entry selector
     draw.polygon(((0, 2+counter*12), (0, 10+counter*12), (5, 6+counter*12)), fill="white")
-        
-def setScreen(screenid):
-    global today_last_time, clock_last_time
-    globalParameters.activemenu = screenid
-    globalParameters.counter = 0
-    globalParameters.oldcounter = -1
-    today_last_time = "Unknown"
-    clock_last_time = "Unknown"
 
 def shutdownSystem():
     print("Shutting down system")
@@ -50,7 +42,7 @@ def playRadioStation(stationid):
     except:
         print("Error playing the station!")
         establishConnection()
-    setScreen(0)
+    globalParameters.setScreen(0)
 
 def playbackControl(command):
     try:
@@ -62,27 +54,25 @@ def playbackControl(command):
     except:
         print("Error changing the playback mode!")
         establishConnection()
-    setScreen(0)
+    globalParameters.setScreen(0)
 
 def loadPlaylists():
-    global playlists
     try:
-        playlists = []
+        mediaVariables.playlists = []
         clientplaylists = client.listplaylists()
         for playlist in clientplaylists:
             if playlist["playlist"] != "[Radio Streams]":
-                playlists.append(playlist["playlist"])
+                mediaVariables.playlists.append(playlist["playlist"])
     except:
         print("Error loading list of playlists!")
         establishConnection()
 
 def loadPlaylist(name):
-    global loadedPlaylist
     try:
         client.clear()
         client.load(name)
         client.shuffle()
-        loadedPlaylist = name
+        globalParameters.loadedPlaylist = name
         print("Loaded and playing Playlist", name)
         client.play()
     except:
