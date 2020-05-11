@@ -18,6 +18,7 @@ import screens.mainmenu
 import screens.playlistmenu
 import screens.radiomenu
 import screens.shutdownmenu
+import screens.emptyscreen
 
 updaterun = threading.Event()
 
@@ -30,6 +31,7 @@ while True:
         elif globalParameters.activemenu == 2: screens.radiomenu.draw(device)
         elif globalParameters.activemenu == 3: screens.shutdownmenu.draw(device)
         elif globalParameters.activemenu == 4: screens.playlistmenu.draw(device)
+        elif globalParameters.activemenu == 5: screens.emptyscreen.draw(device)
 
         #Send trigger event to active screen
         if globalParameters.trigger == True:
@@ -39,6 +41,7 @@ while True:
             elif globalParameters.activemenu == 2: screens.radiomenu.trigger()
             elif globalParameters.activemenu == 3: screens.shutdownmenu.trigger()
             elif globalParameters.activemenu == 4: screens.playlistmenu.trigger()
+            elif globalParameters.activemenu == 5: screens.emptyscreen.trigger(device) #Needs device to turn on screen
 
         #Run update procedure in separate thread
         if globalParameters.activemenu != globalParameters.oldactivemenu:

@@ -50,12 +50,13 @@ def asyncMPDPing():
 
 def startMPDPing():
     #create new thread for pinging MPD
-    print("Create new thread for keeping the connection to MPD active")
+    print("Creating new thread for keeping the connection to MPD active")
     pingThread = threading.Thread(target=asyncMPDPing)
     pingThread.start()
 
 mpdconnected = False
 def establishConnection():
+    print("Connect to Mopidy")
     global mpdconnected
     mpdconnected = False
     mpdretries = 0
@@ -83,11 +84,11 @@ def establishConnection():
         startMPDPing()
 
 def loadRadioPlaylist():
+    print("Loading radio stations")
     try:
         client.clear()
         client.load("[Radio Streams]")
         globalParameters.loadedPlaylist = "[Radio Streams]"
-        print("Loading radio stations")
         savedStations = client.listplaylistinfo("[Radio Streams]")
         mediaVariables.radiomenu = ["Zurück", ]
         for station in savedStations:
@@ -97,7 +98,6 @@ def loadRadioPlaylist():
         loadRadioPlaylist()
 
 #Connect to MPD
-print("Connect to Mopidy")
 establishConnection()
 loadRadioPlaylist()
 

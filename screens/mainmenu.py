@@ -23,7 +23,7 @@ def draw(device):
             #icons as menu buttons
             draw.text((10, 5), text="\uf0a8", font=faicons, fill="white") #back
             draw.text((45, 5), text="\uf519", font=faicons, fill="white") #radio (old icon: f145)
-            draw.text((80, 5), text="\uf1c7", font=faicons, fill="white") #playlists
+            draw.text((82, 5), text="\uf1c7", font=faicons, fill="white") #playlists
             draw.text((10, 40), text="\uf011", font=faicons, fill="white") #shutdown
     
     #Keep the cursor in the screen

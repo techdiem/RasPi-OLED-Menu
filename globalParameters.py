@@ -10,6 +10,7 @@ class globalParameterBuilder():
         self.oldactivemenu = -1 #needes for update thread
         self.today_last_time = "Unknown"
         self.clock_last_time = "Unknown"
+        self.blackscreen = False
         ########
 
         #Load Config
