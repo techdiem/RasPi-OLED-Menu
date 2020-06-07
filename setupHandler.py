@@ -90,12 +90,17 @@ def loadRadioPlaylist():
         client.load("[Radio Streams]")
         globalParameters.loadedPlaylist = "[Radio Streams]"
         savedStations = client.listplaylistinfo("[Radio Streams]")
-        mediaVariables.radiomenu = ["Zurück", ]
-        for station in savedStations:
-            mediaVariables.radiomenu.append(station['title'])
     except:
         establishConnection()
         loadRadioPlaylist()
+
+    mediaVariables.radiomenu = ["Zurück", ]
+    for station in savedStations:
+        try:
+            mediaVariables.radiomenu.append(station['title'])
+        except KeyError:
+            #Station doesn't provide title, using stream url
+            mediaVariables.radiomenu.append(station['file'])
 
 #Connect to MPD
 establishConnection()
