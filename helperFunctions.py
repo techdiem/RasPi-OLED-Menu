@@ -56,15 +56,13 @@ def playbackControl(command):
         establishConnection()
     globalParameters.setScreen(0)
 
-def loadPlaylists():
+def loadRadioStations():
     try:
-        mediaVariables.playlists = []
-        clientplaylists = client.listplaylists()
-        for playlist in clientplaylists:
-            if playlist["playlist"] != "[Radio Streams]":
-                mediaVariables.playlists.append(playlist["playlist"])
+        client.clear()
+        client.load("[Radio Streams]")
+        mediaVariables.loadedPlaylist = "[Radio Streams]"
     except:
-        print("Error loading list of playlists!")
+        print("Error loading radio station playlist!")
         establishConnection()
 
 def loadPlaylist(name):
@@ -72,7 +70,7 @@ def loadPlaylist(name):
         client.clear()
         client.load(name)
         client.shuffle()
-        globalParameters.loadedPlaylist = name
+        mediaVariables.loadedPlaylist = name
         print("Loaded and playing Playlist", name)
         client.play()
     except:

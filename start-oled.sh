@@ -15,7 +15,7 @@ start() {
         echo 'Display wird gestartet'
 
         cd $OLEDPATH && screen -dmS $SCREEN $START
-        sleep 7
+        sleep 4
 
         if ps ax | grep -v grep | grep -v -i SCREEN | grep $FILENAME > /dev/null
         then
@@ -32,7 +32,7 @@ stop() {
     then
         echo 'Display wird abgeschaltet'
         screen -S oled -X stuff ^C
-        sleep 2
+        sleep 1
 
         if ps ax | grep -v grep | grep -v -i SCREEN | grep $FILENAME > /dev/null
         then

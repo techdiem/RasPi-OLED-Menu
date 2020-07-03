@@ -1,7 +1,6 @@
 from PIL import ImageFont
 from luma.core.render import canvas
 import helperFunctions
-from setupHandler import loadRadioPlaylist
 from globalParameters import globalParameters
 
 #Main menu (screenid: 1)
@@ -34,10 +33,7 @@ def trigger():
     counter = globalParameters.counter
     if counter == 0: globalParameters.setScreen(0)
     elif counter == 1: 
-        if globalParameters.loadedPlaylist != "[Radio Streams]":
-            loadRadioPlaylist()
         globalParameters.setScreen(2)
     elif counter == 2: 
-        helperFunctions.loadPlaylists()
         globalParameters.setScreen(4)
     elif counter == 3: globalParameters.setScreen(3)

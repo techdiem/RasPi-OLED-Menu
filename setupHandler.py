@@ -48,20 +48,12 @@ def asyncMPDPing():
         pingrun.wait(55)
     print("Ping thread exited.")
 
-def startMPDPing():
-    #create new thread for pinging MPD
-    print("Creating new thread for keeping the connection to MPD active")
-    pingThread = threading.Thread(target=asyncMPDPing)
-    pingThread.start()
-
-mpdconnected = False
 def establishConnection():
     print("Connect to Mopidy")
-    global mpdconnected
     mpdconnected = False
     mpdretries = 0
     pingrun.set()
-    while not mpdconnected and mpdretries <= 5:
+    while not mpdconnected and mpdretries <= 10:
         try: #Try a disconnect if the connection is in unknown state
             client.disconnect()
         except:
@@ -72,7 +64,10 @@ def establishConnection():
             mpdconnected = True
         except:
             pass
-        sleep(4)
+
+        if mpdconnected == False:
+            #Only sleep when no connection is avaiable -> faster startup
+            sleep(5)
         mpdretries += 1
     if mpdconnected == False:
         print("Connection to MPD not possibe, Exiting...")
@@ -80,31 +75,63 @@ def establishConnection():
         sleep(10)
         exit()
     else:
+        #create new thread for pinging MPD to keep connection up
         pingrun.clear()
-        startMPDPing()
+        print("Creating new thread for keeping the connection to MPD active")
+        pingThread = threading.Thread(target=asyncMPDPing)
+        pingThread.start()
 
 def loadRadioPlaylist():
     print("Loading radio stations")
+    stations=["Zurück", ]
+    try:
+        playlistfile = open(globalParameters.config.get('General', 'stationsplaylist'),'r')
+    except:
+        print("Error loading radio stations: File does not exist, check your config file!")
+        exit()
+
+    #Check if it is a non-broken m3u8/m3u file
+    line = playlistfile.readline()
+    if not line.startswith('#EXTM3U'):
+        print("Error loading radio stations: The m3u8 file is invalid!")
+        exit()
+
+    for line in playlistfile:
+        line=line.strip()
+        if line.startswith('#EXTINF:'):
+            # EXTINF line with information about the station
+            title=line.split('#EXTINF:')[1].split(',',1)[1]
+            stations.append(title)
+
+    playlistfile.close()
+    mediaVariables.radiomenu = stations
+
+    #Load playlist in Mopidy
     try:
         client.clear()
         client.load("[Radio Streams]")
-        globalParameters.loadedPlaylist = "[Radio Streams]"
-        savedStations = client.listplaylistinfo("[Radio Streams]")
     except:
+        print("Error loading radio station playlist in Mopidy!")
         establishConnection()
         loadRadioPlaylist()
 
-    mediaVariables.radiomenu = ["Zurück", ]
-    for station in savedStations:
-        try:
-            mediaVariables.radiomenu.append(station['title'])
-        except KeyError:
-            #Station doesn't provide title, using stream url
-            mediaVariables.radiomenu.append(station['file'])
+def loadPlaylists():
+    print("Loading Subsonic and other playlists")
+    try:
+        mediaVariables.playlists = []
+        clientplaylists = client.listplaylists()
+        for playlist in clientplaylists:
+            if playlist["playlist"] != "[Radio Streams]":
+                mediaVariables.playlists.append(playlist["playlist"])
+    except:
+        print("Error loading playlists!")
+        establishConnection()
+        loadPlaylists()
 
 #Connect to MPD
 establishConnection()
 loadRadioPlaylist()
+loadPlaylists()
 
 #Interrupt handler for push button in rotary encoder
 def menuaction(channel):

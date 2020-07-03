@@ -29,7 +29,11 @@ def draw(device):
     if counter < 0: globalParameters.counter = 0
 
 def trigger():
+    global page
     counter = globalParameters.counter
     if counter == 0: globalParameters.setScreen(1)
     elif counter != 0: 
+        if mediaVariables.loadedPlaylist != "[Radio Streams]":
+            helperFunctions.loadRadioStations()
         helperFunctions.playRadioStation(page+counter-1)
+    page = 0

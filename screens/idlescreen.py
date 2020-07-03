@@ -3,7 +3,7 @@ from luma.core.render import canvas
 import helperFunctions
 import datetime
 from setupHandler import establishConnection
-from globalParameters import globalParameters
+from globalParameters import globalParameters, mediaVariables
 
 #assign inital values to variables
 text_name = ""
@@ -44,7 +44,7 @@ def draw(device):
             draw.text((12, 29), text_print[text_position:], font=font, fill="white")
 
         #Current music source and supported control buttons
-        if globalParameters.loadedPlaylist == "[Radio Streams]":
+        if mediaVariables.loadedPlaylist == "[Radio Streams]":
             controlElements = 1
             draw.text((3, 0), text="\uf519", font=faiconsbig, fill="white")#TODO: f1eb for airplay
         else:

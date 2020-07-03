@@ -33,7 +33,7 @@ class globalParameterBuilder():
 
 class mediaVariableBuilder():
     def __init__(self):
-        self.loadedPlaylist = "[Radio Streams]" #currently loaded Playlist; Radio Streams is loaded during startup
+        self.loadedPlaylist = "[Radio Streams]"
         self.radiomenu = []
         self.playlists = []
 
