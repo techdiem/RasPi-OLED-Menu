@@ -63,7 +63,7 @@ def draw(device):
             #Buttons
             draw.text((2, y+1), text="\uf187", font=faicons, fill="white") #menu
             if playbackState == "play":
-                draw.text((38, y), text="\uf04c", font=faicons, fill="white") #pause (f04b for play)
+                draw.text((38, y), text="\uf04c", font=faicons, fill="white") #pause
             else:
                 draw.text((38, y), text="\uf04b", font=faicons, fill="white") #play
             if controlElements == 3:
