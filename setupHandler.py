@@ -178,6 +178,8 @@ def on_airplay_track_info(lis, info):
     except:
         print("Error controlling Mopidy")
         establishConnection()
+    mediaVariables.airplayinfo = info
+    mediaVariables.loadedPlaylist = "[AirPlay]"
 
 airplaylistener = AirplayPipeListener()
 airplaylistener.bind(track_info=on_airplay_track_info)

@@ -36,6 +36,7 @@ class mediaVariableBuilder():
         self.loadedPlaylist = "[Radio Streams]"
         self.radiomenu = []
         self.playlists = []
+        self.airplayinfo = {}
 
 globalParameters = globalParameterBuilder()
 mediaVariables = mediaVariableBuilder()
