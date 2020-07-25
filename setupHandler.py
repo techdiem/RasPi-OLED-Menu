@@ -7,6 +7,7 @@ import threading
 from luma.oled.device import sh1106
 from luma.core.interface.serial import i2c
 import musicpd
+from shairportmetadatareader import AirplayPipeListener
 from time import sleep
 import screens.bigerror
 import screens.startscreen
@@ -35,6 +36,7 @@ def shutdown():
     #Cleanup GPIO connections
     GPIO.cleanup()
     pingrun.set()
+    airplaylistener.stop_listening()
     exit()
 
 client = musicpd.MPDClient()
@@ -166,6 +168,20 @@ GPIO.add_event_detect(clk, GPIO.RISING, callback=rotary_detect)
 GPIO.add_event_detect(dt, GPIO.RISING, callback=rotary_detect)
 #Push Button
 GPIO.add_event_detect(sw, GPIO.FALLING, callback=menuaction, bouncetime=300)
+
+print("Connect to Shairport-Sync")
+def on_airplay_track_info(lis, info):
+    try:
+        if client.status()['state'] == "play":
+            print("Airplay connection detected, pausing Mopidy")
+            client.pause()
+    except:
+        print("Error controlling Mopidy")
+        establishConnection()
+
+airplaylistener = AirplayPipeListener()
+airplaylistener.bind(track_info=on_airplay_track_info)
+airplaylistener.start_listening()
 
 print("Setup finished")
 print()
