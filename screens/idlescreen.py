@@ -46,7 +46,10 @@ def draw(device):
         #Current music source and supported control buttons
         if mediaVariables.loadedPlaylist == "[Radio Streams]":
             controlElements = 1
-            draw.text((3, 0), text="\uf519", font=faiconsbig, fill="white")#TODO: f1eb for airplay
+            draw.text((3, 0), text="\uf519", font=faiconsbig, fill="white")
+        elif mediaVariables.loadedPlaylist == "[AirPlay]":
+            controlElements = 0
+            draw.text((3, 0), text="\uf179", font=faiconsbig, fill="white")
         else:
             controlElements = 3
             draw.text((3, 0), text="\uf1c7", font=faiconsbig, fill="white")
@@ -62,10 +65,11 @@ def draw(device):
             draw.rectangle((x, y, x+16, y+15), outline=255, fill=0)
             #Buttons
             draw.text((2, y+1), text="\uf187", font=faicons, fill="white") #menu
-            if playbackState == "play":
-                draw.text((38, y), text="\uf04c", font=faicons, fill="white") #pause
-            else:
-                draw.text((38, y), text="\uf04b", font=faicons, fill="white") #play
+            if controlElements >= 1:
+                if playbackState == "play":
+                    draw.text((38, y), text="\uf04c", font=faicons, fill="white") #pause
+                else:
+                    draw.text((38, y), text="\uf04b", font=faicons, fill="white") #play
             if controlElements == 3:
                 draw.text((57, y+1), text="\uf04a", font=faicons, fill="white") #previous
                 draw.text((78, y+1), text="\uf04e", font=faicons, fill="white") #next
@@ -92,26 +96,36 @@ def update(stopEvent):
     global playbackState, playingInfo, text_name
 
     while not stopEvent.is_set():
-        #Current playback state
-        try:
-            playbackInfo = helperFunctions.client.status()
-            playbackState = playbackInfo["state"]
-        except:
-            #connection lost -> restart
-            playbackInfo = {'state': 'play'}
-            establishConnection()
+        if mediaVariables.loadedPlaylist != "[AirPlay]":
+            #Current playback state
+            try:
+                playbackInfo = helperFunctions.client.status()
+                playbackState = playbackInfo["state"]
+            except:
+                #connection lost -> restart
+                playbackInfo = {'state': 'play'}
+                establishConnection()
 
-        #Currently playing song name
-        try:
-            playingInfo = helperFunctions.client.currentsong()
-        except:
-            #connection lost -> restart
-            playingInfo = {'title': 'Could not load name!'}
-            establishConnection()
-        if playingInfo != {}:
-            currentSong = playingInfo["title"]
-            if currentSong != text_name:
-                text_name = currentSong
-                text_position = 0
+            #Currently playing song name
+            try:
+                playingInfo = helperFunctions.client.currentsong()
+            except:
+                #connection lost -> restart
+                playingInfo = {'title': 'Could not load name!'}
+                establishConnection()
+            if playingInfo != {}:
+                currentSong = playingInfo["title"]
+                if currentSong != text_name:
+                    text_name = currentSong
+                    text_position = 0
+        else:
+            #Get Airplay Info
+            info = mediaVariables.airplayinfo
+            if 'songartist' in info and 'itemname' in info:
+                text_name = info['songartist'] + " - " + info['itemname']
+            elif 'itemname' in info:
+                text_name = info['itemname']
+            else:
+                text_name = "AirPlay Streaming"
 
         stopEvent.wait(20)
