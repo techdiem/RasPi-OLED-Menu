@@ -49,7 +49,7 @@ def draw(device):
             draw.text((3, 0), text="\uf519", font=faiconsbig, fill="white")
         elif mediaVariables.loadedPlaylist == "[AirPlay]":
             controlElements = 0
-            draw.text((3, 0), text="\uf1eb", font=faiconsbig, fill="white")
+            draw.text((3, 0), text="\uf179", font=faiconsbig, fill="white")
         else:
             controlElements = 3
             draw.text((3, 0), text="\uf1c7", font=faiconsbig, fill="white")
