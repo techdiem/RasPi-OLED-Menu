@@ -1,0 +1,17 @@
+[Unit]
+Description=OLED display provider
+After=mopidy.service
+Wants=mopidy.service
+
+[Service]
+User=pi
+Group=pi
+Type=forking
+WorkingDirectory=/home/pi/oled
+ExecStart=/home/pi/oled/start-oled.sh start
+ExecStop=/home/pi/oled/start-oled.sh stop
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

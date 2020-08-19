@@ -12,8 +12,15 @@ Here is a graphic that shows the different screens:
 ![Usage Graph](.github/usage.png)
 
 ## Installation
-The code is based on the luma.oled library.
-To install it, just follow the instruction [in the luma.oled documentation](https://luma-oled.readthedocs.io/en/latest/install.html). This example is written in python3, so please use python3, pip3 and so on.
-Move font files to the ```fonts``` directory, they aren't included due to their copyright. [instructions](fonts/README.md)
 
-To use it, connect your display (there are lots of guides online), and start it using ``` python3 oled.py ```
+1. Install [Raspberry Pi OS](https://www.raspberrypi.org/downloads/raspberry-pi-os/) to your SD Card and set it up (there are lots of great guides online)
+2. Install some prerequisites: ``` sudo apt-get install python3-dev python3-pip libfreetype6-dev libjpeg-dev build-essential libopenjp2-7 libtiff5 ```
+3. Download the code: ``` git clone https://github.com/techdiem/RasPi-OLED-Menu.git oled && cd ./oled```
+4. Install python requirements: ``` pip3 install -r requirements.txt ```
+5. Move font files to the ```fonts``` directory, they aren't included due to their copyright. [instructions](fonts/README.md)
+6. Set the pinout and other configuration values with ``` nano settings.ini ```
+7. Copy the systemd config to the correct folder: ``` sudo cp oled.service /etc/systemd/system/ ```
+8. Reload systemd: ``` sudo systemctl daemon-reload ```
+
+Start it using ``` python3 oled.py ``` for debug and using ``` sudo systemctl start oled.service ``` for production.
+To start in on system boot, use ``` sudo systemctl enable oled.service ```.
