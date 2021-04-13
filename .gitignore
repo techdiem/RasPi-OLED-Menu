@@ -1,10 +1,7 @@
-env/
+venv/
 .vscode/
 __pycache__/
 
 #See fonts/README.md
 *.ttf
 *.otf
-
-#File with minimal OLED Setup to test the look of new screen creations
-testnewscreen.py

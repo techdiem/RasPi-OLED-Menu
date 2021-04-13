@@ -1,8 +1,12 @@
 #Hardware and MPD Connection
-luma.oled==3.5.0
-python-musicpd==0.4.4
+luma.oled==3.8.1
+python-musicpd==0.5.1
 RPi.GPIO==0.7.0
 
+#Development
+luma.emulator==1.4.0
+pygame==2.0.1
+
 #Shairport-Sync Integration
-Kivy==1.11.1
+Kivy==2.0.0
 git+https://github.com/Schlaubischlump/shairport-metadatareader-python

@@ -8,10 +8,9 @@ User=pi
 Group=pi
 Type=forking
 WorkingDirectory=/home/pi/oled
-ExecStart=/home/pi/oled/start-oled.sh start
-ExecStop=/home/pi/oled/start-oled.sh stop
+ExecStart=/home/pi/oled/oled.py
 RestartSec=10
-Restart=always
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
