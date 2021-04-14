@@ -3,8 +3,8 @@ import importlib
 import asyncio
 import os
 import settings
-from hardware.display import get_display
-from hardware.rotaryencoder import RotaryEncoder
+from integrations.display import get_display
+from integrations.rotaryencoder import RotaryEncoder
 from ui.windowmanager import WindowManager
 
 def main():
