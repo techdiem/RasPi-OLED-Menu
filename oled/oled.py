@@ -1,4 +1,4 @@
-"""Start file for Werkstattradio Oled controller"""
+"""Start file for Werkstattradio OLED controller"""
 import importlib
 import asyncio
 import os
@@ -46,6 +46,7 @@ def main():
         print("Exiting")
     finally:
         rotaryenc.cleanup()
+        loop.close()
 
 
 if __name__ == '__main__':

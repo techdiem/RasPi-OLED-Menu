@@ -1,8 +1,7 @@
 """ Rotary encoder setup """
-
 import asyncio
 import threading
-import settings
+import settings # pylint: disable=import-error
 try:
     #Only avaiable on Raspberry
     import RPi.GPIO as GPIO # pylint: disable=import-error

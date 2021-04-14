@@ -1,5 +1,4 @@
 """ Display hardware or emulator """
-
 def get_display(emulated):
     if emulated:
         import luma.emulator.device
@@ -10,7 +9,8 @@ def get_display(emulated):
                 super(EmuPygame, self).display(image)
 
         print("Using PyGame output")
-        return EmuPygame(transform='identity', scale=4, mode='1')
+        #Mode=1: Monochrome
+        return EmuPygame(transform='identity', scale=2, mode='1')
 
     else:
         from luma.oled.device import sh1106

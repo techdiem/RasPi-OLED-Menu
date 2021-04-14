@@ -5,6 +5,7 @@ class WindowBase():
     def __init__(self, windowmanager):
         self.windowmanager = windowmanager
         self.canvas = canvas(self.windowmanager.device)
+        self.loop = self.windowmanager.loop
 
     def render(self):
         raise NotImplementedError()

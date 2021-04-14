@@ -13,11 +13,18 @@ class WindowManager():
 
     def add_window(self, windowid, window):
         self.windows[windowid] = window
-        print("Window added", windowid)
+        print(f"Added {windowid} window")
 
     def set_window(self, windowid):
         self.activewindow = self.windows[windowid]
-        print(windowid, "activated")
+        print(f"Activated {windowid}")
+
+    def clear_window(self):
+        print("Show blank screen")
+        self.activewindow = self.windows["blank"]
+        self.device.clear()
+        #Low-Power sleep mode
+        self.device.hide()
 
     async def _render(self):
         while self.loop.is_running():
