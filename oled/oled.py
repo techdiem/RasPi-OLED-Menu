@@ -26,7 +26,7 @@ def main():
             windowmanager.add_window(name, window)
 
     #Load start window
-    windowmanager.set_window("test")
+    windowmanager.set_window("mainmenu")
 
 
     #Rotary encoder setup

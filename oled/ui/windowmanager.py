@@ -1,4 +1,4 @@
-""" Manages the currently shown activewindow on screen and passes the callbacks for the rotary encoder """
+"""Manages the currently shown activewindow on screen and passes callbacks for the rotary encoder"""
 import asyncio
 
 class WindowManager():
@@ -7,6 +7,7 @@ class WindowManager():
         self.windows = {}
         self.activewindow = []
         self.loop = loop
+        self.screenpower = True
 
         self.loop.create_task(self._render())
         print("Rendering task created")
@@ -21,25 +22,31 @@ class WindowManager():
 
     def clear_window(self):
         print("Show blank screen")
-        self.activewindow = self.windows["blank"]
+        self.screenpower = False
         self.device.clear()
         #Low-Power sleep mode
         self.device.hide()
 
     async def _render(self):
         while self.loop.is_running():
-            if self.activewindow != []:
+            if self.activewindow != [] and self.screenpower:
                 try:
                     self.activewindow.render()
                 except (NotImplementedError, AttributeError):
                     pass
-                await asyncio.sleep(0.01)
+            await asyncio.sleep(0.01)
 
     def push_callback(self):
-        try:
-            self.activewindow.push_callback()
-        except (NotImplementedError, AttributeError):
-            pass
+        if self.screenpower:
+            try:
+                self.activewindow.push_callback()
+            except (NotImplementedError, AttributeError):
+                pass
+        else:
+            self.screenpower = True
+            self.device.show()
+            #TODO Set idle screen
+            self.set_window("start")
 
     def turn_callback(self, direction):
         try:
