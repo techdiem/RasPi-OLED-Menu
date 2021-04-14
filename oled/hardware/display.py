@@ -1,8 +1,6 @@
-"""
-Display hardware or emulator
-"""
+""" Display hardware or emulator """
 
-def display(emulated):
+def get_display(emulated):
     if emulated:
         import luma.emulator.device
 
@@ -11,6 +9,7 @@ def display(emulated):
                 super(EmuPygame, self).display(image)
                 super(EmuPygame, self).display(image)
 
+        print("Using PyGame output")
         return EmuPygame(transform='identity', scale=4, mode='1')
 
     else:
@@ -19,4 +18,5 @@ def display(emulated):
 
         device = sh1106(i2c(port=1, address=0x3C))
         device.contrast(245)
+        print("Using real display hardware")
         return device

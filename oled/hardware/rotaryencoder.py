@@ -1,6 +1,4 @@
-"""
-Rotary encoder setup
-"""
+""" Rotary encoder setup """
 
 import asyncio
 import threading
@@ -12,19 +10,21 @@ except ImportError:
     pass
 
 class RotaryEncoder():
-    def __init__(self, loop, emulated, callback):
+    def __init__(self, loop, emulated, turn_callback):
         self.loop = loop
         self.emulated = emulated
-        self.callback = callback
+        self.turn_callback = turn_callback
 
         if self.emulated:
             self.loop.create_task(self._poll_pygame_keys())
+            print("Polling PyGame keys")
         else:
             #Config for pins!
             self.current_clk = 1
             self.current_dt = 1
             self.lockrotary = threading.Lock() #create lock for rotary switch
             self._setup_gpio(settings.PIN_CLK, settings.PIN_DT, settings.PIN_SW)
+            print("Using rotary encoder interrupts")
 
     def _rotary_push(self, channel):
         pass
@@ -44,11 +44,9 @@ class RotaryEncoder():
             if (switch_a and switch_b): #both ones active
                 self.lockrotary.acquire()
                 if channel == settings.PIN_DT: #Direction depends on which one was last
-                    pass
-                    #TODO Counter+1
+                    self.turn_callback(1)
                 else:
-                    pass
-                    #TODO Counter-1
+                    self.turn_callback(-1)
                 self.lockrotary.release()
 
     def _setup_gpio(self, clk_pin, dt_pin, sw_pin):
@@ -70,7 +68,7 @@ class RotaryEncoder():
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
-                    self.callback()
+                    self.turn_callback(1)
 
             await asyncio.sleep(0.01)
 
