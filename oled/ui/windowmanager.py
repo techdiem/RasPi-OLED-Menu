@@ -1,7 +1,7 @@
 """ Manages the currently shown activewindow on screen and passes the callbacks for the rotary encoder """
 import asyncio
 
-class Screen():
+class WindowManager():
     def __init__(self, loop, device):
         self.device = device
         self.windows = {}

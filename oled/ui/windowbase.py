@@ -1,9 +1,10 @@
 """ View class to inherit other views from """
 from luma.core.render import canvas
 
-class Window():
-    def __init__(self, device):
-        self.canvas = canvas(device)
+class WindowBase():
+    def __init__(self, windowmanager):
+        self.windowmanager = windowmanager
+        self.canvas = canvas(self.windowmanager.device)
 
     def render(self):
         raise NotImplementedError()

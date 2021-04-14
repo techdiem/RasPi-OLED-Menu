@@ -10,10 +10,11 @@ except ImportError:
     pass
 
 class RotaryEncoder():
-    def __init__(self, loop, emulated, turn_callback):
+    def __init__(self, loop, emulated, turn_callback, push_callback):
         self.loop = loop
         self.emulated = emulated
         self.turn_callback = turn_callback
+        self.push_callback = push_callback
 
         if self.emulated:
             self.loop.create_task(self._poll_pygame_keys())
@@ -26,8 +27,8 @@ class RotaryEncoder():
             self._setup_gpio(settings.PIN_CLK, settings.PIN_DT, settings.PIN_SW)
             print("Using rotary encoder interrupts")
 
-    def _rotary_push(self, channel):
-        pass
+    def _rotary_push(self):
+        self.push_callback()
 
     def _rotary_turn(self, channel):
         switch_a = GPIO.input(settings.PIN_CLK)
@@ -67,8 +68,12 @@ class RotaryEncoder():
             event = pygame.event.poll()
 
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
+                if event.key == pygame.K_RIGHT:
                     self.turn_callback(1)
+                elif event.key == pygame.K_LEFT:
+                    self.turn_callback(-1)
+                elif event.key == pygame.K_SPACE:
+                    self.push_callback()
 
             await asyncio.sleep(0.01)
 
