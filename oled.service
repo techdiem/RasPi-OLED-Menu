@@ -7,8 +7,8 @@ Wants=mopidy.service
 User=pi
 Group=pi
 Type=forking
-WorkingDirectory=/home/pi/oled
-ExecStart=/home/pi/oled/oled.py
+WorkingDirectory=/home/pi/oled/oled
+ExecStart=/home/pi/oled/oled/oled.py
 RestartSec=10
 Restart=on-failure
 

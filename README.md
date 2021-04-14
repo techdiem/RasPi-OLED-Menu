@@ -18,10 +18,11 @@ The code is provided without further warranty or support. There is no guarantee 
 2. Install some prerequisites: ``` sudo apt-get install python3-dev python3-pip libfreetype6-dev libjpeg-dev build-essential libopenjp2-7 libtiff5 screen```
 3. Download the code: ``` git clone https://github.com/techdiem/RasPi-OLED-Menu.git oled && cd ./oled```
 4. Install python requirements: ``` pip3 install -r requirements.txt ```
-5. Move font files to the ```fonts``` directory, they aren't included due to their copyright. [instructions](fonts/README.md)
-6. Set the pinout and other configuration values with ``` nano settings.ini ```
-7. Move the systemd config to the correct folder: ``` sudo mv oled.service /etc/systemd/system/ ```
-8. Reload systemd: ``` sudo systemctl daemon-reload ```
+5. Move the systemd config to the correct folder: ``` sudo mv oled.service /etc/systemd/system/ ```
+6. Reload systemd: ``` sudo systemctl daemon-reload ```
+7. Switch to the main code folder: ``` cd ./oled ```
+8. Move font files to the ```fonts``` directory, they aren't included due to their copyright. [instructions](oled/fonts/README.md)
+9. Set the pinout and other configuration values with ``` nano settings.py ```
 
 Start it using ``` python3 oled.py ``` for debug and using ``` sudo systemctl start oled.service ``` for production.
 To start on system boot, use ``` sudo systemctl enable oled.service ```.
