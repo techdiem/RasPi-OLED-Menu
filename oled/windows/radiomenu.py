@@ -2,7 +2,7 @@
 from ui.menubase import MenuBase
 
 class Radiomenu(MenuBase):
-    def __init__(self, windowmanager):
+    def __init__(self, windowmanager, mopidyconnection):
         #TODO get stations
         self.menu = ["abcd", "kjksbdf", "lkasd"]
         super().__init__(windowmanager, "Radiosender", self.menu)
