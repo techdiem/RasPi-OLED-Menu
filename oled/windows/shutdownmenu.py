@@ -16,15 +16,15 @@ class Shutdownmenu(WindowBase):
         with canvas(self.device) as draw:
             draw.text((5, 2), text="Wirklich ausschalten?", font=font, fill="white")
             if self.counter == 0:
-                x = 10
-                y = 22
+                x_coord = 10
+                y_coord = 22
             elif self.counter == 1:
-                x = 47
-                y = 22
+                x_coord = 47
+                y_coord = 22
             else:
-                x = 89
-                y = 22
-            draw.rectangle((x, y, x+30, y+40), outline=255, fill=0)
+                x_coord = 89
+                y_coord = 22
+            draw.rectangle((x_coord, y_coord, x_coord+30, y_coord+40), outline=255, fill=0)
 
             draw.text((13, 25), text="Nein", font=font, fill="white")
             draw.text((15, 40), text="\uf0a8", font=faicons, fill="white")

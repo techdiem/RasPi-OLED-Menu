@@ -17,8 +17,11 @@ class WindowManager():
         print(f"Added {windowid} window")
 
     def set_window(self, windowid):
-        self.activewindow = self.windows[windowid]
-        print(f"Activated {windowid}")
+        try:
+            self.activewindow = self.windows[windowid]
+            print(f"Activated {windowid}")
+        except KeyError:
+            print(f"Window {windowid} not found!")
 
     def clear_window(self):
         print("Show blank screen")

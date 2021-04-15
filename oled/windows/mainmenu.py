@@ -14,19 +14,19 @@ class Mainmenu(WindowBase):
 
         with canvas(self.device) as draw:
             #rectangle as selection marker
-            if self.counter < 3: #currently 3 icons in one row
-                y = 2
-                x = 7 + self.counter * 35
+            if self.counter < 3: #3 icons in one row
+                y_coord = 2
+                x_coord = 7 + self.counter * 35
             else:
-                y = 35
-                x = 6 + (self.counter - 3) * 35
-            draw.rectangle((x, y, x+25, y+25), outline=255, fill=0)
+                y_coord = 35
+                x_coord = 6 + (self.counter - 3) * 35
+            draw.rectangle((x_coord, y_coord, x_coord+25, y_coord+25), outline=255, fill=0)
 
             #icons as menu buttons
-            draw.text((10, 5), text="\uf0a8", font=faicons, fill="white") #back
-            draw.text((45, 5), text="\uf519", font=faicons, fill="white") #radio (old icon: f145)
-            draw.text((82, 5), text="\uf1c7", font=faicons, fill="white") #playlists
-            draw.text((10, 40), text="\uf011", font=faicons, fill="white") #shutdown
+            draw.text((11, 6), text="\uf0a8", font=faicons, fill="white") #back
+            draw.text((44, 6), text="\uf519", font=faicons, fill="white") #radio (old icon: f145)
+            draw.text((83, 6), text="\uf1c7", font=faicons, fill="white") #playlists
+            draw.text((10, 39), text="\uf011", font=faicons, fill="white") #shutdown
 
     def push_callback(self):
         if self.counter == 0:
