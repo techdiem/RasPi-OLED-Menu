@@ -1,5 +1,7 @@
 """ Mopidy/MPD integration """
 import asyncio
+import time
+import concurrent.futures
 import musicpd
 import settings # pylint: disable=import-error
 
@@ -8,32 +10,42 @@ class MopidyControl():
         self.client = musicpd.MPDClient()
         self.loop = loop
         self.connected = False
-        self._radiostations = []
-        self._playlists = []
+        self.radiostations = []
+        self.playlists = []
         self._nowplaying = {}
         self._status = {}
-        self.loop.create_task(self.connect())
+        self.loadedplaylist = ""
+        self._connectionlost()
 
-    async def connect(self):
+    def connect(self):
         print("Connecting to Mopidy...")
-        self.disconnect() #try to disconnect, in case the connection is in an unknown state
-        while self.loop.is_running():
-            if not self.connected:
-                try:
-                    self.client.connect(settings.MPD_IP, settings.MPD_PORT)
-                    print(f"Connected to MPD Version {self.client.mpd_version}")
-                    self.connected = True
-                    self.loop.create_task(self._refresh_content())
-                    self.loop.create_task(self._update())
-                except musicpd.ConnectionError:
-                    print("No connection possible, trying again...")
-            await asyncio.sleep(10)
+        #try to disconnect, in case the connection is in an unknown state
+        try:
+            self.client.disconnect()
+        except musicpd.ConnectionError:
+            pass
+
+        while not self.connected:
+            try:
+                self.client.connect(settings.MPD_IP, settings.MPD_PORT)
+                print(f"Connected to MPD Version {self.client.mpd_version}")
+                self.connected = True
+                self.loop.create_task(self._refresh_content())
+                self.loop.create_task(self._update())
+            except musicpd.ConnectionError:
+                print("No connection possible, trying again...")
+            time.sleep(10)
 
     def status(self):
         return self._status
 
     def nowplaying(self):
         return self._nowplaying
+
+    def _connectionlost(self):
+        self.connected = False
+        executor = concurrent.futures.ThreadPoolExecutor()
+        self.loop.run_in_executor(executor, self.connect)
 
     async def _update(self):
         while self.loop.is_running() and self.connected:
@@ -42,7 +54,7 @@ class MopidyControl():
                 self._status = self.client.status()
             except musicpd.ConnectionError:
                 print("Error updating mopidy status, no connection!")
-                self.connected == False
+                self.connected = False
 
             await asyncio.sleep(10)
 
@@ -71,7 +83,7 @@ class MopidyControl():
             if line.startswith('#EXTINF:'):
                 # EXTINF line with information about the station
                 title = line.split('#EXTINF:')[1].split(',',1)[1]
-                self._radiostations.append(title)
+                self.radiostations.append(title)
 
         playlistfile.close()
 
@@ -84,30 +96,53 @@ class MopidyControl():
             self.connected = False
         for playlist in playlists:
             if playlist["playlist"] != "[Radio Streams]":
-                self._playlists.append(playlist["playlist"])
+                self.playlists.append(playlist["playlist"])
 
 
     def play(self):
-        self.client.play()
+        try:
+            self.client.play()
+        except musicpd.ConnectionError:
+            self._connectionlost()
 
     def pause(self):
-        self.client.pause()
+        try:
+            self.client.pause()
+        except musicpd.ConnectionError:
+            self._connectionlost()
 
     def next(self):
-        self.client.next()
+        try:
+            self.client.next()
+        except musicpd.ConnectionError:
+            self._connectionlost()
 
     def previous(self):
-        self.client.previous()
+        try:
+            self.client.previous()
+        except musicpd.ConnectionError:
+            self._connectionlost()
+
+    def playradiostation(self, stationid):
+        try:
+            self.client.clear()
+            self.client.load("[Radio Streams]")
+            self.loadedplaylist = "[Radio Streams]"
+        except musicpd.ConnectionError:
+            self._connectionlost()
+        try:
+            self.client.play(stationid)
+            print(f"Playing ID {stationid} ({self.radiostations[stationid]})")
+        except musicpd.ConnectionError:
+            self._connectionlost()
+
 
     def loadplaylist(self, name):
-        self.client.clear()
-        self.client.load(name)
-        self.play()
-        print(f"Loaded and playing Playlist {name}")
-
-    def disconnect(self):
         try:
-            self.client.disconnect()
+            self.client.clear()
+            self.client.load(name)
+            self.play()
+            self.loadedplaylist = name
+            print(f"Loaded and playing Playlist {name}")
         except musicpd.ConnectionError:
-            pass
-
+            self._connectionlost()

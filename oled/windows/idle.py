@@ -1,4 +1,5 @@
 """ IDLE screen """
+import datetime
 from ui.windowbase import WindowBase
 from luma.core.render import canvas
 from PIL import ImageFont
@@ -8,12 +9,24 @@ class Idle(WindowBase):
     def __init__(self, windowmanager, mopidyconnection, shairportconnection):
         super().__init__(windowmanager)
         self.counter = 0
+        self.mopidyconnection = mopidyconnection
+        self.shairportconnection = shairportconnection
 
     def render(self):
-        faicons = ImageFont.truetype(settings.FONT_ICONS, size=18)
+        clockfont = ImageFont.truetype(settings.FONT_CLOCK, size=28)
+        font = ImageFont.truetype(settings.FONT_TEXT, size=12)
+        faicons = ImageFont.truetype(settings.FONT_ICONS, size=12)
+        faiconsbig = ImageFont.truetype(settings.FONT_ICONS, size=22)
 
         with canvas(self.device) as draw:
-            pass
+            now = datetime.datetime.now()
+            #Current time
+            draw.text((62, -1), now.strftime("%H:%M"), font=clockfont, fill="white")
+
+            #Currently playing song
+            draw.text((0, 27), text="\uf001", font=faicons, fill="white") #music icon
+            draw.text((12, 29), "Lalala hier ist ein Song", font=font, fill="white")
+
 
     def push_callback(self):
         if self.counter == 0:

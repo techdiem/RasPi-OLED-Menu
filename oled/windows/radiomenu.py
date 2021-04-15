@@ -3,13 +3,12 @@ from ui.menubase import MenuBase
 
 class Radiomenu(MenuBase):
     def __init__(self, windowmanager, mopidyconnection):
-        #TODO get stations
-        self.menu = ["abcd", "kjksbdf", "lkasd"]
-        super().__init__(windowmanager, "Radiosender", self.menu)
+        self.mopidyconnection = mopidyconnection
+        super().__init__(windowmanager, "Radiosender", self.mopidyconnection.radiostations)
 
     def push_callback(self):
         if self.counter == 0:
             self.windowmanager.set_window("mainmenu")
         else:
-            #TODO load radio station
+            self.mopidyconnection.playradiostation(self.counter + self.page)
             self.windowmanager.set_window("idle")

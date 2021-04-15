@@ -16,5 +16,5 @@ MPD_PORT = 6600
 
 #Font files (TrueType)
 FONT_ICONS = "fonts/fontawesome.otf"
-FONT_TEXT = "fonts/calibri.ttf"
-FONT_CLOCK = "fonts/kristenITC.ttf"
+FONT_TEXT = "fonts/arial.ttf"
+FONT_CLOCK = "fonts/calibri.ttf"

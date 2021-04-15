@@ -56,7 +56,6 @@ def main():
     rotaryenc = RotaryEncoder(loop, settings.EMULATED, turn_callback, push_callback)
 
 
-
     try:
         loop.run_forever()
     except (KeyboardInterrupt, SystemExit):
