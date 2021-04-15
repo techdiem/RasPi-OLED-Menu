@@ -10,5 +10,5 @@ class Playlistmenu(MenuBase):
         if self.counter == 0:
             self.windowmanager.set_window("mainmenu")
         else:
-            #TODO load playlist
+            self.mopidyconnection.loadplaylist(self.mopidyconnection.playlists[self.counter-1])
             self.windowmanager.set_window("idle")

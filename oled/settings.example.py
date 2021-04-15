@@ -3,7 +3,7 @@ Software settings
 """
 
 STATIONSPLAYLIST = "/music/playlists/[Radio Streams].m3u8"
-EMULATED = True
+EMULATED = False
 
 #Pins for rotary encoder
 PIN_CLK = 17

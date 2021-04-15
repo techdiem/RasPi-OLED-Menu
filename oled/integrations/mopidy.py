@@ -29,6 +29,7 @@ class MopidyControl():
             try:
                 self.client.connect(settings.MPD_IP, settings.MPD_PORT)
                 print(f"Connected to MPD Version {self.client.mpd_version}")
+                self.playlists = []
                 self.connected = True
                 self.loop.create_task(self._refresh_content())
                 self.loop.create_task(self._update())
@@ -54,7 +55,7 @@ class MopidyControl():
                 self._status = self.client.status()
             except musicpd.ConnectionError:
                 print("Error updating mopidy status, no connection!")
-                self.connected = False
+                self._connectionlost()
 
             await asyncio.sleep(10)
 
@@ -93,21 +94,18 @@ class MopidyControl():
             playlists = self.client.listplaylists()
         except musicpd.ConnectionError:
             print("Error loading playlists, no connection!")
-            self.connected = False
+            self._connectionlost()
         for playlist in playlists:
-            if playlist["playlist"] != "[Radio Streams]":
+            if playlist["playlist"] != "[Radio Streams":
                 self.playlists.append(playlist["playlist"])
 
 
-    def play(self):
+    def playpause(self):
         try:
-            self.client.play()
-        except musicpd.ConnectionError:
-            self._connectionlost()
-
-    def pause(self):
-        try:
-            self.client.pause()
+            if self._status["state"] == "play":
+                self.client.pause()
+            else:
+                self.client.play()
         except musicpd.ConnectionError:
             self._connectionlost()
 
@@ -141,7 +139,7 @@ class MopidyControl():
         try:
             self.client.clear()
             self.client.load(name)
-            self.play()
+            self.client.play()
             self.loadedplaylist = name
             print(f"Loaded and playing Playlist {name}")
         except musicpd.ConnectionError:

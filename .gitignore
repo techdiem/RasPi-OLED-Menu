@@ -2,6 +2,9 @@ venv/
 .vscode/
 __pycache__/
 
+#see oled/settings.example.py
+oled/settings.py
+
 #See fonts/README.md
 *.ttf
 *.otf
