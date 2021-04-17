@@ -37,7 +37,7 @@ class WindowManager():
                     self.activewindow.render()
                 except (NotImplementedError, AttributeError):
                     pass
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.25)
 
     def push_callback(self):
         if self.screenpower:
@@ -48,8 +48,7 @@ class WindowManager():
         else:
             self.screenpower = True
             self.device.show()
-            #TODO Set idle screen
-            self.set_window("start")
+            self.set_window("idle")
 
     def turn_callback(self, direction):
         try:

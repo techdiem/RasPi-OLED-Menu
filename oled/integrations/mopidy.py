@@ -12,8 +12,8 @@ class MopidyControl():
         self.connected = False
         self.radiostations = []
         self.playlists = []
-        self._nowplaying = {}
-        self._status = {}
+        self.nowplaying = {}
+        self.status = {}
         self.loadedplaylist = ""
         self._connectionlost()
 
@@ -37,12 +37,6 @@ class MopidyControl():
                 print("No connection possible, trying again...")
             time.sleep(10)
 
-    def status(self):
-        return self._status
-
-    def nowplaying(self):
-        return self._nowplaying
-
     def _connectionlost(self):
         self.connected = False
         executor = concurrent.futures.ThreadPoolExecutor()
@@ -51,8 +45,8 @@ class MopidyControl():
     async def _update(self):
         while self.loop.is_running() and self.connected:
             try:
-                self._nowplaying = self.client.currentsong()
-                self._status = self.client.status()
+                self.nowplaying = self.client.currentsong()
+                self.status = self.client.status()
             except musicpd.ConnectionError:
                 print("Error updating mopidy status, no connection!")
                 self._connectionlost()
@@ -102,7 +96,7 @@ class MopidyControl():
 
     def playpause(self):
         try:
-            if self._status["state"] == "play":
+            if self.status["state"] == "play":
                 self.client.pause()
             else:
                 self.client.play()

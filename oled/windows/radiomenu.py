@@ -10,5 +10,5 @@ class Radiomenu(MenuBase):
         if self.counter == 0:
             self.windowmanager.set_window("mainmenu")
         else:
-            self.mopidyconnection.playradiostation(self.counter + self.page)
+            self.mopidyconnection.playradiostation(self.counter + self.page - 1)
             self.windowmanager.set_window("idle")

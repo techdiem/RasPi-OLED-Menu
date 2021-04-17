@@ -26,7 +26,7 @@ class RotaryEncoder():
             self._setup_gpio(settings.PIN_CLK, settings.PIN_DT, settings.PIN_SW)
             print("Using rotary encoder interrupts")
 
-    def _rotary_push(self):
+    def _rotary_push(self, channel):
         self.push_callback()
 
     def _rotary_turn(self, channel):

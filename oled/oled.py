@@ -5,6 +5,7 @@ from integrations.display import get_display
 from integrations.rotaryencoder import RotaryEncoder
 from integrations.mopidy import MopidyControl
 from integrations.shairport import ShairportMetadata
+from integrations.musicmanager import Musicmanager
 from ui.windowmanager import WindowManager
 import windows.idle
 import windows.mainmenu
@@ -26,12 +27,13 @@ def main():
     #Software integrations
     mopidy = MopidyControl(loop)
     def airplay_callback(info, nowplaying):
-        idlescreen.airplay_callback(info, nowplaying)
+        musicmanager.airplay_callback(info, nowplaying)
     shairport = ShairportMetadata(airplay_callback)
+    musicmanager = Musicmanager(mopidy, shairport)
 
     #Import all window classes and generate objects of them
     loadedwins = []
-    idlescreen = windows.idle.Idle(windowmanager, mopidy, shairport)
+    idlescreen = windows.idle.Idle(windowmanager, musicmanager)
     loadedwins.append(idlescreen)
     loadedwins.append(windows.mainmenu.Mainmenu(windowmanager))
     loadedwins.append(windows.playlistmenu.Playlistmenu(windowmanager, mopidy))

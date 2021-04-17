@@ -8,21 +8,23 @@ class ShairportMetadata():
         try:
             self.airplaylistener.start_listening()
         except FileNotFoundError:
-            print("Shairport-Socket cannot be found, no AirPlay info avaiable!")
+            print("Shairport Socket cannot be found, no AirPlay info avaiable!")
         self.on_track_callback = on_track_callback
+        self._info = {}
 
     def _on_track_info(self, lis, info):
         del lis
-        self.on_track_callback(info, self._nowplaying(info))
+        self._info = info
+        self.on_track_callback(lis, info)
 
-    @staticmethod
-    def _nowplaying(info):
-        if 'songartist' in info and 'itemname' in info:
-            return f"{info['songartist']} - {info['itemname']}"
-        elif 'itemname' in info:
-            return info['itemname']
+    def nowplaying(self):
+        if 'songartist' in self._info and 'itemname' in self._info:
+            info = {"name": self._info['songartist'], "title": self._info['itemname']}
+        elif 'itemname' in self._info:
+            info = {"name": self.airplaylistener.client_name, "title": self._info['itemname']}
         else:
-            return "AirPlay Streaming"
+            info = {"name": self.airplaylistener.client_name, "title": "AirPlay Streaming"}
+        return info
 
     def cleanup(self):
         self.airplaylistener.stop_listening()
