@@ -57,7 +57,7 @@ class MopidyControl():
         while self.loop.is_running() and self.connected:
             await self._refresh_radiostations()
             await self._refresh_playlists()
-            await asyncio.sleep(300)
+            await asyncio.sleep(600)
 
 
     async def _refresh_radiostations(self):
@@ -90,7 +90,7 @@ class MopidyControl():
             print("Error loading playlists, no connection!")
             self._connectionlost()
         for playlist in playlists:
-            if playlist["playlist"] != "[Radio Streams":
+            if playlist["playlist"] != "[Radio Streams]":
                 self.playlists.append(playlist["playlist"])
 
 
@@ -115,7 +115,18 @@ class MopidyControl():
         except musicpd.ConnectionError:
             self._connectionlost()
 
+    def stop(self):
+        try:
+            self.client.stop()
+        except musicpd.ConnectionError:
+            self._connectionlost()
+
     def playradiostation(self, stationid):
+        #Start stream in background
+        executor = concurrent.futures.ThreadPoolExecutor()
+        self.loop.run_in_executor(executor, self._playradiostation, stationid)
+
+    def _playradiostation(self, stationid):
         try:
             self.client.clear()
             self.client.load("[Radio Streams]")

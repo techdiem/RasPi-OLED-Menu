@@ -1,5 +1,6 @@
 """Start file for Werkstattradio OLED controller"""
 import asyncio
+from subprocess import call
 import settings
 from integrations.display import get_display
 from integrations.rotaryencoder import RotaryEncoder
@@ -14,7 +15,6 @@ import windows.radiomenu
 import windows.shutdownmenu
 import windows.start
 
-
 def main():
     loop = asyncio.get_event_loop()
 
@@ -28,17 +28,19 @@ def main():
     mopidy = MopidyControl(loop)
     def airplay_callback(info, nowplaying):
         musicmanager.airplay_callback(info, nowplaying)
+        print(info)
     shairport = ShairportMetadata(airplay_callback)
     musicmanager = Musicmanager(mopidy, shairport)
 
     #Import all window classes and generate objects of them
     loadedwins = []
     idlescreen = windows.idle.Idle(windowmanager, musicmanager)
+    shutdownscreen = windows.shutdownmenu.Shutdownmenu(windowmanager, mopidy)
     loadedwins.append(idlescreen)
     loadedwins.append(windows.mainmenu.Mainmenu(windowmanager))
     loadedwins.append(windows.playlistmenu.Playlistmenu(windowmanager, mopidy))
     loadedwins.append(windows.radiomenu.Radiomenu(windowmanager, mopidy))
-    loadedwins.append(windows.shutdownmenu.Shutdownmenu(windowmanager))
+    loadedwins.append(shutdownscreen)
     loadedwins.append(windows.start.Start(windowmanager))
 
     for window in loadedwins:
@@ -65,6 +67,8 @@ def main():
     finally:
         rotaryenc.cleanup()
         loop.close()
+        if shutdownscreen.execshutdown:
+            call("sudo shutdown -h now", shell=True)
 
 
 if __name__ == '__main__':

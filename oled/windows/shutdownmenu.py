@@ -8,9 +8,11 @@ class Shutdownmenu(WindowBase):
     font = ImageFont.truetype(settings.FONT_TEXT, size=12)
     faicons = ImageFont.truetype(settings.FONT_ICONS, size=18)
 
-    def __init__(self, windowmanager):
+    def __init__(self, windowmanager, mopidyconnection):
         super().__init__(windowmanager)
         self.counter = 0
+        self.mopidyconnection = mopidyconnection
+        self.execshutdown = False
 
     def render(self):
         with canvas(self.device) as draw:
@@ -39,8 +41,9 @@ class Shutdownmenu(WindowBase):
         if self.counter == 0:
             self.windowmanager.set_window("mainmenu")
         elif self.counter == 1:
-            pass
-            #TODO Shutdown system function
+            self.mopidyconnection.stop()
+            self.execshutdown = True
+            raise SystemExit
         elif self.counter == 2:
             self.windowmanager.clear_window()
 

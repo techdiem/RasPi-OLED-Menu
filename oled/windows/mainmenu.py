@@ -24,7 +24,7 @@ class Mainmenu(WindowBase):
 
             #icons as menu buttons
             draw.text((11, 6), text="\uf0a8", font=Mainmenu.faicons, fill="white") #back
-            draw.text((44, 6), text="\uf519", font=Mainmenu.faicons, fill="white") #radio (old icon: f145)
+            draw.text((44, 6), text="\uf519", font=Mainmenu.faicons, fill="white") #radio
             draw.text((83, 6), text="\uf1c7", font=Mainmenu.faicons, fill="white") #playlists
             draw.text((10, 39), text="\uf011", font=Mainmenu.faicons, fill="white") #shutdown
 

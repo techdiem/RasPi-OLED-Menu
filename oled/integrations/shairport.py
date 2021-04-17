@@ -2,11 +2,12 @@
 from shairportmetadatareader import AirplayPipeListener
 
 class ShairportMetadata():
-    def __init__(self, on_track_callback):
+    def __init__(self, on_track_callback=None):
         self.airplaylistener = AirplayPipeListener()
         self.airplaylistener.bind(track_info=self._on_track_info)
         try:
             self.airplaylistener.start_listening()
+            print("Connected to Shairport Socket")
         except FileNotFoundError:
             print("Shairport Socket cannot be found, no AirPlay info avaiable!")
         self.on_track_callback = on_track_callback

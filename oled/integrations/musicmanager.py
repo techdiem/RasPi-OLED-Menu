@@ -8,7 +8,7 @@ class Musicmanager():
         self.source = "mpd"
 
     def airplay_callback(self, lis, info):
-        if self.mopidyconnection.status()["state"] == "play" and self.source == "mpd":
+        if self.mopidyconnection.status["state"] == "play" and self.source == "mpd":
             self.mopidyconnection.playpause()
             self.source = "airplay"
 
