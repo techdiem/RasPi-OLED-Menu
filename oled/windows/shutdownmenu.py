@@ -5,16 +5,16 @@ from PIL import ImageFont
 import settings
 
 class Shutdownmenu(WindowBase):
+    font = ImageFont.truetype(settings.FONT_TEXT, size=12)
+    faicons = ImageFont.truetype(settings.FONT_ICONS, size=18)
+
     def __init__(self, windowmanager):
         super().__init__(windowmanager)
         self.counter = 0
 
     def render(self):
-        font = ImageFont.truetype(settings.FONT_TEXT, size=12)
-        faicons = ImageFont.truetype(settings.FONT_ICONS, size=18)
-
         with canvas(self.device) as draw:
-            draw.text((5, 2), text="Wirklich ausschalten?", font=font, fill="white")
+            draw.text((5, 2), text="Wirklich ausschalten?", font=Shutdownmenu.font, fill="white")
             if self.counter == 0:
                 x_coord = 10
                 y_coord = 22
@@ -26,14 +26,14 @@ class Shutdownmenu(WindowBase):
                 y_coord = 22
             draw.rectangle((x_coord, y_coord, x_coord+30, y_coord+40), outline=255, fill=0)
 
-            draw.text((13, 25), text="Nein", font=font, fill="white")
-            draw.text((15, 40), text="\uf0a8", font=faicons, fill="white")
+            draw.text((13, 25), text="Nein", font=Shutdownmenu.font, fill="white")
+            draw.text((15, 40), text="\uf0a8", font=Shutdownmenu.faicons, fill="white")
 
-            draw.text((56, 25), text="Ja", font=font, fill="white")
-            draw.text((55, 40), text="\uf011", font=faicons, fill="white")
+            draw.text((56, 25), text="Ja", font=Shutdownmenu.font, fill="white")
+            draw.text((55, 40), text="\uf011", font=Shutdownmenu.faicons, fill="white")
 
-            draw.text((92, 25), text="DSP", font=font, fill="white")
-            draw.text((94, 40), text="\uf108", font=faicons, fill="white")
+            draw.text((92, 25), text="DSP", font=Shutdownmenu.font, fill="white")
+            draw.text((94, 40), text="\uf108", font=Shutdownmenu.faicons, fill="white")
 
     def push_callback(self):
         if self.counter == 0:

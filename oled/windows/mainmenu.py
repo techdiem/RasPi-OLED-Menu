@@ -5,13 +5,13 @@ from PIL import ImageFont
 import settings
 
 class Mainmenu(WindowBase):
+    faicons = ImageFont.truetype(settings.FONT_ICONS, size=18)
+
     def __init__(self, windowmanager):
         super().__init__(windowmanager)
         self.counter = 0
 
     def render(self):
-        faicons = ImageFont.truetype(settings.FONT_ICONS, size=18)
-
         with canvas(self.device) as draw:
             #rectangle as selection marker
             if self.counter < 3: #3 icons in one row
@@ -23,10 +23,10 @@ class Mainmenu(WindowBase):
             draw.rectangle((x_coord, y_coord, x_coord+25, y_coord+25), outline=255, fill=0)
 
             #icons as menu buttons
-            draw.text((11, 6), text="\uf0a8", font=faicons, fill="white") #back
-            draw.text((44, 6), text="\uf519", font=faicons, fill="white") #radio (old icon: f145)
-            draw.text((83, 6), text="\uf1c7", font=faicons, fill="white") #playlists
-            draw.text((10, 39), text="\uf011", font=faicons, fill="white") #shutdown
+            draw.text((11, 6), text="\uf0a8", font=Mainmenu.faicons, fill="white") #back
+            draw.text((44, 6), text="\uf519", font=Mainmenu.faicons, fill="white") #radio (old icon: f145)
+            draw.text((83, 6), text="\uf1c7", font=Mainmenu.faicons, fill="white") #playlists
+            draw.text((10, 39), text="\uf011", font=Mainmenu.faicons, fill="white") #shutdown
 
     def push_callback(self):
         if self.counter == 0:
