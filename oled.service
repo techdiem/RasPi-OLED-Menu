@@ -1,7 +1,5 @@
 [Unit]
 Description=OLED display provider
-After=mopidy.service
-Wants=mopidy.service
 
 [Service]
 Environment=PYTHONUNBUFFERED=1

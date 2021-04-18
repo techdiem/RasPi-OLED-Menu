@@ -14,7 +14,7 @@ TODO: Add new usage images
 ## Installation
 The code is provided without further warranty or support. There is no guarantee that it will work properly, since I am not a professional developer and only develop this project in my spare time.
 1. Install [Raspberry Pi OS](https://www.raspberrypi.org/downloads/raspberry-pi-os/) to your SD Card and set it up (there are lots of great guides online)
-2. Install some prerequisites: ``` sudo apt-get install python3-dev python3-pip libfreetype6-dev libjpeg-dev build-essential libopenjp2-7 libtiff5```
+2. Install some prerequisites: ``` sudo apt-get install python3-dev python3-pip libfreetype6-dev build-essential libopenjp2-7 libtiff5```
 3. Download the code: ``` git clone https://github.com/techdiem/RasPi-OLED-Menu.git oledctrl && cd ./oledctrl```
 4. Install python requirements: ``` pip3 install -r requirements.txt ```
 5. Move the systemd config to the correct folder: ``` sudo mv oled.service /etc/systemd/system/ ```
