@@ -33,9 +33,9 @@ class Idle(WindowBase):
             except KeyError:
                 pass
 
+            draw.text((1, 48), "\uf65d", font=Idle.faicons, fill="white") #menu
             if self.musicmanager.source == "mpd":
                 #Buttons
-                draw.text((1, 48), "\uf65d", font=Idle.faicons, fill="white") #menu
                 draw.text((31, 48), "\uf04a", font=Idle.faicons, fill="white") #prev
                 try:
                     if self.musicmanager.status()["state"] == "play":

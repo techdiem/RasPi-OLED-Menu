@@ -34,7 +34,6 @@ def main():
     mopidy = MopidyControl(loop)
     def airplay_callback(info, nowplaying):
         musicmanager.airplay_callback(info, nowplaying)
-        print(info)
     shairport = ShairportMetadata(airplay_callback)
     musicmanager = Musicmanager(mopidy, shairport)
 
