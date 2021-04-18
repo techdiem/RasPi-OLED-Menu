@@ -20,6 +20,7 @@ class ShairportMetadata():
         self.on_track_callback(lis, info)
 
     def _on_connect_info(self, lis, connected):
+        del lis
         print("Device connected:", connected)
         self.connected = connected
 

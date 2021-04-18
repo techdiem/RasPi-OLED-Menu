@@ -27,6 +27,7 @@ class RotaryEncoder():
             print("Using rotary encoder interrupts")
 
     def _rotary_push(self, channel):
+        del channel
         self.push_callback()
 
     def _rotary_turn(self, channel):

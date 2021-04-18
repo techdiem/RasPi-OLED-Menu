@@ -50,7 +50,8 @@ class Idle(WindowBase):
             if self.counter == 0:
                 draw.line((1, 61, 12, 61), width=2, fill="white")
             elif self.counter != 0 and self.musicmanager.source == "mpd":
-                draw.line((31+(self.counter-1)*15, 61, 42+(self.counter-1)*15, 61), width=2, fill="white")
+                draw.line((31+(self.counter-1)*15, 61, 42+(self.counter-1)*15, 61),
+                                                            width=2, fill="white")
 
 
     def push_callback(self):

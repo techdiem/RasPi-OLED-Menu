@@ -8,6 +8,7 @@ class Musicmanager():
         self.source = "mpd"
 
     def airplay_callback(self, lis, info):
+        del lis, info
         if self.source == "mpd":
             self.source = "airplay"
             print("Switched to AirPlay")
