@@ -21,7 +21,6 @@ class ShairportMetadata():
 
     def _on_connect_info(self, lis, connected):
         del lis
-        print("Device connected:", connected)
         self.connected = connected
 
     def nowplaying(self):
