@@ -1,5 +1,6 @@
 """Start file for Werkstattradio OLED controller"""
 import asyncio
+import signal
 from subprocess import call
 import settings
 from integrations.display import get_display
@@ -14,6 +15,11 @@ import windows.playlistmenu
 import windows.radiomenu
 import windows.shutdownmenu
 import windows.start
+
+#Systemd exit
+def gracefulexit(signaltype, frame):
+    raise SystemExit
+signal.signal(signal.SIGTERM, gracefulexit)
 
 def main():
     loop = asyncio.get_event_loop()
@@ -41,13 +47,13 @@ def main():
     loadedwins.append(windows.playlistmenu.Playlistmenu(windowmanager, mopidy))
     loadedwins.append(windows.radiomenu.Radiomenu(windowmanager, mopidy))
     loadedwins.append(shutdownscreen)
-    loadedwins.append(windows.start.Start(windowmanager))
+    loadedwins.append(windows.start.Start(windowmanager, mopidy))
 
     for window in loadedwins:
         windowmanager.add_window(window.__class__.__name__.lower(), window)
 
     #Load start window
-    windowmanager.set_window("idle")
+    windowmanager.set_window("start")
 
 
     #Rotary encoder setup

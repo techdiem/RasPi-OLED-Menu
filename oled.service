@@ -4,13 +4,13 @@ After=mopidy.service
 Wants=mopidy.service
 
 [Service]
+Environment=PYTHONUNBUFFERED=1
 User=pi
 Group=pi
-Type=forking
-WorkingDirectory=/home/pi/oled/oled
-ExecStart=/home/pi/oled/oled/oled.py
+WorkingDirectory=/home/pi/oledctrl/oled
+ExecStart=python3 /home/pi/oledctrl/oled/oled.py
 RestartSec=10
-Restart=on-failure
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
