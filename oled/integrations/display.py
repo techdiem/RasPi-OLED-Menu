@@ -1,6 +1,8 @@
 """ Display hardware or emulator """
-def get_display(emulated):
-    if emulated:
+import settings
+
+def get_display():
+    if settings.EMULATED:
         import luma.emulator.device
 
         class EmuPygame(luma.emulator.device.pygame):

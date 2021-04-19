@@ -9,13 +9,12 @@ except ImportError:
     pass
 
 class RotaryEncoder():
-    def __init__(self, loop, emulated, turn_callback, push_callback):
+    def __init__(self, loop, turn_callback, push_callback):
         self.loop = loop
-        self.emulated = emulated
         self.turn_callback = turn_callback
         self.push_callback = push_callback
 
-        if self.emulated:
+        if settings.EMULATED:
             self.loop.create_task(self._poll_pygame_keys())
             print("Polling PyGame keys")
         else:
@@ -77,6 +76,8 @@ class RotaryEncoder():
 
             await asyncio.sleep(0.01)
 
-    def cleanup(self):
-        if not self.emulated:
+    @staticmethod
+    def cleanup():
+        print("Cleaning up GPIO")
+        if not settings.EMULATED:
             GPIO.cleanup()

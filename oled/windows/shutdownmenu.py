@@ -43,7 +43,8 @@ class Shutdownmenu(WindowBase):
         elif self.counter == 1:
             self.mopidyconnection.stop()
             self.execshutdown = True
-            raise SystemExit
+            print("Stopping event loop")
+            self.loop.stop()
         elif self.counter == 2:
             self.windowmanager.clear_window()
 

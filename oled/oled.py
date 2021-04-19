@@ -1,8 +1,8 @@
 """Start file for Werkstattradio OLED controller"""
 import asyncio
 import signal
+import sys
 from subprocess import call
-import settings
 from integrations.display import get_display
 from integrations.rotaryencoder import RotaryEncoder
 from integrations.mopidy import MopidyControl
@@ -17,15 +17,15 @@ import windows.shutdownmenu
 import windows.start
 
 #Systemd exit
-def gracefulexit(signaltype, frame):
-    raise SystemExit
+def gracefulexit(signum, frame):
+    sys.exit(0)
 signal.signal(signal.SIGTERM, gracefulexit)
 
 def main():
     loop = asyncio.get_event_loop()
 
     #Display = real hardware or emulator (depending on settings)
-    display = get_display(settings.EMULATED)
+    display = get_display()
 
     #screen = windowmanager
     windowmanager = WindowManager(loop, display)
@@ -62,7 +62,7 @@ def main():
     def push_callback():
         windowmanager.push_callback()
 
-    rotaryenc = RotaryEncoder(loop, settings.EMULATED, turn_callback, push_callback)
+    RotaryEncoder(loop, turn_callback, push_callback)
 
 
     try:
@@ -70,11 +70,14 @@ def main():
     except (KeyboardInterrupt, SystemExit):
         print("Exiting")
     finally:
-        rotaryenc.cleanup()
         loop.close()
-        if shutdownscreen.execshutdown:
-            call("sudo shutdown -h now", shell=True)
+
+    if shutdownscreen.execshutdown:
+        print("Shutting down system")
+        call("sudo shutdown -h now", shell=True)
 
 
 if __name__ == '__main__':
     main()
+    RotaryEncoder.cleanup()
+    sys.exit(0)
