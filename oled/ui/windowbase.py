@@ -6,6 +6,12 @@ class WindowBase():
         self.device = self.windowmanager.device
         self.loop = self.windowmanager.loop
 
+    def activate(self):
+        raise NotImplementedError()
+
+    def deactivate(self):
+        raise NotImplementedError()
+
     def render(self):
         raise NotImplementedError()
 

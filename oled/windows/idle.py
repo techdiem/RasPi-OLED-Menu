@@ -1,5 +1,6 @@
 """ IDLE screen """
 import datetime
+import asyncio
 from ui.windowbase import WindowBase
 from luma.core.render import canvas
 from PIL import ImageFont
@@ -13,7 +14,17 @@ class Idle(WindowBase):
     def __init__(self, windowmanager, musicmanager):
         super().__init__(windowmanager)
         self.counter = 0
+        self._active = False
         self.musicmanager = musicmanager
+        self._playingname = ""
+        self._playingtitle = ""
+
+    def activate(self):
+        self._active = True
+        self.loop.create_task(self._generatenowplaying())
+
+    def deactivate(self):
+        self._active = False
 
     def render(self):
         with canvas(self.device) as draw:
@@ -26,16 +37,12 @@ class Idle(WindowBase):
             draw.text((62, -1), now.strftime("%H:%M"), font=Idle.clockfont, fill="white")
 
             #Currently playing song
-            playing = self.musicmanager.nowplaying()
-            try:
-                draw.text((1, 23), playing["name"][0:15], font=Idle.font, fill="white")
-                draw.text((1, 35), playing["title"][0:15], font=Idle.font, fill="white")
-            except KeyError:
-                pass
+            draw.text((1, 23), self._playingname, font=Idle.font, fill="white")
+            draw.text((1, 35), self._playingtitle, font=Idle.font, fill="white")
 
+            #Buttons
             draw.text((1, 48), "\uf65d", font=Idle.faicons, fill="white") #menu
             if self.musicmanager.source == "mpd":
-                #Buttons
                 draw.text((31, 48), "\uf04a", font=Idle.faicons, fill="white") #prev
                 try:
                     if self.musicmanager.status()["state"] == "play":
@@ -52,6 +59,43 @@ class Idle(WindowBase):
             elif self.counter != 0 and self.musicmanager.source == "mpd":
                 draw.line((31+(self.counter-1)*15, 61, 42+(self.counter-1)*15, 61),
                                                             width=2, fill="white")
+
+    async def _generatenowplaying(self):
+        namex = 0
+        titlex = 0
+        oldname = ""
+        oldtitle = ""
+        while self.loop.is_running() and self._active:
+            playing = self.musicmanager.nowplaying()
+            if "name" in playing:
+                name = playing['name']
+            elif "artist" in playing and "album" in playing:
+                name = f"{playing['artist']} - {playing['album']}"
+            else:
+                name = ""
+
+            if name == oldname and Idle.font.getsize(name[namex:])[0] > 127:
+                namex += 1
+            else:
+                namex = 0
+                oldname = name
+
+            self._playingname = name[namex:]
+
+            if "title" in playing:
+                title = playing['title']
+            else:
+                title = ""
+
+            if title == oldtitle and Idle.font.getsize(title[titlex:])[0] > 127:
+                titlex += 1
+            else:
+                titlex = 0
+                oldtitle = title
+            self._playingtitle = title[titlex:]
+
+            await asyncio.sleep(1)
+
 
 
     def push_callback(self):

@@ -28,14 +28,15 @@ class MopidyControl():
         while not self.connected:
             try:
                 self.client.connect(settings.MPD_IP, settings.MPD_PORT)
+            except musicpd.ConnectionError:
+                print("No connection possible, trying again...")
+                time.sleep(10)
+            else:
                 print(f"Connected to MPD Version {self.client.mpd_version}")
                 self.playlists = []
                 self.connected = True
                 self.loop.create_task(self._refresh_content())
                 self.loop.create_task(self._update())
-            except musicpd.ConnectionError:
-                print("No connection possible, trying again...")
-            time.sleep(10)
 
     def _connectionlost(self):
         self.connected = False
