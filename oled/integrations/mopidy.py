@@ -33,7 +33,6 @@ class MopidyControl():
                 time.sleep(10)
             else:
                 print(f"Connected to MPD Version {self.client.mpd_version}")
-                self.playlists = []
                 self.connected = True
                 self.loop.create_task(self._refresh_content())
                 self.loop.create_task(self._update())
@@ -67,21 +66,22 @@ class MopidyControl():
             playlistfile = open(settings.STATIONSPLAYLIST)
         except FileNotFoundError:
             print("Error loading radio stations: File does not exist.")
-            return None
+        else:
+            #Check if it is a non-broken m3u8/m3u file
+            line = playlistfile.readline()
+            if not line.startswith('#EXTM3U'):
+                print("Error loading radio stations: The m3u8 file is invalid!")
+                return None
 
-        #Check if it is a non-broken m3u8/m3u file
-        line = playlistfile.readline()
-        if not line.startswith('#EXTM3U'):
-            print("Error loading radio stations: The m3u8 file is invalid!")
+            self.radiostations = []
+            for line in playlistfile:
+                line = line.strip()
+                if line.startswith('#EXTINF:'):
+                    # EXTINF line with information about the station
+                    title = line.split('#EXTINF:')[1].split(',',1)[1]
+                    self.radiostations.append(title)
 
-        for line in playlistfile:
-            line = line.strip()
-            if line.startswith('#EXTINF:'):
-                # EXTINF line with information about the station
-                title = line.split('#EXTINF:')[1].split(',',1)[1]
-                self.radiostations.append(title)
-
-        playlistfile.close()
+            playlistfile.close()
 
     async def _refresh_playlists(self):
         #Load playlists
@@ -90,9 +90,11 @@ class MopidyControl():
         except musicpd.ConnectionError:
             print("Error loading playlists, no connection!")
             self._connectionlost()
-        for playlist in playlists:
-            if playlist["playlist"] != "[Radio Streams]":
-                self.playlists.append(playlist["playlist"])
+        else:
+            self.playlists = []
+            for playlist in playlists:
+                if playlist["playlist"] != "[Radio Streams]":
+                    self.playlists.append(playlist["playlist"])
 
 
     def playpause(self):
