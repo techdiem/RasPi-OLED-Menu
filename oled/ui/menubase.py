@@ -5,11 +5,11 @@ from PIL import ImageFont
 import settings
 
 class MenuBase(WindowBase):
-    def __init__(self, windowmanager, title, entries):
+    def __init__(self, windowmanager, title):
         super().__init__(windowmanager)
         self.counter = 0
         self.page = 0
-        self.menu = entries
+        self.menu = []
         self.title = title
 
     def render(self):

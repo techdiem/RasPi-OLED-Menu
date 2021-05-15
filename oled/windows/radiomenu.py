@@ -4,7 +4,10 @@ from ui.menubase import MenuBase
 class Radiomenu(MenuBase):
     def __init__(self, windowmanager, mopidyconnection):
         self.mopidyconnection = mopidyconnection
-        super().__init__(windowmanager, "Radiosender", self.mopidyconnection.radiostations)
+        super().__init__(windowmanager, "Radiosender")
+
+    def activate(self):
+        self.menu = self.mopidyconnection.radiostations
 
     def push_callback(self):
         if self.counter == 0:
