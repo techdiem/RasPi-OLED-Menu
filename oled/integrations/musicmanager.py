@@ -12,7 +12,7 @@ class Musicmanager():
         if self.source == "mpd":
             self.source = "airplay"
             print("Switched to AirPlay")
-            if self.mopidyconnection.status["state"] == "play":
+            if self.mopidyconnection.status == "play":
                 self.mopidyconnection.playpause()
 
     def status(self):
@@ -35,7 +35,11 @@ class Musicmanager():
     def previous(self):
         if self.source == "mpd":
             return self.mopidyconnection.previous()
+        elif self.source == "airplay":
+            return self.shairportconnection.previous()
 
     def next(self):
         if self.source == "mpd":
             return self.mopidyconnection.next()
+        elif self.source == "airplay":
+            return self.shairportconnection.next()

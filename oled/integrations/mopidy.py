@@ -46,7 +46,10 @@ class MopidyControl():
         while self.loop.is_running() and self.connected:
             try:
                 self.nowplaying = self.client.currentsong()
-                self.status = self.client.status()
+                try:
+                    self.status = self.client.status()['state']
+                except KeyError:
+                    pass
             except musicpd.ConnectionError:
                 print("Error updating mopidy status, no connection!")
                 self._connectionlost()

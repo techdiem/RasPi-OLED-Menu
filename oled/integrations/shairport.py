@@ -1,8 +1,10 @@
 """ Shairport-Sync metadata reader """
-from shairportmetadatareader import AirplayPipeListener
+import asyncio
+from shairportmetadatareader import AirplayPipeListener, AirplayCommand
 
 class ShairportMetadata():
-    def __init__(self, on_track_callback=None):
+    def __init__(self, loop, on_track_callback=None):
+        self.loop = loop
         self.airplaylistener = AirplayPipeListener()
         self.airplaylistener.bind(track_info=self._on_track_info,
                                     connected=self._on_connect_info)
@@ -14,6 +16,7 @@ class ShairportMetadata():
         self.on_track_callback = on_track_callback
         self._info = {}
         self.connected = False
+        self._airplayremote = None
 
     def _on_track_info(self, lis, info):
         self._info = info
@@ -22,6 +25,16 @@ class ShairportMetadata():
     def _on_connect_info(self, lis, connected):
         del lis
         self.connected = connected
+        if connected == True:
+            self.loop.create_task(self._connectremote())
+
+    async def _connectremote(self):
+        while self.loop.is_running() and not self.airplaylistener.has_remote_data and self.connected:
+            await asyncio.sleep(1)
+        if self.airplaylistener.has_remote_data:
+            self._airplayremote = self.airplaylistener.get_remote()
+            print("AirPlay remote connected.")
+
 
     def nowplaying(self):
         info = {}
@@ -41,6 +54,12 @@ class ShairportMetadata():
             info['title'] = "AirPlay Streaming"
 
         return info
+
+    def next(self):
+        self._airplayremote.send_command("nextitem")
+
+    def previous(self):
+        self._airplayremote.send_command("previtem")
 
     def cleanup(self):
         self.airplaylistener.stop_listening()
