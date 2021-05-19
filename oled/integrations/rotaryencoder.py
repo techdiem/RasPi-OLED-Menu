@@ -5,7 +5,7 @@ import settings # pylint: disable=import-error
 try:
     #Only avaiable on Raspberry
     import RPi.GPIO as GPIO # pylint: disable=import-error
-except ImportError:
+except (ImportError, RuntimeError):
     pass
 
 class RotaryEncoder():
