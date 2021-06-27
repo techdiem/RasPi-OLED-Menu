@@ -13,7 +13,7 @@ class MopidyControl():
         self.radiostations = []
         self.playlists = []
         self.nowplaying = {}
-        self.status = {}
+        self.status = ""
         self.loadedplaylist = ""
         self._connectionlost()
 
@@ -102,7 +102,7 @@ class MopidyControl():
 
     def playpause(self):
         try:
-            if self.status["state"] == "play":
+            if self.status == "play":
                 self.client.pause()
             else:
                 self.client.play()
