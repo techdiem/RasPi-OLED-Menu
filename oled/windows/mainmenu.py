@@ -8,12 +8,14 @@ import settings
 class Mainmenu(WindowBase):
     faicons = ImageFont.truetype(settings.FONT_ICONS, size=18)
 
-    def __init__(self, windowmanager):
-        super().__init__(windowmanager)
+    def __init__(self, windowmanager, musicmanager):
+        super().__init__(windowmanager, musicmanager)
         self._buttons = []
         self._selectedbtnindex = 0
 
     def render(self):
+        self._buttons = []
+        
         with canvas(self.device) as draw:
             #Menu buttons
             self._buttons.append(MetaButton(11, 6, "\uf0a8", lambda: self.windowmanager.set_window("idle"))) #back

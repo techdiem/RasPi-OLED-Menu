@@ -2,9 +2,8 @@
 from ui.menubase import MenuBase
 
 class Playlistmenu(MenuBase):
-    def __init__(self, windowmanager, mopidyconnection):
-        self.mopidyconnection = mopidyconnection
-        super().__init__(windowmanager, "Playlists")
+    def __init__(self, windowmanager, musicmanager):
+        super().__init__(windowmanager, musicmanager, "Playlists")
 
     def activate(self):
         self.menu = self.mopidyconnection.playlists

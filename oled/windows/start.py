@@ -8,9 +8,8 @@ class Start(WindowBase):
     font = ImageFont.truetype(settings.FONT_TEXT, size=12)
     fontawesome = ImageFont.truetype(settings.FONT_ICONS, size=35)
 
-    def __init__(self, windowmanager, mopidyconnection):
-        super().__init__(windowmanager)
-        self.mopidyconnection = mopidyconnection
+    def __init__(self, windowmanager, musicmanager):
+        super().__init__(windowmanager, musicmanager)
 
     def render(self):
         with canvas(self.device) as draw:

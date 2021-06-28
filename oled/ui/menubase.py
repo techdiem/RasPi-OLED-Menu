@@ -5,8 +5,8 @@ from PIL import ImageFont
 import settings
 
 class MenuBase(WindowBase):
-    def __init__(self, windowmanager, title):
-        super().__init__(windowmanager)
+    def __init__(self, windowmanager, musicmanager, title):
+        super().__init__(windowmanager, musicmanager)
         self.counter = 0
         self.page = 0
         self.menu = []

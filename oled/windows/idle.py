@@ -13,9 +13,8 @@ class Idle(WindowBase):
     faicons = ImageFont.truetype(settings.FONT_ICONS, size=12)
 
     def __init__(self, windowmanager, musicmanager):
-        super().__init__(windowmanager)
+        super().__init__(windowmanager, musicmanager)
         self._active = False
-        self.musicmanager = musicmanager
         self._playingname = ""
         self._playingtitle = ""
         self._buttons = []
@@ -34,7 +33,7 @@ class Idle(WindowBase):
         with canvas(self.device) as draw:
             now = datetime.datetime.now()
             #Widgets
-            if not self.musicmanager.mopidyconnection.connected:
+            if not self.mopidyconnection.connected:
                 draw.text((18, 2), "\uf071", font=Idle.faicons, fill="white")
 
             #Current time

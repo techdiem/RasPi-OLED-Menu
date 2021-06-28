@@ -1,20 +1,17 @@
-"""Start file for Werkstattradio OLED controller"""
+"""Werkstattradio OLED controller"""
 import asyncio
 import signal
 import sys
+import os
+import importlib
 from subprocess import call
 from integrations.display import get_display
 from integrations.rotaryencoder import RotaryEncoder
 from integrations.mopidy import MopidyControl
 from integrations.shairport import ShairportMetadata
 from integrations.musicmanager import Musicmanager
+from integrations.system import system
 from ui.windowmanager import WindowManager
-import windows.idle
-import windows.mainmenu
-import windows.playlistmenu
-import windows.radiomenu
-import windows.shutdownmenu
-import windows.start
 
 #Systemd exit
 def gracefulexit(signum, frame):
@@ -27,9 +24,6 @@ def main():
     #Display = real hardware or emulator (depending on settings)
     display = get_display()
 
-    #screen = windowmanager
-    windowmanager = WindowManager(loop, display)
-
     #Software integrations
     mopidy = MopidyControl(loop)
     def airplay_callback(info, nowplaying):
@@ -37,32 +31,23 @@ def main():
     shairport = ShairportMetadata(loop, airplay_callback)
     musicmanager = Musicmanager(mopidy, shairport)
 
-    #Import all window classes and generate objects of them
-    loadedwins = []
-    idlescreen = windows.idle.Idle(windowmanager, musicmanager)
-    shutdownscreen = windows.shutdownmenu.Shutdownmenu(windowmanager, mopidy)
-    loadedwins.append(idlescreen)
-    loadedwins.append(windows.mainmenu.Mainmenu(windowmanager))
-    loadedwins.append(windows.playlistmenu.Playlistmenu(windowmanager, mopidy))
-    loadedwins.append(windows.radiomenu.Radiomenu(windowmanager, mopidy))
-    loadedwins.append(shutdownscreen)
-    loadedwins.append(windows.start.Start(windowmanager, mopidy))
 
-    for window in loadedwins:
-        windowmanager.add_window(window.__class__.__name__.lower(), window)
+    #Load windows
+    windowmanager = WindowManager(loop, display)
 
-    #Load start window
+    for name in os.listdir("windows"):
+        if name.endswith(".py") and not name.startswith("__"):
+            windowid = name[:-3]
+            module = importlib.import_module(f"windows.{windowid}")
+            windowclass = getattr(module, windowid.capitalize())
+            window = windowclass(windowmanager, musicmanager)
+            windowmanager.add_window(windowid, window)
+
+    #Show start window
     windowmanager.set_window("start")
 
-
-    #Rotary encoder setup
-    def turn_callback(direction):
-        windowmanager.turn_callback(direction)
-
-    def push_callback():
-        windowmanager.push_callback()
-
-    RotaryEncoder(loop, turn_callback, push_callback)
+    #Set up rotary encoder
+    RotaryEncoder(loop, windowmanager.turn_callback, windowmanager.push_callback)
 
 
     try:
@@ -72,7 +57,7 @@ def main():
     finally:
         loop.close()
 
-    if shutdownscreen.execshutdown:
+    if system.execshutdown:
         print("Shutting down system")
         call("sudo shutdown -h now", shell=True)
 

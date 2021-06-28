@@ -2,9 +2,8 @@
 from ui.menubase import MenuBase
 
 class Radiomenu(MenuBase):
-    def __init__(self, windowmanager, mopidyconnection):
-        self.mopidyconnection = mopidyconnection
-        super().__init__(windowmanager, "Radiosender")
+    def __init__(self, windowmanager, musicmanager):
+        super().__init__(windowmanager, musicmanager, "Radiosender")
 
     def activate(self):
         self.menu = self.mopidyconnection.radiostations

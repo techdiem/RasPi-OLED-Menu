@@ -1,5 +1,6 @@
 """ Shutdown menu """
 from ui.windowbase import WindowBase
+from integrations.system import system
 from luma.core.render import canvas
 from PIL import ImageFont
 import settings
@@ -8,11 +9,9 @@ class Shutdownmenu(WindowBase):
     font = ImageFont.truetype(settings.FONT_TEXT, size=12)
     faicons = ImageFont.truetype(settings.FONT_ICONS, size=18)
 
-    def __init__(self, windowmanager, mopidyconnection):
-        super().__init__(windowmanager)
+    def __init__(self, windowmanager, musicmanager):
+        super().__init__(windowmanager, musicmanager)
         self.counter = 0
-        self.mopidyconnection = mopidyconnection
-        self.execshutdown = False
 
     def render(self):
         with canvas(self.device) as draw:
@@ -42,7 +41,7 @@ class Shutdownmenu(WindowBase):
             self.windowmanager.set_window("mainmenu")
         elif self.counter == 1:
             self.mopidyconnection.stop()
-            self.execshutdown = True
+            system.execshutdown = True
             print("Stopping event loop")
             self.loop.stop()
         elif self.counter == 2:
