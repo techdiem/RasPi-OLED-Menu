@@ -14,7 +14,6 @@ class Idle(WindowBase):
 
     def __init__(self, windowmanager, musicmanager):
         super().__init__(windowmanager)
-        self.counter = 0
         self._active = False
         self.musicmanager = musicmanager
         self._playingname = ""
