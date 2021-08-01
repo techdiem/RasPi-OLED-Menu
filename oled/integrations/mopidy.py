@@ -150,6 +150,7 @@ class MopidyControl():
         try:
             self.client.clear()
             self.client.load(name)
+            self.client.shuffle()
             self.client.play()
             self.loadedplaylist = name
             print(f"Loaded and playing Playlist {name}")
