@@ -69,6 +69,8 @@ class MopidyControl():
             playlistfile = open(settings.STATIONSPLAYLIST)
         except FileNotFoundError:
             print("Error loading radio stations: File does not exist.")
+        except PermissionError:
+            print("Error loading radio stations: File cannot be accessed, check permissions.")
         else:
             #Check if it is a non-broken m3u8/m3u file
             line = playlistfile.readline()
