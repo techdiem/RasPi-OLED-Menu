@@ -1,0 +1,12 @@
+{
+    "python.linting.pylintArgs": [
+        "--extension-pkg-whitelist=pygame",
+        "--disable=C0116",
+        "--disable=C0115",
+        "--disable=C0415"
+    ],
+    "files.exclude": {
+        "**/__pycache__/": true,
+        "venv/": true
+    }
+}
