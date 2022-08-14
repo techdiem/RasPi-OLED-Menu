@@ -19,7 +19,7 @@ def gracefulexit(signum, frame):
 signal.signal(signal.SIGTERM, gracefulexit)
 
 def main():
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
 
     #Display = real hardware or emulator (depending on settings)
     display = get_display()
