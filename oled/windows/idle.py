@@ -82,7 +82,7 @@ class Idle(WindowBase):
             else:
                 name = ""
 
-            if name == oldname and Idle.font.getsize(name[namex:])[0] > 127:
+            if name == oldname and Idle.font.getlength(name[namex:]) > 127.0:
                 namex += 1
             else:
                 namex = 0
@@ -95,7 +95,7 @@ class Idle(WindowBase):
             else:
                 title = ""
 
-            if title == oldtitle and Idle.font.getsize(title[titlex:])[0] > 127:
+            if title == oldtitle and Idle.font.getlength(title[titlex:]) > 127.0:
                 titlex += 1
             else:
                 titlex = 0
