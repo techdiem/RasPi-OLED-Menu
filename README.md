@@ -5,6 +5,7 @@ It is based on a Raspberry Pi Zero W with a USB sound card.
 Only controllable via a web interface was no option for me, so I added a small OLED display and a rotary encoder.
 There is a menu to navigate through with the rotary encoder.
 The controller chip of the little oled is the sh1106. (I bought it from ebay)
+
 An ADS1115 with a potentiometer is used to control the ALSA volume.
 
 It connects to Mopidy for music playback and webradio stations and to shairport-sync for airplay status information and automatic pausing of MPD.
