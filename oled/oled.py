@@ -7,6 +7,7 @@ import importlib
 from subprocess import call
 from integrations.display import get_display
 from integrations.rotaryencoder import RotaryEncoder
+from integrations.volumepoti import VolumePoti
 from integrations.mopidy import MopidyControl
 from integrations.shairport import ShairportMetadata
 from integrations.musicmanager import Musicmanager
@@ -49,6 +50,8 @@ def main():
     #Set up rotary encoder
     RotaryEncoder(loop, windowmanager.turn_callback, windowmanager.push_callback)
 
+    #Set up ADS1115 and potentiometer
+    VolumePoti(loop, musicmanager)
 
     try:
         loop.run_forever()

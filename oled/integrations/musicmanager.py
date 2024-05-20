@@ -6,6 +6,7 @@ class Musicmanager():
         self.shairportconnection = shairportconnection
         self.playing = False
         self.source = "mpd"
+        self.volume = 100
 
     def airplay_callback(self, lis, info):
         del lis, info

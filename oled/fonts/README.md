@@ -8,3 +8,7 @@ and can be downloaded on [the Font Awesome Website](https://fontawesome.com/down
 
 The files are not uploaded because of the copyright.
 Just copy the .ttf files to this directory and correct the path in settings.py.
+Used fonts:
+- Font Awesome 6 Solid Free
+- Arial
+- Calibri

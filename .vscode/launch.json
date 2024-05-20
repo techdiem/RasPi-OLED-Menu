@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Launch Werkstattoled",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "oled.py",
             "cwd": "${workspaceFolder}/oled",
