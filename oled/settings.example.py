@@ -13,6 +13,10 @@ PIN_SW = 27
 #ADS1115 I2C for potentiometer
 ADS_I2C = 0x48
 
+#Alsa output for volume control
+ALSA_CARD = "hw:1"
+ALSA_MIXER = "Stereo"
+
 #Settings for the connection to Mopidy
 MPD_IP = "localhost"
 MPD_PORT = 6600
