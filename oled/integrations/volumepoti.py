@@ -30,17 +30,18 @@ class VolumePoti():
         self._ADS.requestADC(0) #Initial read to trigger continuous
 
     async def _poll_poti_val(self):
-        voltage = self.ADS.toVoltage(self._ADS.getValue())
-        difference = voltage - self.old_val
-        self.old_val = voltage
-        
-        if difference > 0.03 or difference < -0.03:
-            newvolume = round(voltage/0.033)
-            print(f"Setting volume to {newvolume}%")
-            self.musicmanager.volume = newvolume
-            self.alsacontroller.set_volume(newvolume)
+        while self.loop.is_running():
+            voltage = self._ADS.toVoltage(self._ADS.getValue())
+            difference = voltage - self.old_val
+            self.old_val = voltage
 
-        asyncio.sleep(0.1)
+            if difference > 0.01 or difference < -0.01:
+                newvolume = round(voltage/0.033)
+                print(f"Setting volume to {newvolume}%")
+                self.musicmanager.volume = newvolume
+                self.alsacontroller.set_volume(newvolume)
+
+            await asyncio.sleep(0.1)
 
 
 #Access to alsa mixers adapted from https://github.com/mopidy/mopidy-alsamixer/blob/main/mopidy_alsamixer/mixer.py
@@ -64,14 +65,15 @@ class AlsaMixer():
         
         self._last_volume = None
         self._last_mute = None
-        self.min_volume = 10
-        self.max_volume = 30
+        self.min_volume = settings.ALSA_VOL_MIN
+        self.max_volume = settings.ALSA_VOL_MAX
 
         self.on_start()
 
     def on_start(self):
         self._observer = AlsaMixerObserver(device=self.card, control=self.mixer, callback=self.trigger_events_for_changed_values)
         self._observer.start()
+        self.trigger_events_for_changed_values()
 
     @property
     def _mixer(self):

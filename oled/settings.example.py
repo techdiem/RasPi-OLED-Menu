@@ -14,8 +14,10 @@ PIN_SW = 27
 ADS_I2C = 0x48
 
 #Alsa output for volume control
-ALSA_CARD = "hw:1"
-ALSA_MIXER = "Stereo"
+ALSA_CARD = "default"
+ALSA_MIXER = "PCM"
+ALSA_VOL_MIN = 1
+ALSA_VOL_MAX = 100
 
 #Settings for the connection to Mopidy
 MPD_IP = "localhost"

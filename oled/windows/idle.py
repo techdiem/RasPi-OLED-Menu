@@ -34,7 +34,7 @@ class Idle(WindowBase):
             now = datetime.datetime.now()
             #Volume
             draw.text((1,2), "\uf027", font=Idle.faicons, fill="white")
-            draw.text((12,2), str(self.musicmanager.volume), font=Idle.font, fill="white")
+            draw.text((12,2), f"{str(self.musicmanager.volume)}%", font=Idle.font, fill="white")
             #Mopidy connection widget
             if not self.mopidyconnection.connected:
                 draw.text((45, 2), "\uf071", font=Idle.faicons, fill="white")

@@ -51,8 +51,8 @@ def main():
     RotaryEncoder(loop, windowmanager.turn_callback, windowmanager.push_callback)
 
     #Set up ADS1115 and potentiometer
-    AlsaMixer(musicmanager)
-    VolumePoti(loop, musicmanager)
+    amixer = AlsaMixer(musicmanager)
+    VolumePoti(loop, musicmanager, amixer)
 
     try:
         loop.run_forever()
