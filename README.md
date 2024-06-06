@@ -6,7 +6,9 @@ Only controllable via a web interface was no option for me, so I added a small O
 There is a menu to navigate through with the rotary encoder.
 The controller chip of the little oled is the sh1106. (I bought it from ebay)
 
-It connects to Mopidy for music playback and webradio stations and to shairport-sync for airplay status information and automatic pausing of Mopidy.
+An ADS1115 with a potentiometer is used to control the ALSA volume.
+
+It connects to Mopidy for music playback and webradio stations and to shairport-sync for airplay status information and automatic pausing of MPD.
 
 ## Windows/Usage
 Some screenshots from the different menu windows (sometimes the font is a bit off because of the simulator):
@@ -18,18 +20,18 @@ Some screenshots from the different menu windows (sometimes the font is a bit of
 | -------------- | ----------------------- | ------------- |
 | ![Radio station menu](.github/radiostations.png) | ![Playlist menu](.github/playlistsmenu.png) | ![Shutdown menu](.github/shutdownmenu.png) |
 
-When the software is started, it shows a loading screen until it gets a connection to Mopidy. If the connection is lost while active, it shows a little icon on the idle screen.
-If shairport-sync is installed on the system, Mopidy will be paused when an AirPlay connection is established and the screen will show now playing information. You can also skip the current track or go back to the previous track using the rotary encoder controls.
+When the software is started, it shows a loading screen until it gets a connection to MPD. If the connection is lost while active, it shows a little icon on the idle screen.
+If shairport-sync is installed on the system, MPD will be paused when an AirPlay connection is established and the screen will show now playing information. You can also skip the current track or go back to the previous track using the rotary encoder controls.
 
 
 ## Installation
 The code is provided without further warranty or support. There is no guarantee that it will work properly, since I am not a professional developer and only develop this project in my spare time.
 1. Install [Raspberry Pi OS (Lite)](https://www.raspberrypi.org/downloads/raspberry-pi-os/) to your SD Card and set it up (there are lots of great guides online)
-2. Install Mopidy and [configure it to create a playlist of radio stations](#mopidy-configuration).
+2. Install Mopidy/MPD and [configure it to create a playlist of radio stations](#mopidy-configuration).
 3. Optional: Install Shairport-Sync and [enable the metadata pipe](#shairport-configuration).
 4. Install some prerequisites: ``` sudo apt-get install python3-dev python3-pip libfreetype6-dev build-essential libopenjp2-7 libtiff5```
 5. Download the code: ``` git clone https://github.com/techdiem/RasPi-OLED-Menu.git oledctrl && cd ./oledctrl```
-6. Install python requirements: ``` pip3 install -r requirements.txt ```
+6. Install python requirements: ``` pip3 install -r requirements.txt ``` (It might be necessary to install Kivy manually first)
 7. Move the systemd config to the correct folder: ``` sudo mv oled.service /etc/systemd/system/ ```
 8. Reload systemd: ``` sudo systemctl daemon-reload ```
 9. Switch to the main code folder: ``` cd ./oled ```
