@@ -14,7 +14,7 @@ except:
 class VolumePoti():
     def __init__(self, loop, musicmanager, alsacontroller) -> None:
         self.loop = loop
-        self.old_val = 0
+        self.old_voltage = 0
         self.musicmanager = musicmanager
         self.alsacontroller = alsacontroller
 
@@ -32,15 +32,14 @@ class VolumePoti():
     async def _poll_poti_val(self):
         while self.loop.is_running():
             voltage = self._ADS.toVoltage(self._ADS.getValue())
-            difference = voltage - self.old_val
-            self.old_val = voltage
+            difference = voltage - self.old_voltage
 
-            if difference > 0.01 or difference < -0.01:
+            if difference > 0.03 or difference < -0.03:
+                self.old_voltage = voltage
                 newvolume = round(voltage/0.033)
                 print(f"Setting volume to {newvolume}%")
                 self.musicmanager.volume = newvolume
                 self.alsacontroller.set_volume(newvolume)
-
             await asyncio.sleep(0.1)
 
 
@@ -106,8 +105,12 @@ class AlsaMixer():
             self.min_volume
             + volume * (self.max_volume - self.min_volume) / 100.0
         )
-        mixer_volume = 50 * math.log10(mixer_volume)
-        return int(mixer_volume)
+        try:
+            mixer_volume = 50 * math.log10(mixer_volume)
+            return int(mixer_volume)
+        except ValueError:
+            print("Invalid volume log calculation, try setting ALSA_MIN_VOLUME to 1")
+            return 0   
 
     def get_mute(self):
         try:
