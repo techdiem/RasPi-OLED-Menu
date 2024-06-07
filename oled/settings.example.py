@@ -23,6 +23,13 @@ ALSA_VOL_MAX = 100
 MPD_IP = "localhost"
 MPD_PORT = 6600
 
+#MQTT broker connection
+MQTT_BROKER = "mqtt.local"
+MQTT_PORT = 1883
+MQTT_TOPIC = "webradio"
+MQTT_USER = "webradio"
+MQTT_PASSWORD = "secretpassword"
+
 #Font files (TrueType)
 FONT_ICONS = "fonts/fontawesome.otf"
 FONT_TEXT = "fonts/arial.ttf"

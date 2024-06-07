@@ -10,6 +10,7 @@ try:
     import ADS1x15
 except:
     pass
+from integrations.mqtt import mqttclient
 
 class VolumePoti():
     def __init__(self, loop, musicmanager, alsacontroller) -> None:
@@ -67,6 +68,10 @@ class AlsaMixer():
         self.min_volume = settings.ALSA_VOL_MIN
         self.max_volume = settings.ALSA_VOL_MAX
 
+        #MQTT connection
+        self.mqtt_topic_volume = "volume"
+        mqttclient.subscribe(self.mqtt_topic_volume, self._mqtt_set_volume)
+
         self.on_start()
 
     def on_start(self):
@@ -93,7 +98,15 @@ class AlsaMixer():
     
     def set_volume(self, volume):
         self._mixer.setvolume(self.volume_to_mixer_volume(volume))
+        mqttclient.publish(self.mqtt_topic_volume, volume)
         return True
+    
+    def _mqtt_set_volume(self, raw_volume):
+        try:
+            self.set_volume(int(raw_volume))
+            print(f"Setting volume to {raw_volume} from MQTT")
+        except ValueError:
+            print(f"Received invalid volume value from mqtt: {raw_volume}")
 
     def mixer_volume_to_volume(self, mixer_volume):
         volume = mixer_volume
@@ -141,6 +154,7 @@ class AlsaMixer():
         if old_volume != self._last_volume:
             #self.trigger_volume_changed(self._last_volume)
             self.musicmanager.volume = self._last_volume
+            mqttclient.publish(self.mqtt_topic_volume, self._last_volume)
 
         #if old_mute != self._last_mute:
         #    self.trigger_mute_changed(self._last_mute)

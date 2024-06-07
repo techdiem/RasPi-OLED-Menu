@@ -1,9 +1,9 @@
-#Hardware and MPD Connection
 luma.oled==3.13.0
 python-musicpd==0.9.0
 RPi.GPIO==0.7.1
 ADS1x15-ADC==1.2.2
 pyalsaaudio==0.11.0
+paho-mqtt==2.1.0
 
 #Shairport-Sync Integration
 Kivy==2.3.0
