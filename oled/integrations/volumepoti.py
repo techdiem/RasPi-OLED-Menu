@@ -1,7 +1,6 @@
 """ ADS1115 and potentiometer setup """
 import asyncio
 import math
-import alsaaudio
 import select
 import threading
 import settings # pylint: disable=import-error
@@ -11,6 +10,11 @@ try:
 except:
     pass
 from integrations.mqtt import mqttclient
+if not settings.EMULATED:
+    import alsaaudio
+else:
+    from integrations.emulator import emulator
+    import pygame
 
 class VolumePoti():
     def __init__(self, loop, musicmanager, alsacontroller) -> None:
@@ -19,7 +23,13 @@ class VolumePoti():
         self.musicmanager = musicmanager
         self.alsacontroller = alsacontroller
 
-        if not settings.EMULATED:
+        if settings.EMULATED:
+            emulator.event_subscribers.append(self._poll_pygame_keys)
+            print("Add volume poti subscriber for pygame events")
+            #Simulating value as a starting point
+            self.old_voltage = 1.2
+            self._process_voltage(self.old_voltage)
+        else:
             self._setup_ads()
             self.loop.create_task(self._poll_poti_val())
 
@@ -30,18 +40,32 @@ class VolumePoti():
         self._ADS.setMode(self._ADS.MODE_CONTINUOUS)
         self._ADS.requestADC(0) #Initial read to trigger continuous
 
+    def _process_voltage(self, voltage):
+        self.old_voltage = voltage
+        newvolume = round(voltage/0.033)
+        print(f"Setting volume to {newvolume}%")
+        self.musicmanager.volume = newvolume
+        self.alsacontroller.set_volume(newvolume)
+
     async def _poll_poti_val(self):
         while self.loop.is_running():
             voltage = self._ADS.toVoltage(self._ADS.getValue())
             difference = voltage - self.old_voltage
 
             if difference > 0.03 or difference < -0.03:
-                self.old_voltage = voltage
-                newvolume = round(voltage/0.033)
-                print(f"Setting volume to {newvolume}%")
-                self.musicmanager.volume = newvolume
-                self.alsacontroller.set_volume(newvolume)
+                self._process_voltage(voltage)
             await asyncio.sleep(0.1)
+    
+    async def _poll_pygame_keys(self, event):
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_UP:
+                voltage = self.old_voltage + 0.1
+                if voltage >= 0 and voltage <= 3.3:
+                    self._process_voltage(voltage)
+            elif event.key == pygame.K_DOWN:
+                voltage = self.old_voltage - 0.1
+                if voltage >= 0 and voltage <= 3.3:
+                    self._process_voltage(voltage)
 
 
 #Access to alsa mixers adapted from https://github.com/mopidy/mopidy-alsamixer/blob/main/mopidy_alsamixer/mixer.py
@@ -51,28 +75,27 @@ class AlsaMixer():
         self.musicmanager = musicmanager
         self.card = settings.ALSA_CARD
         self.mixer = settings.ALSA_MIXER
-
-        known_controls = alsaaudio.cards()
-        try:
-            known_controls = alsaaudio.mixers(device=self.card)
-        except alsaaudio.ALSAAudioError:
-            print("Could not find ALSA soundcard.")
-            return
-        
-        if self.mixer not in known_controls:
-            print("Could not find mixer control on device.")
-            return
-        
         self._last_volume = None
-        self._last_mute = None
+        self._emulated_volume = 0
         self.min_volume = settings.ALSA_VOL_MIN
         self.max_volume = settings.ALSA_VOL_MAX
 
         #MQTT connection
-        self.mqtt_topic_volume = "volume"
-        mqttclient.subscribe(self.mqtt_topic_volume, self._mqtt_set_volume)
+        self.mqtt_topic_volume = "volume/state"
+        mqttclient.subscribe("volume/set", self._mqtt_set_volume)
 
-        self.on_start()
+        if not settings.EMULATED:
+            known_controls = alsaaudio.cards()
+            try:
+                known_controls = alsaaudio.mixers(device=self.card)
+            except alsaaudio.ALSAAudioError:
+                print("Could not find ALSA soundcard.")
+                return
+            if self.mixer not in known_controls:
+                print("Could not find mixer control on device.")
+                return
+
+            self.on_start()
 
     def on_start(self):
         self._observer = AlsaMixerObserver(device=self.card, control=self.mixer, callback=self.trigger_events_for_changed_values)
@@ -87,17 +110,26 @@ class AlsaMixer():
         )
     
     def get_volume(self):
-        channels = self._mixer.getvolume()
-        if not channels:
-            return None
-        elif channels.count(channels[0]) == len(channels):
-            return self.mixer_volume_to_volume(channels[0])
+        if settings.EMULATED:
+            return self._emulated_volume
         else:
-            # Not all channels have the same volume
-            return None
+            channels = self._mixer.getvolume()
+            if not channels:
+                return None
+            elif channels.count(channels[0]) == len(channels):
+                return self.mixer_volume_to_volume(channels[0])
+            else:
+                # Not all channels have the same volume
+                return None
     
     def set_volume(self, volume):
-        self._mixer.setvolume(self.volume_to_mixer_volume(volume))
+        if settings.EMULATED:
+            print(f"EMULATED: Set ALSA volume to {volume}")
+            self._emulated_volume = volume
+            #Call trigger function to update mqtt sensor and display value
+            self.trigger_events_for_changed_values()
+        else:
+            self._mixer.setvolume(self.volume_to_mixer_volume(volume))
         mqttclient.publish(self.mqtt_topic_volume, volume)
         return True
     
@@ -125,39 +157,12 @@ class AlsaMixer():
             print("Invalid volume log calculation, try setting ALSA_MIN_VOLUME to 1")
             return 0   
 
-    def get_mute(self):
-        try:
-            channels_muted = self._mixer.getmute()
-        except alsaaudio.ALSAAudioError as exc:
-            print(f"Getting mute state failed: {exc}")
-            return None
-        if all(channels_muted):
-            return True
-        elif not any(channels_muted):
-            return False
-        else:
-            # Not all channels have the same mute state
-            return None
-
-    def set_mute(self, mute):
-        try:
-            self._mixer.setmute(int(mute))
-            return True
-        except alsaaudio.ALSAAudioError as exc:
-            print(f"Setting mute state failed: {exc}")
-            return False
-
     def trigger_events_for_changed_values(self):
         old_volume, self._last_volume = self._last_volume, self.get_volume()
-        old_mute, self._last_mute = self._last_mute, self.get_mute()
 
         if old_volume != self._last_volume:
-            #self.trigger_volume_changed(self._last_volume)
             self.musicmanager.volume = self._last_volume
             mqttclient.publish(self.mqtt_topic_volume, self._last_volume)
-
-        #if old_mute != self._last_mute:
-        #    self.trigger_mute_changed(self._last_mute)
 
 
 class AlsaMixerObserver(threading.Thread):
