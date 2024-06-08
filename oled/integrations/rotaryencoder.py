@@ -1,5 +1,4 @@
 """ Rotary encoder setup """
-import asyncio
 import threading
 import settings # pylint: disable=import-error
 try:
@@ -8,6 +7,10 @@ try:
 except (ImportError, RuntimeError):
     pass
 
+if settings.EMULATED:
+    import pygame
+    from integrations.emulator import emulator
+
 class RotaryEncoder():
     def __init__(self, loop, turn_callback, push_callback):
         self.loop = loop
@@ -15,7 +18,7 @@ class RotaryEncoder():
         self.push_callback = push_callback
 
         if settings.EMULATED:
-            self.loop.create_task(self._poll_pygame_keys())
+            emulator.event_subscribers.append(self._poll_pygame_keys)
             print("Polling PyGame keys")
         else:
             #Config for pins!
@@ -61,20 +64,15 @@ class RotaryEncoder():
         #Push Button
         GPIO.add_event_detect(sw_pin, GPIO.FALLING, callback=self._rotary_push, bouncetime=300)
 
-    async def _poll_pygame_keys(self):
-        import pygame
-        while self.loop.is_running():
-            event = pygame.event.poll()
+    async def _poll_pygame_keys(self, event):
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_RIGHT:
+                self.turn_callback(1)
+            elif event.key == pygame.K_LEFT:
+                self.turn_callback(-1)
+            elif event.key == pygame.K_SPACE:
+                self.push_callback()
 
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_RIGHT:
-                    self.turn_callback(1)
-                elif event.key == pygame.K_LEFT:
-                    self.turn_callback(-1)
-                elif event.key == pygame.K_SPACE:
-                    self.push_callback()
-
-            await asyncio.sleep(0.01)
 
     @staticmethod
     def cleanup():
