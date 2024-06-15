@@ -11,17 +11,14 @@ class MqttConnection():
         self.subscriptions = {}
 
     def _connect_mqtt(self):
-        def on_connect(rc, *args, **kwargs):
-            if rc == 0:
-                print("Connected to MQTT Broker!")
-            else:
-                print(f"Failed to connect, return code {str(rc)}")
-
         self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION2, client_id=f"{settings.MQTT_USER}-{random.randint(0,100)}")
         self.client.username_pw_set(settings.MQTT_USER, settings.MQTT_PASSWORD)
-        self.client.on_connect = on_connect
         self.client.will_set(f"{settings.MQTT_TOPIC}/status", payload="offline", qos=2, retain=True)
-        self.client.connect(settings.MQTT_BROKER, settings.MQTT_PORT)
+        rc = self.client.connect(settings.MQTT_BROKER, settings.MQTT_PORT)
+        if rc == 0:
+            print("Connected to MQTT Broker!")
+        else:
+            print(f"Failed to connect, return code {str(rc)}")
         self.publish("status", "online", retain=True)
 
     def subscribe(self, topic, callback):
