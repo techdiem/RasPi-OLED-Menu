@@ -130,7 +130,7 @@ class AlsaMixer():
             self.trigger_events_for_changed_values()
         else:
             self._mixer.setvolume(self.volume_to_mixer_volume(volume))
-        mqttclient.publish(self.mqtt_topic_volume, volume)
+        mqttclient.publish(self.mqtt_topic_volume, volume, retain=True)
         return True
     
     def _mqtt_set_volume(self, raw_volume):
@@ -162,7 +162,7 @@ class AlsaMixer():
 
         if old_volume != self._last_volume:
             self.musicmanager.volume = self._last_volume
-            mqttclient.publish(self.mqtt_topic_volume, self._last_volume)
+            mqttclient.publish(self.mqtt_topic_volume, self._last_volume, retain=True)
 
 
 class AlsaMixerObserver(threading.Thread):

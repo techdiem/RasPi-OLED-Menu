@@ -22,7 +22,7 @@ class MqttConnection():
         self.client.on_connect = on_connect
         self.client.will_set(f"{settings.MQTT_TOPIC}/status", payload="offline", qos=2, retain=True)
         self.client.connect(settings.MQTT_BROKER, settings.MQTT_PORT)
-        self.publish("status", "online")
+        self.publish("status", "online", retain=True)
 
     def subscribe(self, topic, callback):
         realtopic = f"{settings.MQTT_TOPIC}/{topic}"
