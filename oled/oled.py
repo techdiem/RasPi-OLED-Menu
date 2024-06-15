@@ -8,7 +8,8 @@ import settings
 from subprocess import call
 from integrations.display import get_display
 from integrations.rotaryencoder import RotaryEncoder
-from integrations.volumepoti import VolumePoti, AlsaMixer
+from integrations.volumepoti import VolumePoti
+from integrations.alsa import AlsaMixer
 from integrations.mopidy import MopidyControl
 from integrations.shairport import ShairportMetadata
 from integrations.musicmanager import Musicmanager
