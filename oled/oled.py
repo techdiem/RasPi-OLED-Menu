@@ -29,7 +29,9 @@ def main():
     mopidy = MopidyControl(loop)
     def airplay_callback(info, nowplaying):
         musicmanager.airplay_callback(info, nowplaying)
-    shairport = ShairportMetadata(loop, airplay_callback)
+    def airplay_volume_changed(volume):
+        amixer.set_volume(volume)
+    shairport = ShairportMetadata(loop, airplay_callback, airplay_volume_changed)
     musicmanager = Musicmanager(mopidy, shairport)
 
 

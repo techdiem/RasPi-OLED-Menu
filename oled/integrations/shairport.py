@@ -3,7 +3,7 @@ import asyncio
 from shairportmetadatareader import AirplayPipeListener, AirplayCommand
 
 class ShairportMetadata():
-    def __init__(self, loop, on_track_callback=None):
+    def __init__(self, loop, on_track_callback=None, volume_callback=None):
         self.loop = loop
         self.airplaylistener = AirplayPipeListener()
         self.airplaylistener.bind(track_info=self._on_track_info,
@@ -14,6 +14,7 @@ class ShairportMetadata():
         except FileNotFoundError:
             print("Shairport Socket cannot be found, no AirPlay info avaiable!")
         self.on_track_callback = on_track_callback
+        self.volume_callback = volume_callback
         self._info = {}
         self.connected = False
         self._airplayremote = None
@@ -27,6 +28,7 @@ class ShairportMetadata():
         self.connected = connected
         if connected == True:
             self.loop.create_task(self._connectremote())
+            self.loop.create_task(self.deviceVolumeObserver())
 
     async def _connectremote(self):
         while self.loop.is_running() and not self.airplaylistener.has_remote_data and self.connected:
@@ -35,6 +37,15 @@ class ShairportMetadata():
             self._airplayremote = self.airplaylistener.get_remote()
             print("AirPlay remote connected.")
 
+    async def deviceVolumeObserver(self):
+        old_vol = 0
+        while self.loop.is_running() and self.connected:
+            new_vol = round(self.airplaylistener.airplay_volume * 100)
+            if (new_vol != old_vol):
+                old_vol = new_vol
+                print(f"Set volume to {new_vol}% from AirPlay")
+                self.volume_callback(new_vol)
+            await asyncio.sleep(0.5)
 
     def nowplaying(self):
         info = {}
