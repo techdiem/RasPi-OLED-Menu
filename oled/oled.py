@@ -4,10 +4,12 @@ import signal
 import sys
 import os
 import importlib
+import settings
 from subprocess import call
 from integrations.display import get_display
 from integrations.rotaryencoder import RotaryEncoder
-from integrations.volumepoti import VolumePoti, AlsaMixer
+from integrations.volumepoti import VolumePoti
+from integrations.alsa import AlsaMixer
 from integrations.mopidy import MopidyControl
 from integrations.shairport import ShairportMetadata
 from integrations.musicmanager import Musicmanager
@@ -34,7 +36,6 @@ def main():
     shairport = ShairportMetadata(loop, airplay_callback, airplay_volume_changed)
     musicmanager = Musicmanager(mopidy, shairport)
 
-
     #Load windows
     windowmanager = WindowManager(loop, display)
 
@@ -56,6 +57,10 @@ def main():
     amixer = AlsaMixer(musicmanager)
     VolumePoti(loop, musicmanager, amixer)
 
+    if settings.EMULATED:
+        from integrations.emulator import emulator
+        #emulator.start_emulator(loop)
+    
     try:
         loop.run_forever()
     except (KeyboardInterrupt, SystemExit):

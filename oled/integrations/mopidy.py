@@ -25,11 +25,17 @@ class MopidyControl():
         except musicpd.ConnectionError:
             pass
 
+        connectattempts = 0
+
         while not self.connected:
             try:
                 self.client.connect(settings.MPD_IP, settings.MPD_PORT)
             except musicpd.ConnectionError:
                 print("No connection possible, trying again...")
+                connectattempts += 1
+                if settings.EMULATED and connectattempts == 2:
+                    print("EMULATED: Stopping mopidy connection attempts after 2 fails")
+                    break
                 time.sleep(10)
             else:
                 print(f"Connected to MPD Version {self.client.mpd_version}")
