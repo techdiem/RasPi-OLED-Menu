@@ -1,13 +1,13 @@
-luma.oled==3.13.0
+luma.oled==3.14.0
 python-musicpd==0.9.0
 ADS1x15-ADC==1.2.2
 pyalsaaudio==0.11.0
 paho-mqtt==2.1.0
 
 #Shairport-Sync Integration
-Kivy==2.3.0
+Kivy==2.3.1
 git+https://github.com/Schlaubischlump/shairport-metadatareader-python
 
 #Development
 luma.emulator==1.5.0
-pygame==2.5.2
+pygame==2.6.1
