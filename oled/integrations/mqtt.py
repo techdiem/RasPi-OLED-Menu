@@ -17,9 +17,9 @@ class MqttConnection():
         rc = self.client.connect(settings.MQTT_BROKER, settings.MQTT_PORT)
         if rc == 0:
             print("Connected to MQTT Broker!")
+            self.publish("status", "online", retain=True)
         else:
             print(f"Failed to connect, return code {str(rc)}")
-        self.publish("status", "online", retain=True)
 
     def subscribe(self, topic, callback):
         realtopic = f"{settings.MQTT_TOPIC}/{topic}"
