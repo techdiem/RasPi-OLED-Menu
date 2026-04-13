@@ -1,6 +1,5 @@
 """ IDLE screen """
 import datetime
-import asyncio
 from ui.windowbase import WindowBase
 from ui.metabutton import MetaButton
 from luma.core.render import canvas
@@ -17,51 +16,60 @@ class Idle(WindowBase):
         self._active = False
         self._playingname = ""
         self._playingtitle = ""
-        self._buttons = []
+        self._nameoffset = 0.0
+        self._titleoffset = 0.0
+        self._namewidth = 0
+        self._titlewidth = 0
+        self._scroll_speed = 24.0
+        self._scroll_gap = 16.0
+        self._lastclockminute = ""
+        self._source = self.musicmanager.source
+        self._playstate = self.musicmanager.status() or ""
+        self._volume = self.musicmanager.volume
+        self._mopidy_connected = self.mopidyconnection.connected
+        self._lastplaypauseicon = "\uf04b"
+        self._buttons = [
+            MetaButton(1, 48, "\uf7c0", lambda: self.windowmanager.set_window("radiomenu")),
+            MetaButton(31, 48, "\uf04a", self.musicmanager.previous),
+            MetaButton(46, 48, "\uf04b", self.musicmanager.playpause),
+            MetaButton(61, 48, "\uf04e", self.musicmanager.next),
+            MetaButton(91, 48, "\uf011", lambda: self.windowmanager.set_window("shutdownmenu")),
+        ]
         self._selectedbtnindex = 0
+
+        if self.eventbus is not None:
+            self.eventbus.subscribe("audio.volume", self._on_volume)
+            self.eventbus.subscribe("mopidy.connection", self._on_mopidy_connection)
+            self.eventbus.subscribe("music.playstate", self._on_playstate)
+            self.eventbus.subscribe("music.source", self._on_source)
+            self.eventbus.subscribe("music.nowplaying", self._on_nowplaying)
 
     def activate(self):
         self._active = True
-        self.loop.create_task(self._generatenowplaying())
+        self._sync_playpause_icon()
+        self._on_nowplaying(self.musicmanager.nowplaying())
+        self.mark_dirty()
 
     def deactivate(self):
         self._active = False
 
     def render(self):
-        self._buttons = []
-
         with canvas(self.device) as draw:
             now = datetime.datetime.now()
             #Volume
             draw.text((1,2), "\uf027", font=Idle.faicons, fill="white")
-            draw.text((12,2), f"{str(self.musicmanager.volume)}%", font=Idle.font, fill="white")
+            draw.text((12,2), f"{str(self._volume)}%", font=Idle.font, fill="white")
             #Mopidy connection widget
-            if not self.mopidyconnection.connected:
+            if not self._mopidy_connected:
                 draw.text((45, 2), "\uf071", font=Idle.faicons, fill="white")
 
             #Current time
             draw.text((62, -1), now.strftime("%H:%M"), font=Idle.clockfont, fill="white")
 
             #Currently playing song
-            draw.text((1, 23), self._playingname, font=Idle.font, fill="white")
-            draw.text((1, 35), self._playingtitle, font=Idle.font, fill="white")
+            draw.text((1 - int(self._nameoffset), 23), self._playingname, font=Idle.font, fill="white")
+            draw.text((1 - int(self._titleoffset), 35), self._playingtitle, font=Idle.font, fill="white")
 
-            #Buttons
-            self._buttons.append(MetaButton(1, 48, "\uf65d", lambda: self.windowmanager.set_window("mainmenu"))) #menu
-
-            self._buttons.append(MetaButton(31, 48, "\uf04a", self.musicmanager.previous)) #prev
-
-            if self.musicmanager.source == "mpd" and self.musicmanager.status() == "play":
-                self._buttons.append(MetaButton(46, 48, "\uf04c", self.musicmanager.playpause)) #pause
-            elif self.musicmanager.source == "mpd":
-                self._buttons.append(MetaButton(46, 48, "\uf04b", self.musicmanager.playpause)) #play
-            
-            self._buttons.append(MetaButton(61, 48, "\uf04e", self.musicmanager.next)) #next
-
-            #When button count changes, adjust selectedbtnindex
-            if self._selectedbtnindex > len(self._buttons)-1:
-                self._selectedbtnindex = len(self._buttons)-1
-            
             #Draw buttons
             for button in self._buttons:
                 draw.text((button.posx, button.posy), button.icon, font=Idle.faicons, fill="white")
@@ -70,48 +78,112 @@ class Idle(WindowBase):
             btn = self._buttons[self._selectedbtnindex]
             draw.line((btn.posx, btn.posy+13, btn.posx+11, btn.posy+13), width=2, fill="white")
 
+    @staticmethod
+    def _extract_name_title(playing):
+        if "name" in playing:
+            name = playing['name']
+        elif "artist" in playing and "album" in playing:
+            name = f"{playing['artist']} - {playing['album']}"
+        else:
+            name = ""
 
-    async def _generatenowplaying(self):
-        namex = 0
-        titlex = 0
-        oldname = ""
-        oldtitle = ""
-        while self.loop.is_running() and self._active:
-            playing = self.musicmanager.nowplaying()
-            if "name" in playing:
-                name = playing['name']
-            elif "artist" in playing and "album" in playing:
-                name = f"{playing['artist']} - {playing['album']}"
-            else:
-                name = ""
+        if "title" in playing:
+            title = playing['title']
+        else:
+            title = ""
+        return name, title
 
-            if name == oldname and Idle.font.getlength(name[namex:]) > 127.0:
-                namex += 1
-            else:
-                namex = 0
-                oldname = name
+    def _sync_playpause_icon(self):
+        playpauseicon = "\uf04c" if self._source == "mpd" and self._playstate == "play" else "\uf04b"
+        if playpauseicon != self._lastplaypauseicon:
+            self._lastplaypauseicon = playpauseicon
+            self._buttons[2].icon = playpauseicon
+            self.mark_dirty()
 
-            self._playingname = name[namex:]
+    def _on_volume(self, volume):
+        if volume is None:
+            return
+        if self._volume != volume:
+            self._volume = volume
+            self.mark_dirty()
 
-            if "title" in playing:
-                title = playing['title']
-            else:
-                title = ""
+    def _on_mopidy_connection(self, connected):
+        if connected is None:
+            return
+        if self._mopidy_connected != connected:
+            self._mopidy_connected = connected
+            self.mark_dirty()
 
-            if title == oldtitle and Idle.font.getlength(title[titlex:]) > 127.0:
-                titlex += 1
-            else:
-                titlex = 0
-                oldtitle = title
-            self._playingtitle = title[titlex:]
+    def _on_playstate(self, playstate):
+        if playstate is None:
+            return
+        self._playstate = playstate
+        self._sync_playpause_icon()
 
-            await asyncio.sleep(1)
+    def _on_source(self, source):
+        if source is None:
+            return
+        self._source = source
+        self._sync_playpause_icon()
+
+    def _on_nowplaying(self, playing):
+        if playing is None:
+            return
+        name, title = Idle._extract_name_title(playing)
+
+        haschange = False
+        if name != self._playingname:
+            self._playingname = name
+            self._nameoffset = 0.0
+            self._namewidth = int(Idle.font.getlength(name))
+            haschange = True
+
+        if title != self._playingtitle:
+            self._playingtitle = title
+            self._titleoffset = 0.0
+            self._titlewidth = int(Idle.font.getlength(title))
+            haschange = True
+
+        if haschange:
+            self.mark_dirty()
+
+    def update(self, dt):
+        if not self._active:
+            return
+
+        haschange = False
+
+        nowminute = datetime.datetime.now().strftime("%H:%M")
+        if nowminute != self._lastclockminute:
+            self._lastclockminute = nowminute
+            haschange = True
+
+        if self._namewidth > 127:
+            oldoffset = int(self._nameoffset)
+            self._nameoffset += self._scroll_speed * dt
+            maxoffset = (self._namewidth - 127) + self._scroll_gap
+            if self._nameoffset > maxoffset:
+                self._nameoffset = 0.0
+            if int(self._nameoffset) != oldoffset:
+                haschange = True
+
+        if self._titlewidth > 127:
+            oldoffset = int(self._titleoffset)
+            self._titleoffset += self._scroll_speed * dt
+            maxoffset = (self._titlewidth - 127) + self._scroll_gap
+            if self._titleoffset > maxoffset:
+                self._titleoffset = 0.0
+            if int(self._titleoffset) != oldoffset:
+                haschange = True
+
+        if haschange:
+            self.mark_dirty()
 
 
     def push_callback(self):
-        self._buttons[self._selectedbtnindex].trigger()
+        if len(self._buttons) > 0:
+            self._buttons[self._selectedbtnindex].trigger()
 
     def turn_callback(self, direction):
-        if self._selectedbtnindex + direction <= len(self._buttons)-1 and \
-            self._selectedbtnindex + direction >= 0:
-            self._selectedbtnindex += direction
+        if len(self._buttons) > 0:
+            self._selectedbtnindex = (self._selectedbtnindex + direction) % len(self._buttons)

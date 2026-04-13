@@ -1,6 +1,5 @@
 """ Shutdown menu """
 from ui.windowbase import WindowBase
-from integrations.system import system
 from luma.core.render import canvas
 from PIL import ImageFont
 import settings
@@ -38,12 +37,11 @@ class Shutdownmenu(WindowBase):
 
     def push_callback(self):
         if self.counter == 0:
-            self.windowmanager.set_window("mainmenu")
+            self.windowmanager.set_window("idle")
         elif self.counter == 1:
-            self.mopidyconnection.stop()
-            system.execshutdown = True
-            print("Stopping event loop")
-            self.loop.stop()
+            # Emit shutdown request via EventBus
+            if self.eventbus is not None:
+                self.eventbus.emit_async("system.shutdown_request", {})
         elif self.counter == 2:
             self.windowmanager.clear_window()
 

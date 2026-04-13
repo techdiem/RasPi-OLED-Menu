@@ -2,15 +2,15 @@ import math
 import select
 import threading
 import settings # pylint: disable=import-error
-from integrations.mqtt import mqttclient
 if not settings.EMULATED:
     import alsaaudio
 
-#Access to alsa mixers adapted from https://github.com/mopidy/mopidy-alsamixer/blob/main/mopidy_alsamixer/mixer.py
+# Access to alsa mixers adapted from
+# https://github.com/mopidy/mopidy-alsamixer/blob/main/mopidy_alsamixer/mixer.py
 
 class AlsaMixer():
-    def __init__(self, musicmanager):
-        self.musicmanager = musicmanager
+    def __init__(self, eventbus=None):
+        self.eventbus = eventbus
         self.card = settings.ALSA_CARD
         self.mixer = settings.ALSA_MIXER
         self._last_volume = None
@@ -18,9 +18,9 @@ class AlsaMixer():
         self.min_volume = settings.ALSA_VOL_MIN
         self.max_volume = settings.ALSA_VOL_MAX
 
-        #MQTT connection
-        self.mqtt_topic_volume = "volume/state"
-        mqttclient.subscribe("volume/set", self._mqtt_set_volume)
+        # Subscribe to volume change events from EventBus
+        if self.eventbus is not None:
+            self.eventbus.subscribe("audio.volume", self._on_volume_event)
 
         if not settings.EMULATED:
             known_controls = alsaaudio.cards()
@@ -36,7 +36,8 @@ class AlsaMixer():
             self.on_start()
 
     def on_start(self):
-        self._observer = AlsaMixerObserver(device=self.card, control=self.mixer, callback=self.trigger_events_for_changed_values)
+        self._observer = AlsaMixerObserver(device=self.card, control=self.mixer, 
+                                           callback=self.trigger_events_for_changed_values)
         self._observer.start()
         self.trigger_events_for_changed_values()
 
@@ -46,7 +47,7 @@ class AlsaMixer():
             device=self.card,
             control=self.mixer
         )
-    
+
     def get_volume(self):
         if settings.EMULATED:
             return self._emulated_volume
@@ -59,24 +60,15 @@ class AlsaMixer():
             else:
                 # Not all channels have the same volume
                 return None
-    
+
     def set_volume(self, volume):
         if settings.EMULATED:
             print(f"EMULATED: Set ALSA volume to {volume}")
             self._emulated_volume = volume
-            #Call trigger function to update mqtt sensor and display value
             self.trigger_events_for_changed_values()
         else:
             self._mixer.setvolume(self.volume_to_mixer_volume(volume))
-        mqttclient.publish(self.mqtt_topic_volume, volume, retain=True)
         return True
-    
-    def _mqtt_set_volume(self, raw_volume):
-        try:
-            self.set_volume(int(raw_volume))
-            print(f"Setting volume to {raw_volume} from MQTT")
-        except ValueError:
-            print(f"Received invalid volume value from mqtt: {raw_volume}")
 
     def mixer_volume_to_volume(self, mixer_volume):
         volume = mixer_volume
@@ -93,14 +85,20 @@ class AlsaMixer():
             return int(mixer_volume)
         except ValueError:
             print("Invalid volume log calculation, try setting ALSA_MIN_VOLUME to 1")
-            return 0   
+            return 0
 
     def trigger_events_for_changed_values(self):
         old_volume, self._last_volume = self._last_volume, self.get_volume()
 
         if old_volume != self._last_volume:
-            self.musicmanager.volume = self._last_volume
-            mqttclient.publish(self.mqtt_topic_volume, self._last_volume, retain=True)
+            if self.eventbus is not None:
+                self.eventbus.emit_threadsafe("audio.volume", self._last_volume)
+
+    def _on_volume_event(self, volume):
+        """Handle volume change events from external sources (VolumePoti, AirPlay)"""
+        if volume is None:
+            return
+        self.set_volume(volume)
 
 
 class AlsaMixerObserver(threading.Thread):

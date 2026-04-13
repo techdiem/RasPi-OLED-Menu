@@ -4,6 +4,10 @@ Software settings
 
 STATIONSPLAYLIST = "/music/playlists/[Radio Streams].m3u8"
 EMULATED = False
+API_PORT = 8000
+
+#Shairport-Sync metadata FIFO
+SHAIRPORT_METADATA_PIPE = "/tmp/shairport-sync-metadata"
 
 #Pins for rotary encoder
 PIN_CLK = 17
