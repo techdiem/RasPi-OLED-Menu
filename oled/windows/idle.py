@@ -20,7 +20,7 @@ class Idle(WindowBase):
         self._titleoffset = 0.0
         self._namewidth = 0
         self._titlewidth = 0
-        self._scroll_speed = 24.0
+        self._scroll_speed = 16.0
         self._scroll_gap = 16.0
         self._lastclockminute = ""
         self._source = self.musicmanager.source

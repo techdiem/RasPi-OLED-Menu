@@ -1,10 +1,6 @@
 """Manages the currently shown activewindow on screen and passes callbacks for the rotary encoder"""
 import asyncio
 import time
-try:
-    from luma.core.sprite_system import framerate_regulator
-except ImportError:
-    framerate_regulator = None
 
 class WindowManager():
     def __init__(self, loop, device, eventbus=None):
@@ -15,7 +11,6 @@ class WindowManager():
         self.eventbus = eventbus
         self.screenpower = True
         self._fps = 15
-        self._regulator = framerate_regulator(fps=self._fps)
         self.loop.create_task(self._render())
         print("Rendering task created")
 
@@ -48,7 +43,9 @@ class WindowManager():
 
     async def _render(self):
         last_tick = time.monotonic()
+        frame_duration = 1 / self._fps
         while self.loop.is_running():
+            frame_start = time.monotonic()
             now = time.monotonic()
             dt = now - last_tick
             last_tick = now
@@ -56,16 +53,13 @@ class WindowManager():
             if self.activewindow is not None and self.screenpower:
                 try:
                     self.activewindow.update(dt)
-                    #TODO: Das so lassen, oder besser nur framerate regulator statt sleep?
                     if self.activewindow.consume_dirty():
-                        with self._regulator:
-                            self.activewindow.render()
-                    else:
-                        await asyncio.sleep(1/self._fps)
+                        self.activewindow.render()
                 except (NotImplementedError, AttributeError):
                     pass
-            else:
-                await asyncio.sleep(1/self._fps)
+
+            elapsed = time.monotonic() - frame_start
+            await asyncio.sleep(max(0, frame_duration - elapsed))
 
     def push_callback(self):
         if self.screenpower:
