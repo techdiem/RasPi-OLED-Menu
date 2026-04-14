@@ -74,7 +74,7 @@ class MqttConnection():
         try:
             volume = int(raw_volume)
             if self.eventbus is not None:
-                self.eventbus.emit_threadsafe("audio.volume", volume)
+                self.eventbus.emit_threadsafe("audio.volume.set", volume)
             print(f"Volume set to {volume} from MQTT")
         except ValueError:
             print(f"Received invalid volume value from MQTT: {raw_volume}")

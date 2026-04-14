@@ -188,7 +188,7 @@ class ShairportMetadata():
         self._last_volume = volume_percent
         print(f"Set volume to {volume_percent}% from AirPlay")
         if self.eventbus is not None:
-            self.eventbus.emit_threadsafe("audio.volume", volume_percent)
+            self.eventbus.emit_threadsafe("audio.volume.set", volume_percent)
 
     def nowplaying(self):
         info = {}

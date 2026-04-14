@@ -20,7 +20,7 @@ class AlsaMixer():
 
         # Subscribe to volume change events from EventBus
         if self.eventbus is not None:
-            self.eventbus.subscribe("audio.volume", self._on_volume_event)
+            self.eventbus.subscribe("audio.volume.set", self._on_volume_event)
 
         if not settings.EMULATED:
             known_controls = alsaaudio.cards()

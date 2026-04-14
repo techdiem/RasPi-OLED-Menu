@@ -38,7 +38,7 @@ class VolumePoti():
         newvolume = round(voltage/0.033)
         print(f"Setting volume to {newvolume}%")
         if self.eventbus is not None:
-            self.eventbus.emit_threadsafe("audio.volume", newvolume)
+            self.eventbus.emit_threadsafe("audio.volume.set", newvolume)
 
     async def _poll_poti_val(self):
         while self.loop.is_running():

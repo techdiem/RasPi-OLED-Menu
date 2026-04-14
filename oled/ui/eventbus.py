@@ -7,6 +7,7 @@ Event Bus Topics:
   
   Audio:
     audio.volume (volume: int) - Volume changed (0-100%)
+    audio.volume.set (volume: int) - Request to set volume (0-100%)
   
   Music:
     music.nowplaying (info: dict) - Currently playing track
