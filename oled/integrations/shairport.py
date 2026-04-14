@@ -154,6 +154,8 @@ class ShairportMetadata():
             return
 
         if code == "pvol" and data_b64:
+            if not self.connected:
+                return
             payload = self._decode_b64_text(data_b64)
             if payload is not None:
                 new_vol = self._parse_airplay_volume(payload)

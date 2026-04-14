@@ -62,6 +62,10 @@ class AlsaMixer():
                 return None
 
     def set_volume(self, volume):
+        current_volume = self.get_volume()
+        if current_volume == volume:
+            return True
+
         if settings.EMULATED:
             print(f"EMULATED: Set ALSA volume to {volume}")
             self._emulated_volume = volume
