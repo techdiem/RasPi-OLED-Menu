@@ -4,6 +4,9 @@ __pycache__/
 #see oled/settings.example.py
 oled/settings.py
 
+# my test radio station playlist
+oled/radio.m3u
+
 #See fonts/README.md
 *.ttf
 *.otf

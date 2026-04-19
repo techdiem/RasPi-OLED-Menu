@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Webradio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <svg class="svg-sprite" aria-hidden="true" focusable="false">
+    <symbol id="icon-refresh" viewBox="0 0 24 24">
+      <path d="M20 4v6h-6l2.35-2.35A7 7 0 1 0 19 13h2a9 9 0 1 1-3.65-7.2L20 4z" />
+    </symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24">
+      <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z" />
+    </symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24">
+      <path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25zm2.92 2.33H5v-.92l9.06-9.06.92.92L5.92 19.58zM20.71 7.04a1 1 0 0 0 0-1.41L18.37 3.3a1 1 0 0 0-1.41 0l-1.2 1.2 3.75 3.75 1.2-1.21z" />
+    </symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24">
+      <path d="M9 3h6l1 1h5v2H3V4h5l1-1zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM6 9h2v9H6V9zm1 12h10a2 2 0 0 0 2-2V7H5v12a2 2 0 0 0 2 2z" />
+    </symbol>
+  </svg>
+
+  <main class="page">
+    <section class="card now-playing" aria-label="Es läuft:">
+      <p class="section-label">Es läuft:</p>
+      <p id="track-title" class="track-title">Keine Wiedergabe</p>
+      <p id="track-name" class="track-name"></p>
+    </section>
+
+    <section class="card stations" aria-labelledby="stations-heading">
+      <div class="section-head">
+        <h2 id="stations-heading">Radiosender</h2>
+        <div class="head-actions">
+          <button id="refresh-button" class="ui-button icon-button" type="button" aria-label="Aktualisieren" title="Aktualisieren">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-refresh"></use></svg>
+          </button>
+          <button id="add-button" class="ui-button icon-button" type="button" aria-label="Radiosender hinzufügen" title="Radiosender hinzufügen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-plus"></use></svg>
+          </button>
+        </div>
+      </div>
+      <ul id="stations-list" class="station-list" aria-live="polite"></ul>
+      <p id="empty-state" class="empty-state" hidden>Noch keine Radiosender vorhanden.</p>
+    </section>
+  </main>
+
+  <dialog id="station-dialog" class="dialog">
+    <form id="station-form" method="dialog" class="dialog-body">
+      <h3 id="station-dialog-title">Radiosender hinzufügen</h3>
+      <label>
+        Titel
+        <input id="station-title" name="title" type="text" required maxlength="120" />
+      </label>
+      <label>
+        URL
+        <input id="station-url" name="url" type="url" required maxlength="600" />
+      </label>
+      <div class="dialog-actions">
+        <button class="ui-button" type="button" id="cancel-station">Abbrechen</button>
+        <button class="ui-button" type="submit" id="station-submit-button">Hinzufügen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
