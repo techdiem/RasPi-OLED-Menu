@@ -208,13 +208,6 @@ class ShairportMetadata():
             info['title'] = self._info['title']
         else:
             info['title'] = "AirPlay"
-
-        if 'artist' in self._info:
-            info['artist'] = self._info['artist']
-
-        if 'cover_art' in self._info:
-            info['cover_art'] = self._info['cover_art']
-
         return info
 
     def next(self):
