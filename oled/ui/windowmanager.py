@@ -10,7 +10,7 @@ class WindowManager():
         self.loop = loop
         self.eventbus = eventbus
         self.screenpower = True
-        self._fps = 15
+        self._fps = 8
         self.loop.create_task(self._render())
         print("Rendering task created")
 
