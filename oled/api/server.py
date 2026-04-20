@@ -1,166 +1,18 @@
-"""FastAPI server for OLED menu REST endpoints"""
+"""FastAPI server for REST endpoints"""
 import asyncio
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import List, Optional
+
+import uvicorn
 from fastapi import FastAPI, HTTPException, Path as FastAPIPath, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
-import uvicorn
 
-app = FastAPI(title="RasPi OLED Menu API", version="1.0.0")
-
-
-class NowPlayingResponse(BaseModel):
-    """Response model for /nowplaying endpoint"""
-    source: Optional[Any] = None
-    name: Optional[str] = None
-    title: Optional[str] = None
-    is_playing: bool = False
-
-class RadioStationResponse(BaseModel):
-    """Response model for a single radio station"""
-    id: int
-    title: str
-    url: str
-
-class RadioStationCreateRequest(BaseModel):
-    """Payload for creating a radio station"""
-    title: str
-    url: str
-
-class RadioStationUpdateRequest(BaseModel):
-    """Payload for updating a radio station"""
-    title: Optional[str] = None
-    url: Optional[str] = None
-
-
-class NowPlayingSocketHub:
-    """Keeps websocket clients for now playing updates in sync."""
-
-    def __init__(self):
-        self.connections = set()
-        self.loop = None
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        if self.loop is None:
-            self.loop = asyncio.get_running_loop()
-        self.connections.add(websocket)
-
-    def broadcast_threadsafe(self, state: NowPlayingResponse):
-        if self.loop is None:
-            return
-        asyncio.run_coroutine_threadsafe(self.broadcast(state), self.loop)
-
-    async def broadcast(self, state: NowPlayingResponse):
-        payload = state.model_dump()
-        closed_connections = []
-        for websocket in self.connections.copy():
-            try:
-                await websocket.send_json(payload)
-            except Exception:
-                closed_connections.append(websocket)
-        for websocket in closed_connections:
-            self.connections.discard(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.connections.discard(websocket)
-
-
-class APIStateManager:
-    """Manages API state via EventBus subscriptions"""
-
-    def __init__(self, eventbus=None, mopidy=None, nowplaying_hub=None):
-        self.eventbus = eventbus
-        self.mopidy = mopidy
-        self.nowplaying_hub = nowplaying_hub
-        self.state = {
-            "source": None,
-            "name": None,
-            "title": None,
-            "is_playing": False
-        }
-
-        if self.eventbus is not None:
-            self.eventbus.subscribe("music.nowplaying", self._on_nowplaying)
-            self.eventbus.subscribe("music.playstate", self._on_playstate)
-            self.eventbus.subscribe("music.source", self._on_source)
-
-    def _on_nowplaying(self, playing):
-        if playing is None:
-            return
-        self.state["title"] = playing.get("title", "")
-        self.state["name"] = playing.get("name", "")
-        source = playing.get("source")
-        if source:
-            self.state["source"] = source
-        self._broadcast_nowplaying_state()
-
-    def _on_playstate(self, playstate):
-        if playstate is None:
-            return
-        self.state["is_playing"] = playstate == "play"
-        if not self.state["is_playing"]:
-            self.state["title"] = None
-            self.state["name"] = None
-        self._broadcast_nowplaying_state()
-
-    def _on_source(self, source):
-        if source is None:
-            return
-        self.state["source"] = source
-        self._broadcast_nowplaying_state()
-
-    def get_state(self) -> NowPlayingResponse:
-        return NowPlayingResponse(**self.state)
-
-    def get_radiostations(self) -> List[RadioStationResponse]:
-        if self.mopidy is None:
-            return []
-
-        return [
-            RadioStationResponse(id=index, **station)
-            for index, station in enumerate(self.mopidy.get_radiostations())
-        ]
-
-    def add_radiostation(self, title, url) -> RadioStationResponse:
-        self._require_mopidy()
-        station_id, station = self.mopidy.add_radiostation(title, url)
-        return RadioStationResponse(id=station_id, **station)
-
-    def update_radiostation(self, station_id, title=None, url=None) -> RadioStationResponse:
-        self._require_mopidy()
-        try:
-            station = self.mopidy.update_radiostation(station_id, title=title, url=url)
-        except IndexError as exc:
-            raise HTTPException(status_code=404, detail="Radio station not found") from exc
-        return RadioStationResponse(id=station_id, **station)
-
-    def delete_radiostation(self, station_id) -> RadioStationResponse:
-        self._require_mopidy()
-        try:
-            station = self.mopidy.delete_radiostation(station_id)
-        except IndexError as exc:
-            raise HTTPException(status_code=404, detail="Radio station not found") from exc
-        return RadioStationResponse(id=station_id, **station)
-
-    def play_radiostation(self, station_id) -> RadioStationResponse:
-        self._require_mopidy()
-        stations = self.mopidy.get_radiostations()
-        if station_id < 0 or station_id >= len(stations):
-            raise HTTPException(status_code=404, detail="Radio station not found")
-        self.mopidy.playradiostation(station_id)
-        station = stations[station_id]
-        return RadioStationResponse(id=station_id, **station)
-
-    def _require_mopidy(self):
-        if self.mopidy is None:
-            raise HTTPException(status_code=503, detail="Mopidy control is not available")
-
-    def _broadcast_nowplaying_state(self):
-        if self.nowplaying_hub is None:
-            return
-        self.nowplaying_hub.broadcast_threadsafe(self.get_state())
+from .model import (NowPlayingResponse,
+                    RadioStationResponse,
+                    RadioStationCreateRequest,
+                    RadioStationUpdateRequest)
+from .apicontroller import APIController
+from .nowplayingsocket import NowPlayingSocketHub
 
 
 class APIServerRuntime:
@@ -197,21 +49,31 @@ class APIServerRuntime:
             await asyncio.gather(self.task, return_exceptions=True)
 
 
+# ----------------------------
+# FastAPI app and endpoint definitions
+
 def start_api_server(loop, port, host="0.0.0.0", log_level="info"):
     return APIServerRuntime(loop, port, host=host, log_level=log_level)
-
-
-# Global state manager - initialized from oled.py
-# Using a dict to allow late assignment from init_api_manager() without needing 'global' keyword
-_nowplaying_hub = NowPlayingSocketHub()
-_api_manager = {"instance": APIStateManager(nowplaying_hub=_nowplaying_hub)}
-
 
 def _get_api_manager():
     return _api_manager["instance"]
 
+def init_api_manager(eventbus, mopidy=None):
+    _api_manager["instance"] = APIController(eventbus, mopidy, _nowplaying_hub)
+
+# Using a dict to allow late assignment from init_api_manager() without needing 'global' keyword
+_nowplaying_hub = NowPlayingSocketHub()
+_api_manager = {"instance": APIController(nowplaying_hub=_nowplaying_hub)}
+
+app = FastAPI(title="RasPi OLED Menu API", version="1.0.0")
+
+# Service static files for the web UI
+_webui_dir = Path(__file__).resolve().parent / "webui"
+app.mount("/", StaticFiles(directory=str(_webui_dir), html=True), name="webui")
+
+
 # ----------------------------
-# FastAPI endpoint definitions
+# Endpoint definitions
 
 @app.get("/nowplaying", response_model=NowPlayingResponse)
 async def get_nowplaying():
@@ -273,11 +135,3 @@ async def websocket_nowplaying(websocket: WebSocket):
         pass
     finally:
         _nowplaying_hub.disconnect(websocket)
-
-
-def init_api_manager(eventbus, mopidy=None):
-    _api_manager["instance"] = APIStateManager(eventbus, mopidy, _nowplaying_hub)
-
-
-_webui_dir = Path(__file__).resolve().parent / "webui"
-app.mount("/", StaticFiles(directory=str(_webui_dir), html=True), name="webui")
