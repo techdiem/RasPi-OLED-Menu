@@ -139,8 +139,7 @@ class Idle(WindowBase):
         return name, title
 
     def _sync_control_icons(self):
-        showskipicons = False
-        playpauseicon = ""
+        playpauseicon = "\uf04b"
         changed = False
 
         if not self._mopidy_connected:
@@ -152,7 +151,6 @@ class Idle(WindowBase):
                 playpauseicon = "\uf04c"
             else:
                 playpauseicon = "\uf04b"
-            showskipicons = True
             if self._widgeticon != "\ue585":
                 self._widgeticon = "\ue585"
                 changed = True
@@ -164,16 +162,10 @@ class Idle(WindowBase):
             if self._widgeticon != "":
                 self._widgeticon = ""
                 changed = True
-        
+
         if playpauseicon != self._lastplaypauseicon:
             self._lastplaypauseicon = playpauseicon
             self._buttons[2].icon = playpauseicon
-            if showskipicons:
-                self._buttons[1].icon = "\uf04a"
-                self._buttons[3].icon = "\uf04e"
-            else:
-                self._buttons[1].icon = ""
-                self._buttons[3].icon = ""
             changed = True
 
         if changed:
