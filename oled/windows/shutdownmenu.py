@@ -41,7 +41,7 @@ class Shutdownmenu(WindowBase):
         elif self.counter == 1:
             # Emit shutdown request via EventBus
             if self.eventbus is not None:
-                self.eventbus.emit_async("system.shutdown_request", {})
+                self.eventbus.emit("system.shutdown_request", True)
         elif self.counter == 2:
             self.windowmanager.clear_window()
 

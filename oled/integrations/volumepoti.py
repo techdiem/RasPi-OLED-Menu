@@ -15,6 +15,10 @@ class VolumePoti():
         self.loop = loop
         self.eventbus = eventbus
         self.old_voltage = 0
+        self._poll_task = None
+
+        if self.eventbus is not None:
+            self.eventbus.subscribe("system.shutdown_request", self._on_shutdown_request)
 
         if settings.EMULATED:
             emulator.event_subscribers.append(self._poll_pygame_keys)
@@ -24,7 +28,7 @@ class VolumePoti():
             self._process_voltage(self.old_voltage)
         else:
             self._setup_ads()
-            self.loop.create_task(self._poll_poti_val())
+            self._poll_task = self.loop.create_task(self._poll_poti_val())
 
     def _setup_ads(self):
         self.ads = ADS1x15.ADS1115(1, settings.ADS_I2C)
@@ -59,3 +63,7 @@ class VolumePoti():
                 voltage = self.old_voltage - 0.1
                 if voltage >= 0 and voltage <= 3.3:
                     self._process_voltage(voltage)
+
+    def _on_shutdown_request(self, _):
+        if self._poll_task is not None and not self._poll_task.done():
+            self._poll_task.cancel()

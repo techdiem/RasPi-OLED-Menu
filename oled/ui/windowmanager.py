@@ -11,7 +11,9 @@ class WindowManager():
         self.eventbus = eventbus
         self.screenpower = True
         self._fps = 8
-        self.loop.create_task(self._render())
+        self._render_task = self.loop.create_task(self._render())
+        if self.eventbus is not None:
+            self.eventbus.subscribe("system.shutdown_request", self._on_shutdown_request)
         print("Rendering task created")
 
     def add_window(self, windowid, window):
@@ -60,6 +62,10 @@ class WindowManager():
 
             elapsed = time.monotonic() - frame_start
             await asyncio.sleep(max(0, frame_duration - elapsed))
+
+    def _on_shutdown_request(self, _):
+        if self._render_task is not None and not self._render_task.done():
+            self._render_task.cancel()
 
     def push_callback(self):
         if self.screenpower:

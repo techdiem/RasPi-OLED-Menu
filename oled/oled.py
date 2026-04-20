@@ -1,7 +1,6 @@
 """Werkstattradio OLED controller"""
 import asyncio
 import signal
-import sys
 import importlib
 from subprocess import call
 import uvicorn
@@ -19,11 +18,6 @@ from ui.windowmanager import WindowManager
 from ui.eventbus import EventBus
 from api.server import app as api_app, init_api_manager
 
-#Systemd exit
-def gracefulexit(_signum, _frame):
-    sys.exit(0)
-signal.signal(signal.SIGTERM, gracefulexit)
-
 async def run_api_server(port: int = 8000):
     """Run FastAPI server in asyncio event loop"""
     config = uvicorn.Config(api_app, host="0.0.0.0", port=port, log_level="info")
@@ -32,7 +26,9 @@ async def run_api_server(port: int = 8000):
 
 def main():
     loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     eventbus = EventBus(loop)
+    shutdown_started = False
 
     # Display = real hardware or emulator (depending on settings)
     display = get_display()
@@ -70,14 +66,60 @@ def main():
     AlsaMixer(eventbus)
     VolumePoti(loop, eventbus)
 
-    # Handle system shutdown request
-    async def on_shutdown_request(_):
-        mopidy.stop()
-        system.execshutdown = True
-        print("Stopping event loop")
+    # Ensure GPIO devices always release cleanly on shutdown event.
+    eventbus.subscribe(
+        "system.shutdown_request",
+        lambda _: RotaryEncoder.cleanup() if not settings.EMULATED else None
+    )
+
+    async def shutdown_runtime():
+        nonlocal shutdown_started
+        if shutdown_started:
+            return
+
+        shutdown_started = True
+
+        print("Starting graceful shutdown")
+
+        current_task = asyncio.current_task(loop=loop)
+        pending = [
+            task for task in asyncio.all_tasks(loop)
+            if task is not current_task and not task.done()
+        ]
+
+        for task in pending:
+            task.cancel()
+
+        if pending:
+            await asyncio.gather(*pending, return_exceptions=True)
+
         loop.stop()
 
+    def request_shutdown(execshutdown=False):
+        if loop.is_closed():
+            return
+        payload = bool(execshutdown)
+        if loop.is_running():
+            eventbus.emit_threadsafe("system.shutdown_request", payload)
+        else:
+            system.execshutdown = system.execshutdown or payload
+            loop.create_task(shutdown_runtime())
+
+    # Handle system shutdown request
+    def on_shutdown_request(payload):
+        do_poweroff = bool(payload)
+        if do_poweroff:
+            system.execshutdown = True
+        loop.create_task(shutdown_runtime())
+
     eventbus.subscribe("system.shutdown_request", on_shutdown_request)
+
+    def _signal_handler(signum, _frame):
+        print(f"Received signal {signum}, stopping service")
+        request_shutdown(execshutdown=False)
+
+    signal.signal(signal.SIGTERM, _signal_handler)
+    signal.signal(signal.SIGINT, _signal_handler)
 
     # Start FastAPI server in background
     api_port = getattr(settings, 'API_PORT', 8000)
@@ -90,8 +132,6 @@ def main():
 
     try:
         loop.run_forever()
-    except (KeyboardInterrupt, SystemExit):
-        print("Exiting")
     finally:
         loop.close()
 
@@ -102,5 +142,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    RotaryEncoder.cleanup()
-    sys.exit(0)

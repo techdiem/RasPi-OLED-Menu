@@ -15,12 +15,14 @@ class AlsaMixer():
         self.mixer = settings.ALSA_MIXER
         self._last_volume = None
         self._emulated_volume = 0
+        self._observer = None
         self.min_volume = settings.ALSA_VOL_MIN
         self.max_volume = settings.ALSA_VOL_MAX
 
         # Subscribe to volume change events from EventBus
         if self.eventbus is not None:
             self.eventbus.subscribe("audio.volume.set", self._on_volume_event)
+            self.eventbus.subscribe("system.shutdown_request", self._on_shutdown_request)
 
         if not settings.EMULATED:
             known_controls = alsaaudio.cards()
@@ -103,6 +105,11 @@ class AlsaMixer():
         if volume is None:
             return
         self.set_volume(volume)
+
+    def _on_shutdown_request(self, _):
+        if self._observer is not None:
+            self._observer.stop()
+            self._observer = None
 
 
 class AlsaMixerObserver(threading.Thread):

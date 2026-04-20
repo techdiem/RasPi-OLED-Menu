@@ -7,6 +7,7 @@ class MqttConnection():
 
     def __init__(self, eventbus=None):
         self.eventbus = eventbus
+        self._closed = False
         self._connect_mqtt()
         self.client.on_message = self._on_message
         self.client.loop_start()
@@ -18,6 +19,7 @@ class MqttConnection():
             self.eventbus.subscribe("music.nowplaying", self._on_eventbus_nowplaying)
             self.eventbus.subscribe("music.playstate", self._on_eventbus_playstate)
             self.eventbus.subscribe("music.source", self._on_eventbus_source)
+            self.eventbus.subscribe("system.shutdown_request", self._on_shutdown_request)
 
         # Subscribe to MQTT topics to emit back to EventBus (MQTT → EventBus)
         self.subscribe("volume/set", self._on_mqtt_volume_command)
@@ -78,3 +80,23 @@ class MqttConnection():
             print(f"Volume set to {volume} from MQTT")
         except ValueError:
             print(f"Received invalid volume value from MQTT: {raw_volume}")
+
+    def _on_shutdown_request(self, _):
+        if self._closed:
+            return
+
+        self._closed = True
+        try:
+            self.publish("status", "offline", retain=True)
+        except Exception:
+            pass
+
+        try:
+            self.client.loop_stop()
+        except Exception:
+            pass
+
+        try:
+            self.client.disconnect()
+        except Exception:
+            pass

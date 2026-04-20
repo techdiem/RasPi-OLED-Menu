@@ -18,6 +18,8 @@ class ShairportMetadata():
         self._last_volume: Optional[int] = None
         self.client_name = "AirPlay"
         self._task = self.loop.create_task(self._listen_pipe())
+        if self.eventbus is not None:
+            self.eventbus.subscribe("system.shutdown_request", self._on_shutdown_request)
 
     def _ensure_pipe_exists(self):
         if os.path.exists(self.metadata_pipe):
@@ -216,6 +218,7 @@ class ShairportMetadata():
     def previous(self):
         print("AirPlay previous is not available.")
 
-    def cleanup(self):
+    def _on_shutdown_request(self, _):
         if self._task is not None:
             self._task.cancel()
+            self._task = None

@@ -19,7 +19,7 @@ Event Bus Topics:
     airplay.connection (connected: bool) - AirPlay connection status
   
   System:
-    system.shutdown_request (None) - Graceful shutdown signal
+    system.shutdown_request (bool) - Graceful shutdown signal; True also requests host poweroff
 """
 import inspect
 from collections import defaultdict
