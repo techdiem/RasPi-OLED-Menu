@@ -136,7 +136,7 @@ def main():
 
     if system.execshutdown:
         print("Shutting down system")
-        call("sudo shutdown -h now", shell=True)
+        call(settings.SHUTDOWN_COMMAND, shell=True)
 
 
 if __name__ == '__main__':

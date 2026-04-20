@@ -2,9 +2,10 @@
 Software settings
 """
 
-STATIONSPLAYLIST = "/music/playlists/[Radio Streams].m3u8"
+STATIONSPLAYLIST = "/var/lib/mpd/playlists/radio.m3u"
 EMULATED = False
 API_PORT = 8000
+SHUTDOWN_COMMAND = "/sbin/poweroff"
 
 #Shairport-Sync metadata FIFO
 SHAIRPORT_METADATA_PIPE = "/tmp/shairport-sync-metadata"
