@@ -3,7 +3,6 @@ import asyncio
 import signal
 import importlib
 from subprocess import call
-import uvicorn
 import settings
 from integrations.display import get_display
 from integrations.rotaryencoder import RotaryEncoder
@@ -16,13 +15,7 @@ from integrations.system import system
 from integrations.mqtt import MqttConnection
 from ui.windowmanager import WindowManager
 from ui.eventbus import EventBus
-from api.server import app as api_app, init_api_manager
-
-async def run_api_server(port: int = 8000):
-    """Run FastAPI server in asyncio event loop"""
-    config = uvicorn.Config(api_app, host="0.0.0.0", port=port, log_level="info")
-    server = uvicorn.Server(config)
-    await server.serve()
+from api.server import init_api_manager, start_api_server
 
 def main():
     loop = asyncio.new_event_loop()
@@ -72,6 +65,9 @@ def main():
         lambda _: RotaryEncoder.cleanup() if not settings.EMULATED else None
     )
 
+    api_port = getattr(settings, 'API_PORT', 8000)
+    api_server = start_api_server(loop, api_port)
+
     async def shutdown_runtime():
         nonlocal shutdown_started
         if shutdown_started:
@@ -80,6 +76,8 @@ def main():
         shutdown_started = True
 
         print("Starting graceful shutdown")
+
+        await api_server.shutdown(timeout=3)
 
         current_task = asyncio.current_task(loop=loop)
         pending = [
@@ -91,7 +89,13 @@ def main():
             task.cancel()
 
         if pending:
-            await asyncio.gather(*pending, return_exceptions=True)
+            try:
+                await asyncio.wait_for(
+                    asyncio.gather(*pending, return_exceptions=True),
+                    timeout=3,
+                )
+            except asyncio.TimeoutError:
+                print(f"Shutdown timeout: {len(pending)} task(s) still pending")
 
         loop.stop()
 
@@ -118,12 +122,7 @@ def main():
         print(f"Received signal {signum}, stopping service")
         request_shutdown(execshutdown=False)
 
-    signal.signal(signal.SIGTERM, _signal_handler)
     signal.signal(signal.SIGINT, _signal_handler)
-
-    # Start FastAPI server in background
-    api_port = getattr(settings, 'API_PORT', 8000)
-    loop.create_task(run_api_server(api_port))
 
     if settings.EMULATED:
         #pylint: disable=import-outside-toplevel

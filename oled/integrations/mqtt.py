@@ -1,4 +1,5 @@
 import random
+import threading
 from paho.mqtt import client as mqtt_client
 import settings # pylint: disable=import-error
 
@@ -91,12 +92,15 @@ class MqttConnection():
         except Exception:
             pass
 
-        try:
-            self.client.loop_stop()
-        except Exception:
-            pass
+        def _shutdown_client():
+            try:
+                self.client.loop_stop()
+            except Exception:
+                pass
 
-        try:
-            self.client.disconnect()
-        except Exception:
-            pass
+            try:
+                self.client.disconnect()
+            except Exception:
+                pass
+
+        threading.Thread(target=_shutdown_client, daemon=True).start()

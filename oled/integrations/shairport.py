@@ -3,9 +3,11 @@ import asyncio
 import base64
 import os
 import re
+import select
+import threading
 from typing import Optional
 
-import settings
+import settings  # type: ignore[import-not-found]
 
 
 class ShairportMetadata():
@@ -17,6 +19,7 @@ class ShairportMetadata():
         self.connected = False
         self._last_volume: Optional[int] = None
         self.client_name = "AirPlay"
+        self._stop_event = threading.Event()
         self._task = self.loop.create_task(self._listen_pipe())
         if self.eventbus is not None:
             self.eventbus.subscribe("system.shutdown_request", self._on_shutdown_request)
@@ -31,18 +34,31 @@ class ShairportMetadata():
                 pass
 
     def _worker_read_pipe(self):
-        with open(self.metadata_pipe, "r", encoding="utf-8", errors="ignore") as pipe:
+        nonblock_flag = getattr(os, "O_NONBLOCK", 0)
+        fd = os.open(self.metadata_pipe, os.O_RDONLY | nonblock_flag)
+        with os.fdopen(fd, "r", encoding="utf-8", errors="ignore") as pipe:
             print(f"Connected to Shairport metadata pipe: {self.metadata_pipe}")
             current_item = ""
-            for line in pipe:
+            while not self._stop_event.is_set():
+                ready, _, _ = select.select([pipe], [], [], 0.5)
+                if not ready:
+                    continue
+
+                line = pipe.readline()
+                if line == "":
+                    # Writer disconnected; reconnect via outer loop.
+                    return
+
                 current_item += line
-                if "</item>" in line:
-                    self._handle_xml_item(current_item)
-                    current_item = ""
+                if "</item>" in current_item:
+                    parts = current_item.split("</item>")
+                    for item in parts[:-1]:
+                        self._handle_xml_item(f"{item}</item>")
+                    current_item = parts[-1]
 
     async def _listen_pipe(self):
         pipe_not_found_logged = False
-        while self.loop.is_running():
+        while self.loop.is_running() and not self._stop_event.is_set():
             try:
                 self._ensure_pipe_exists()
                 await asyncio.to_thread(self._worker_read_pipe)
@@ -58,6 +74,9 @@ class ShairportMetadata():
                 return
             except Exception as err:  # pragma: no cover
                 print(f"Error while reading Shairport metadata: {err}")
+
+            if self._stop_event.is_set():
+                return
 
             await asyncio.sleep(1)
 
@@ -219,6 +238,7 @@ class ShairportMetadata():
         print("AirPlay previous is not available.")
 
     def _on_shutdown_request(self, _):
+        self._stop_event.set()
         if self._task is not None:
             self._task.cancel()
             self._task = None

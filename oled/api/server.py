@@ -5,6 +5,7 @@ from typing import Any, List, Optional
 from fastapi import FastAPI, HTTPException, Path as FastAPIPath, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+import uvicorn
 
 app = FastAPI(title="RasPi OLED Menu API", version="1.0.0")
 
@@ -160,6 +161,44 @@ class APIStateManager:
         if self.nowplaying_hub is None:
             return
         self.nowplaying_hub.broadcast_threadsafe(self.get_state())
+
+
+class APIServerRuntime:
+    """Wraps the uvicorn server lifecycle for the OLED API."""
+
+    def __init__(self, loop, port, host="0.0.0.0", log_level="info"):
+        self.loop = loop
+        self.port = port
+        self.host = host
+        self.log_level = log_level
+        self.server = None
+        self.task = loop.create_task(self._run())
+
+    async def _run(self):
+        config = uvicorn.Config(app, host=self.host, port=self.port, log_level=self.log_level)
+        server = uvicorn.Server(config)
+        self.server = server
+        try:
+            await server.serve()
+        finally:
+            self.server = None
+
+    async def shutdown(self, timeout=3):
+        if self.server is not None:
+            self.server.should_exit = True
+
+        if self.task.done():
+            return
+
+        try:
+            await asyncio.wait_for(self.task, timeout=timeout)
+        except asyncio.TimeoutError:
+            self.task.cancel()
+            await asyncio.gather(self.task, return_exceptions=True)
+
+
+def start_api_server(loop, port, host="0.0.0.0", log_level="info"):
+    return APIServerRuntime(loop, port, host=host, log_level=log_level)
 
 
 # Global state manager - initialized from oled.py
