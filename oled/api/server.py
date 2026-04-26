@@ -67,11 +67,6 @@ _api_manager = {"instance": APIController(nowplaying_hub=_nowplaying_hub)}
 
 app = FastAPI(title="RasPi OLED Menu API", version="1.0.0")
 
-# Service static files for the web UI
-_webui_dir = Path(__file__).resolve().parent / "webui"
-app.mount("/", StaticFiles(directory=str(_webui_dir), html=True), name="webui")
-
-
 # ----------------------------
 # Endpoint definitions
 
@@ -135,3 +130,7 @@ async def websocket_nowplaying(websocket: WebSocket):
         pass
     finally:
         _nowplaying_hub.disconnect(websocket)
+
+# Service static files for the web UI
+_webui_dir = Path(__file__).resolve().parent / "webui"
+app.mount("/", StaticFiles(directory=str(_webui_dir), html=True), name="webui")
