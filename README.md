@@ -14,13 +14,13 @@ It is based on a Raspberry Pi Zero W with a USB sound card.
 
 ## Windows/Usage
 Some screenshots from the different menu windows (sometimes the font is a bit off because of the simulator):
-| Now playing | Connection lost | Main Menu |
+| Now playing | Connection lost | Shutdown menu |
 | ----------- | --------------- | --------- |
-| ![Now playing](.github/nowplaying.gif) | ![Connection lost](.github/connectionlost.png) | ![Mainmenu](.github/mainmenu.png) |
+| ![Now playing](.github/nowplaying.gif) | ![Connection lost](.github/connectionlost.png) | ![Shutdown menu](.github/shutdownmenu.png) |
 
-| Radio stations | AirPlay playing | Shutdown menu |
-| -------------- | ----------------------- | ------------- |
-| ![Radio station menu](.github/radiostations.png) | ![Airplay playing](.github/airplay.png) | ![Shutdown menu](.github/shutdownmenu.png) |
+| Radio stations | AirPlay playing |
+| -------------- | ----------------------- |
+| ![Radio station menu](.github/radiostations.png) | ![Airplay playing](.github/airplay.png) |
 
 When the software is started, it shows a loading screen until it gets a connection to MPD. If the connection is lost while active, it shows a little icon on the idle screen.
 MPD will be paused when an AirPlay connection is established and the screen will show now playing information.
