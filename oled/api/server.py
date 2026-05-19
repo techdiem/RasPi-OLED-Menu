@@ -6,6 +6,7 @@ from typing import List, Optional
 import uvicorn
 from fastapi import FastAPI, HTTPException, Path as FastAPIPath, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 
 from .model import (NowPlayingResponse,
                     RadioStationResponse,
@@ -18,16 +19,25 @@ from .nowplayingsocket import NowPlayingSocketHub
 class APIServerRuntime:
     """Wraps the uvicorn server lifecycle for the OLED API."""
 
-    def __init__(self, loop, port, host="0.0.0.0", log_level="info"):
+    def __init__(self, loop, port, path_prefix, host="0.0.0.0", log_level="info"):
         self.loop = loop
         self.port = port
         self.host = host
         self.log_level = log_level
+        self.path_prefix = path_prefix
         self.server = None
         self.task = loop.create_task(self._run())
 
     async def _run(self):
-        config = uvicorn.Config(app, host=self.host, port=self.port, log_level=self.log_level)
+        # Create wrapper with configured path prefix
+        _wrapper = FastAPI()
+        _wrapper.mount(self.path_prefix, app)
+
+        @_wrapper.get("/", include_in_schema=False)
+        async def root_redirect():
+            return RedirectResponse(url=self.path_prefix + "/")
+
+        config = uvicorn.Config(_wrapper, host=self.host, port=self.port, log_level=self.log_level)
         server = uvicorn.Server(config)
         self.server = server
         try:
@@ -52,8 +62,8 @@ class APIServerRuntime:
 # ----------------------------
 # FastAPI app and endpoint definitions
 
-def start_api_server(loop, port, host="0.0.0.0", log_level="info"):
-    return APIServerRuntime(loop, port, host=host, log_level=log_level)
+def start_api_server(loop, port, path_prefix, host="0.0.0.0", log_level="info"):
+    return APIServerRuntime(loop, port, path_prefix, host=host, log_level=log_level)
 
 def _get_api_manager():
     return _api_manager["instance"]
@@ -119,7 +129,7 @@ async def health_check():
     return {"status": "ok"}
 
 
-@app.websocket("/ws/nowplaying")
+@app.websocket("/ws")
 async def websocket_nowplaying(websocket: WebSocket):
     await _nowplaying_hub.connect(websocket)
     await websocket.send_json(_get_api_manager().get_state().model_dump())

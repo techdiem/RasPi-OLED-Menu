@@ -1,8 +1,8 @@
 const endpoints = {
-  nowPlaying: "/nowplaying",
-  stations: "/radiostations",
-  nowPlayingSocket: "/ws/nowplaying",
-  playStation: (stationId) => `/radiostations/${stationId}/play`
+  nowPlaying: "nowplaying",
+  stations: "radiostations",
+  nowPlayingSocket: "ws",
+  playStation: (stationId) => `radiostations/${stationId}/play`
 };
 
 const elements = {
@@ -178,7 +178,11 @@ function connectNowPlayingSocket() {
   }
 
   const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  nowPlayingSocket = new WebSocket(`${protocol}://${window.location.host}${endpoints.nowPlayingSocket}`);
+  const baseUrl = window.location.pathname.endsWith('/') 
+    ? window.location.pathname.slice(0, -1)
+    : window.location.pathname;
+  const wsPath = `${protocol}://${window.location.host}${baseUrl}/${endpoints.nowPlayingSocket}`;
+  nowPlayingSocket = new WebSocket(wsPath);
 
   nowPlayingSocket.addEventListener("message", (event) => {
     try {

@@ -5,6 +5,7 @@ Software settings
 STATIONSPLAYLIST = "/var/lib/mpd/playlists/radio.m3u"
 EMULATED = False
 API_PORT = 8000
+API_PATH_PREFIX = "/radio"
 SHUTDOWN_COMMAND = "/sbin/poweroff"
 
 #Shairport-Sync metadata FIFO

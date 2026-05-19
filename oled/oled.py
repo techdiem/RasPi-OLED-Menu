@@ -66,7 +66,8 @@ def main():
     )
 
     api_port = getattr(settings, 'API_PORT', 8000)
-    api_server = start_api_server(loop, api_port)
+    api_path_prefix = getattr(settings, 'API_PATH_PREFIX', '/radio')
+    api_server = start_api_server(loop, api_port, path_prefix=api_path_prefix)
 
     async def shutdown_runtime():
         nonlocal shutdown_started
