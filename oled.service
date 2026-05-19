@@ -5,8 +5,8 @@ Description=OLED display provider
 Environment=PYTHONUNBUFFERED=1
 User=pi
 Group=pi
-WorkingDirectory=/home/pi/oledctrl/oled
-ExecStart=python3 /home/pi/oledctrl/oled/oled.py
+WorkingDirectory=/opt/oledctrl/oled
+ExecStart=python3 /opt/oledctrl/oled/oled.py
 RestartSec=10
 Restart=always
 

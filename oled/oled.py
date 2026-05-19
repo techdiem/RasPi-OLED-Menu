@@ -124,6 +124,7 @@ def main():
         request_shutdown(execshutdown=False)
 
     signal.signal(signal.SIGINT, _signal_handler)
+    signal.signal(signal.SIGTERM, _signal_handler)
 
     if settings.EMULATED:
         #pylint: disable=import-outside-toplevel
