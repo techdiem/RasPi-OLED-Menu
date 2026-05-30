@@ -45,6 +45,23 @@ body {
   box-shadow: 0 10px 28px rgba(18, 27, 42, 0.08);
 }
 
+.now-playing {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.now-playing-content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.now-playing-stop {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
 p,
 h2,
 h3 {
@@ -146,6 +163,12 @@ input {
   transform: scale(0.98);
 }
 
+.ui-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .ui-button:focus-visible,
 input:focus-visible {
   outline: 2px solid var(--focus);
@@ -226,6 +249,10 @@ input {
 @media (max-width: 739px) {
   .card {
     border-radius: 0;
+  }
+
+  .now-playing {
+    align-items: flex-start;
   }
 }
 

@@ -88,6 +88,18 @@ class APIController:
         station = stations[station_id]
         return RadioStationResponse(id=station_id, **station)
 
+    def stop_playback(self) -> NowPlayingResponse:
+        self._require_mopidy()
+        if self.state.get("source") == "airplay":
+            raise HTTPException(status_code=409, detail="Stop is not available for AirPlay playback")
+
+        self.mopidy.stop()
+        self.state["is_playing"] = False
+        self.state["title"] = None
+        self.state["name"] = None
+        self._broadcast_nowplaying_state()
+        return self.get_state()
+
     def _require_mopidy(self):
         if self.mopidy is None:
             raise HTTPException(status_code=503, detail="Mopidy control is not available")

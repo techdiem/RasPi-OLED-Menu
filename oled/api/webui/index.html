@@ -14,6 +14,9 @@
     <symbol id="icon-plus" viewBox="0 0 24 24">
       <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z" />
     </symbol>
+    <symbol id="icon-stop" viewBox="0 0 24 24">
+      <path d="M6 6h12v12H6z" />
+    </symbol>
     <symbol id="icon-edit" viewBox="0 0 24 24">
       <path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25zm2.92 2.33H5v-.92l9.06-9.06.92.92L5.92 19.58zM20.71 7.04a1 1 0 0 0 0-1.41L18.37 3.3a1 1 0 0 0-1.41 0l-1.2 1.2 3.75 3.75 1.2-1.21z" />
     </symbol>
@@ -24,9 +27,14 @@
 
   <main class="page">
     <section class="card now-playing" aria-label="Es läuft:">
-      <p class="section-label">Es läuft:</p>
-      <p id="track-title" class="track-title">Keine Wiedergabe</p>
-      <p id="track-name" class="track-name"></p>
+      <div class="now-playing-content">
+        <p class="section-label">Es läuft:</p>
+        <p id="track-title" class="track-title">Keine Wiedergabe</p>
+        <p id="track-name" class="track-name"></p>
+      </div>
+      <button id="stop-button" class="ui-button icon-button now-playing-stop" type="button" aria-label="Wiedergabe stoppen" title="Wiedergabe stoppen" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-stop"></use></svg>
+      </button>
     </section>
 
     <section class="card stations" aria-labelledby="stations-heading">

@@ -85,6 +85,11 @@ async def get_nowplaying():
     return _get_api_manager().get_state()
 
 
+@app.post("/nowplaying/stop", response_model=NowPlayingResponse)
+async def stop_nowplaying():
+    return _get_api_manager().stop_playback()
+
+
 @app.get("/radiostations", response_model=List[RadioStationResponse])
 async def get_radiostations():
     return _get_api_manager().get_radiostations()

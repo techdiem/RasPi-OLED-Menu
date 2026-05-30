@@ -1,5 +1,6 @@
 const endpoints = {
   nowPlaying: "nowplaying",
+  stopPlaying: "nowplaying/stop",
   stations: "radiostations",
   nowPlayingSocket: "ws",
   playStation: (stationId) => `radiostations/${stationId}/play`
@@ -8,6 +9,7 @@ const endpoints = {
 const elements = {
   title: document.getElementById("track-title"),
   name: document.getElementById("track-name"),
+  stopButton: document.getElementById("stop-button"),
   list: document.getElementById("stations-list"),
   emptyState: document.getElementById("empty-state"),
   refreshButton: document.getElementById("refresh-button"),
@@ -51,6 +53,15 @@ function setNowPlaying(data) {
   const hasName = Boolean(data.name && data.name.trim());
   elements.title.textContent = hasTitle ? data.title : "Keine Wiedergabe";
   elements.name.textContent = hasName ? data.name : "";
+  updateStopButtonState(Boolean(data.is_playing));
+}
+
+function updateStopButtonState(isPlaying) {
+  if (elements.stopButton === null) {
+    return;
+  }
+
+  elements.stopButton.disabled = !isPlaying;
 }
 
 function createIcon(iconId) {
@@ -226,8 +237,22 @@ async function onPlayStation(station) {
   }
 }
 
+async function onStopPlayback() {
+  try {
+    const nowPlaying = await fetch(endpoints.stopPlaying, { method: "POST" }).then(parseResponse);
+    setNowPlaying(nowPlaying);
+    showToast("Wiedergabe gestoppt");
+  } catch (error) {
+    showToast(`Stopp fehlgeschlagen: ${error.message}`);
+  }
+}
+
 elements.refreshButton.addEventListener("click", () => {
   refreshStations(true);
+});
+
+elements.stopButton.addEventListener("click", () => {
+  onStopPlayback();
 });
 
 elements.addButton.addEventListener("click", () => {
@@ -269,7 +294,7 @@ elements.stationForm.addEventListener("submit", async (event) => {
     }
 
     closeStationDialog();
-    await loadStations();
+    await refreshStations();
   } catch (error) {
     showToast(`Speichern fehlgeschlagen: ${error.message}`);
   }
