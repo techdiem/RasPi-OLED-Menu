@@ -45,25 +45,7 @@ I'm running Alpine Linux (3.23) on the radio to reduce the memory footprint and 
 extra-index-url=https://www.piwheels.org/simple
 ```
 - Install pip dependencies: `venv/bin/pip3 install -r requirements.txt`
-- Create init system file: `vi /etc/init.d/oled` with the following content:
-```
-#!/sbin/openrc-run
-
-command=/usr/local/bin/oled.sh
-command_background=true
-output_log="/var/log/oled.log"
-error_log="/var/log/oled.log"
-pidfile=/run/{RC_SVCNAME}.pid
-command_args="-p ${pidfile}"
-```
-- Create launch script `/usr/local/bin/oled.sh` with the following content:
-```
-#!/bin/sh
-
-cd /opt/oledctrl/oled
-source /opt/oledctrl/venv/bin/activate
-python3 oled.py
-```
+- Copy init system file: `cp oled-openrc /etc/init.d/oled`
 - Switch to the main code folder: ``` cd oled ```
 - Move font files to the ```fonts``` directory, they aren't included due to their copyright. [instructions](oled/fonts/README.md)
 - Copy the config file ``` cp settings.example.py settings.py ```

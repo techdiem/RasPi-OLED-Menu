@@ -1,0 +1,70 @@
+#!/sbin/openrc-run
+
+description="OLED Control Service"
+pidfile="/run/oled.pid"
+logfile="/var/log/oled.log"
+workdir="/opt/oledctrl/oled"
+venv="/opt/oledctrl/venv/bin/python3"
+program="/opt/oledctrl/oled/oled.py"
+
+depend() {
+    need localmount
+    after bootmisc
+}
+
+start() {
+    ebegin "Starting ${description}"
+    
+    if [ -f "${pidfile}" ]; then
+        local pid=$(cat "${pidfile}")
+        if kill -0 "$pid" 2>/dev/null; then
+            eend 1 "Service already running (PID: $pid)"
+            return 1
+        fi
+    fi
+    
+    cd "${workdir}"
+    PYTHONUNBUFFERED=1 ${venv} ${program} >> "${logfile}" 2>&1 &
+    echo $! > "${pidfile}"
+    
+    eend $?
+}
+
+stop() {
+    ebegin "Stopping ${description}"
+    
+    if [ -f "${pidfile}" ]; then
+        local pid=$(cat "${pidfile}")
+        if kill -0 "$pid" 2>/dev/null; then
+            kill -TERM "$pid"
+            
+            # Wait for process exit using SIGTERM
+            local count=0
+            while kill -0 "$pid" 2>/dev/null && [ $count -lt 15 ]; do
+                sleep 1
+                count=$((count + 1))
+            done
+            
+            # If process is frozen, force terminate it
+            if kill -0 "$pid" 2>/dev/null; then
+                kill -9 "$pid"
+            fi
+        fi
+        rm -f "${pidfile}"
+    fi
+    
+    eend $?
+}
+
+status() {
+    if [ -f "${pidfile}" ]; then
+        local pid=$(cat "${pidfile}")
+        if kill -0 "$pid" 2>/dev/null; then
+            einfo "Service is running (PID: $pid)"
+            return 0
+        fi
+    fi
+    einfo "Service is stopped"
+    return 1
+}
+
