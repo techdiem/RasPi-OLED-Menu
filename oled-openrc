@@ -7,11 +7,6 @@ workdir="/opt/oledctrl/oled"
 venv="/opt/oledctrl/venv/bin/python3"
 program="/opt/oledctrl/oled/oled.py"
 
-depend() {
-    need localmount
-    after bootmisc
-}
-
 start() {
     ebegin "Starting ${description}"
     
