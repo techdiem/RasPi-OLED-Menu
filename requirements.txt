@@ -4,7 +4,7 @@ ADS1x15-ADC==1.2.2
 pyalsaaudio==0.10.0
 paho-mqtt==2.1.0
 gpiozero==2.0.1
-fastapi==0.121.2
-uvicorn==0.44.0
+fastapi==0.136.1
+uvicorn==0.49.0
 websockets==16.0
 lgpio==0.2.2.0

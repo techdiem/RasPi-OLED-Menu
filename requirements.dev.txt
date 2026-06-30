@@ -4,10 +4,13 @@ ADS1x15-ADC==1.2.2
 #pyalsaaudio==0.10.0
 paho-mqtt==2.1.0
 gpiozero==2.0.1
-fastapi==0.121.2
-uvicorn==0.44.0
+fastapi==0.136.1
+uvicorn==0.49.0
 websockets==16.0
 
-#Development
+# Development
+# Install pygame-ce first, then luma.emulator
+# for this, you need to clone the luma.emulator repo and remove pygame from its setup.cfg
+# because else it would try to install pygame instead of pygame-ce, which does not install under current python versions
 luma.emulator==1.7.0
-pygame==2.6.1
+pygame-ce==2.5.7

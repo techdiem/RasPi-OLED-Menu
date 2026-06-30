@@ -29,15 +29,15 @@ MPD will be paused when an AirPlay connection is established and the screen will
 ## Installation
 The code is provided without further warranty or support. There is no guarantee that it will work properly, since I am not a professional developer and only develop this project in my spare time.
 
-I'm running Alpine Linux (3.23) on the radio to reduce the memory footprint and boot time of the device.
+I'm running Alpine Linux 3.24 (Python 3.14) on the radio to reduce the memory footprint and boot time of the device.
 - Install [Alpine Linux](https://alpinelinux.org/downloads/) to your SD Card and set it up, also enable the community-repo `setup-apkrepos -c`
 - Update package cache: `apk update`
-- Install alsa audio system, mpd, mpc, shairport-sync and tools: `apk add alsa-utils alsa-utils-doc alsa-lib alsaconf alsa-ucm-conf nano git mpd mpc shairport-sync git nano`
+- Install alsa audio system, mpd, mpc, shairport-sync and tools: `apk add alsa-utils alsa-utils-doc alsa-lib alsaconf alsa-ucm-conf nano git mpd mpc shairport-sync`
 - Enable shairport metadata bridge like [shown below](#shairport-configuration)
 - Add root to audio group and enable services: `addgroup root audio && rc-service alsa start && rc-update add alsa && rc-service mpd start && rc-update add mpd`
 - Edit MPD config to load radio stations playlist, [see below](#mpd-configuration)
 - Download this project: `git clone https://github.com/techdiem/RasPi-OLED-Menu.git /opt/oledctrl && cd /opt/oledctrl`
-- Install python and dependencies: `apk add python3 py3-pip py3-pyalsaaudio py3-pillow py3-gpiozero py3-fastapi py3-cbor2`
+- Install python and dependencies: `apk add python3 py3-pip py3-pyalsaaudio py3-pillow py3-fastapi py3-cbor2 swig`
 - Create and activate venv: `python3 -m venv --system-site-packages /opt/oledctrl/venv`
 - In `/etc/pip.conf` add this to download prebuilt wheels for the raspberry:
 ```
